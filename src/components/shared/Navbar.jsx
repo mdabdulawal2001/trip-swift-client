@@ -13,8 +13,9 @@ import { authClient } from "@/lib/auth-client";
 import NavbarSessionSpinner from "./NavbarSessionSpinner";
 import UserAvatar from "./UserAvatar";
 import toast from "react-hot-toast";
-import ThemeToggleIcon from "./ThemeToggleIcon";
-import { useProfile } from "@/components/context/ProfileContext";
+
+import ThemeToggle from "./ThemeToggle";
+import { useProfile } from "@/context/ProfileContext";
 
 const navLinks = [
   {
@@ -22,20 +23,16 @@ const navLinks = [
     href: "/",
   },
   {
-    name: "Ideas",
-    href: "/ideas",
+    name: "All Tickets",
+    href: "/tickets",
   },
   {
-    name: "Add Idea",
-    href: "/add-idea",
+    name: "About",
+    href: "/about",
   },
   {
-    name: "My Ideas",
-    href: "/my-ideas",
-  },
-  {
-    name: "My Interactions",
-    href: "/my-interactions",
+    name: "Dashboard",
+    href: "/dashboard",
   },
 ];
 
@@ -220,12 +217,12 @@ const Navbar = () => {
           <Link
             href="/"
             onClick={closeMobileMenu}
-            className="group flex shrink-0 items-center gap-2"
+            className="group flex shrink-0 items-center gap-1"
           >
             <div className="relative h-12 w-12 sm:h-14 sm:w-14">
               <Image
                 src={logo}
-                alt="IdeaVault Logo"
+                alt="TripSwift Logo"
                 fill
                 priority
                 className="
@@ -250,12 +247,12 @@ const Navbar = () => {
                   text-transparent
                 "
               >
-                IdeaVault
+                TripSwift
               </h1>
 
               <p
                 className="
-                  -mt-1
+                  mt-1
                   text-[9px]
                   font-medium
                   tracking-[0.18em]
@@ -263,7 +260,7 @@ const Navbar = () => {
                   dark:text-slate-400
                 "
               >
-                SHARE • DISCOVER • INNOVATE
+                TRAVEL • BOOK • GO
               </p>
             </div>
           </Link>
@@ -375,7 +372,7 @@ const Navbar = () => {
                 dark:hover:text-cyan-400
               "
             >
-              <ThemeToggleIcon isDark={isDark} mounted={mounted} />
+              <ThemeToggle isDark={isDark} mounted={mounted} />
             </button>
 
             {/* SESSION LOADING */}
@@ -449,21 +446,20 @@ const Navbar = () => {
                     gap-2
                     rounded-full
                     border
-                    border-slate-300/60
-                    bg-blue-300
+                    bg-white/70
+                    border-slate-200
+                    hover:border-[#4148E8]/40
+                    hover:bg-[#4148E8]/5
                     py-1.5
                     pl-1.5
                     pr-3
                     backdrop-blur-md
                     transition-all
                     duration-300
-                    hover:border-blue-300
-                    hover:bg-blue-200
                     cursor-pointer
-                    dark:border-slate-700/60
-                    dark:bg-slate-900/30
-                    dark:hover:border-cyan-500/60
-                    dark:hover:bg-cyan-950/30
+                    dark:border-white/10
+                    dark:bg-[#111A2E]/80
+                    dark:hover:border-[#6F9CFF]/40
                   "
                 >
                   {/* USER AVATAR */}
@@ -554,7 +550,7 @@ const Navbar = () => {
                       {/* Profile */}
 
                       <Link
-                        href="/profile"
+                        href="/dashboard"
                         onClick={() => setIsProfileOpen(false)}
                         className={`
                             flex
@@ -569,10 +565,10 @@ const Navbar = () => {
                             duration-200
 
                             ${
-                              isActive("/profile")
+                              isActive("/dashboard/profile")
                                 ? `
                                   bg-blue-200
-                                  text-blue-60                        0
+                                  text-blue-600
 
                                   dark:bg-blue-950/50
                                   dark:text-cyan-400
@@ -590,7 +586,46 @@ const Navbar = () => {
                           `}
                       >
                         <UserRound className="h-4 w-4" />
-                        Profile Management
+                        Dashboard
+                      </Link>
+                      <Link
+                        href="/dashboard/profile"
+                        onClick={() => setIsProfileOpen(false)}
+                        className={`
+                            flex
+                            items-center
+                            gap-3
+                            rounded-xl
+                            px-4
+                            py-3
+                            text-sm
+                            font-medium
+                            transition-all
+                            duration-200
+
+                            ${
+                              isActive("/dashboard/profile")
+                                ? `
+                                  bg-blue-200
+                                  text-blue-600
+
+                                  dark:bg-blue-950/50
+                                  dark:text-cyan-400
+                                `
+                                : `
+                                  text-slate-700
+                                  hover:bg-blue-200
+                                  hover:text-blue-60                        0
+
+                                  dark:text-slate-200
+                                  dark:hover:bg-slate-800
+                                  dark:hover:text-cyan-400
+                            `
+                            }
+                          `}
+                      >
+                        <UserRound className="h-4 w-4" />
+                        My Profile
                       </Link>
 
                       {/* Logout */}
@@ -663,7 +698,7 @@ const Navbar = () => {
                 dark:hover:text-cyan-400
               "
             >
-              <ThemeToggleIcon isDark={isDark} mounted={mounted} />
+              <ThemeToggle isDark={isDark} mounted={mounted} />
             </button>
 
             {/* Mobile Menu Button */}
@@ -1001,7 +1036,7 @@ const Navbar = () => {
                     {/* Profile Management */}
 
                     <Link
-                      href="/profile"
+                      href="/dashboard"
                       onClick={closeMobileMenu}
                       className={`
                         flex
@@ -1045,7 +1080,54 @@ const Navbar = () => {
                       `}
                     >
                       <UserRound className="h-4 w-4" />
-                      Profile Management
+                      Dashboard
+                    </Link>
+                    <Link
+                      href="/dashboard/profile"
+                      onClick={closeMobileMenu}
+                      className={`
+                        flex
+                        items-center
+                        gap-3
+                        rounded-xl
+                        border
+                        px-4
+                        py-3
+                        text-sm
+                        font-semibold
+                        transition-all
+                        duration-200
+
+                        ${
+                          isActive("/profile")
+                            ? `
+                              border-blue-200
+                              bg-blue-50
+                              text-blue-600
+                              shadow-sm
+                        
+                              dark:border-blue-800/70
+                              dark:bg-blue-950/60
+                              dark:text-cyan-400
+                            `
+                            : `
+                              border-transparent
+                              text-slate-700
+                        
+                              hover:border-blue-100
+                              hover:bg-blue-50
+                              hover:text-blue-600
+                        
+                              dark:text-slate-200
+                              dark:hover:border-slate-800
+                              dark:hover:bg-slate-900
+                              dark:hover:text-cyan-400
+                            `
+                        }
+                      `}
+                    >
+                      <UserRound className="h-4 w-4" />
+                      My Profile
                     </Link>
 
                     <div
@@ -1164,29 +1246,26 @@ const Navbar = () => {
                   rounded-xl
 
                   border
-                  border-blue-500
-
                   bg-white
 
                   px-4
                   py-3
-
+                border-[#4148E8]
+                text-[#4148E8]
+                hover:bg-[#4148E8]/5
                   text-center
                   text-sm
                   font-semibold
-                  text-blue-600
 
                   shadow-sm
 
                   transition-all
                   duration-200
-
-                  hover:bg-blue-50
                   hover:shadow-md
 
-                  dark:border-cyan-500
+                  dark:border-[#6F9CFF]
                   dark:bg-slate-900
-                  dark:text-cyan-400
+                  dark:text-[#6F9CFF]
                   dark:hover:bg-cyan-950/50
                 "
                     >
@@ -1199,9 +1278,7 @@ const Navbar = () => {
                       className="
                   rounded-xl
 
-                  bg-linear-to-r
-                  from-cyan-500
-                  to-blue-600
+                  bg-linear-to-r from-[#4148E8] to-[#6F9CFF]
 
                   px-4
                   py-3
@@ -1216,10 +1293,9 @@ const Navbar = () => {
 
                   transition-all
                   duration-200
-
-                  hover:-translate-y-0.5
                   hover:shadow-lg
-                  hover:shadow-blue-500/30
+                  hover:shadow-[#4148E8]/25
+                  hover:-translate-y-0.5
                 "
                     >
                       Register

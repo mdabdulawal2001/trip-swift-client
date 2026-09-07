@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 
 import {
@@ -12,7 +12,7 @@ import {
   FaShieldHalved,
 } from "react-icons/fa6";
 
-import { Swiper, SwiperSlide } from "swiper/react";
+import { Swiper, SwiperSlide, useSwiper } from "swiper/react";
 import { Autoplay, EffectFade } from "swiper/modules";
 
 import "swiper/css";
@@ -20,9 +20,167 @@ import "swiper/css/effect-fade";
 
 import { heroSlides } from "@/data/heroSlides";
 
-const HeroSection = () => {
-  const swiperRef = useRef(null);
+/* =========================================================
+   HERO NAVIGATION
+========================================================= */
 
+const HeroNavigation = () => {
+  const swiper = useSwiper();
+
+  const handlePrevious = () => {
+    swiper.slidePrev();
+  };
+
+  const handleNext = () => {
+    swiper.slideNext();
+  };
+
+  return (
+    <>
+      {/* =====================================================
+          LEFT ARROW
+      ====================================================== */}
+
+      <button
+        type="button"
+        aria-label="Previous slide"
+        onClick={handlePrevious}
+        className="
+          absolute
+          left-5
+          top-1/2
+          z-30
+          hidden
+          h-12
+          w-12
+          -translate-y-1/2
+          items-center
+          justify-center
+          rounded-xl
+          border
+          border-white/10
+          bg-black/20
+          text-white
+          backdrop-blur-xl
+          transition-all
+          duration-300
+          hover:border-[#38BDF8]/40
+          hover:bg-[#047BFB]
+          lg:flex
+          xl:left-8
+        "
+      >
+        <FaChevronLeft className="text-xs" />
+      </button>
+
+      {/* =====================================================
+          RIGHT ARROW
+      ====================================================== */}
+
+      <button
+        type="button"
+        aria-label="Next slide"
+        onClick={handleNext}
+        className="
+          absolute
+          right-5
+          top-1/2
+          z-30
+          hidden
+          h-12
+          w-12
+          -translate-y-1/2
+          items-center
+          justify-center
+          rounded-xl
+          border
+          border-white/10
+          bg-black/20
+          text-white
+          backdrop-blur-xl
+          transition-all
+          duration-300
+          hover:border-[#38BDF8]/40
+          hover:bg-[#047BFB]
+          lg:flex
+          xl:right-8
+        "
+      >
+        <FaChevronRight className="text-xs" />
+      </button>
+    </>
+  );
+};
+
+/* =========================================================
+   HERO DOTS
+========================================================= */
+
+const HeroDots = ({ activeIndex }) => {
+  const swiper = useSwiper();
+
+  const handleDotClick = (index) => {
+    swiper.slideToLoop(index);
+  };
+
+  return (
+    <div
+      className="
+        absolute
+        bottom-30
+        left-1/2
+        z-30
+        flex
+        -translate-x-1/2
+        items-center
+        gap-2.5
+      "
+    >
+      {heroSlides.map((item, index) => {
+        const active = index === activeIndex;
+
+        return (
+          <button
+            key={item.id}
+            type="button"
+            aria-label={`Go to ${item.type} slide`}
+            aria-current={active ? "true" : undefined}
+            onClick={() => handleDotClick(index)}
+            className="
+              flex
+              h-7
+              w-7
+              items-center
+              justify-center
+              rounded-full
+              outline-none
+            "
+          >
+            <span
+              className={`
+                block
+                rounded-full
+                transition-all
+                duration-500
+                ${
+                  active
+                    ? "h-2.5 w-7 bg-[#38BDF8] shadow-[0_0_12px_rgba(56,189,248,0.65)]"
+                    : "h-2.5 w-2.5 bg-white/40 hover:bg-white/80"
+                }
+              `}
+            />
+          </button>
+        );
+      })}
+    </div>
+  );
+};
+
+/* =========================================================
+   HERO SECTION
+========================================================= */
+
+const HeroSection = () => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   const activeSlide = heroSlides[activeIndex];
@@ -47,22 +205,23 @@ const HeroSection = () => {
         fadeEffect={{
           crossFade: true,
         }}
-        loop
-        speed={900}
         autoplay={{
-          delay: 5500,
+          delay: 5000,
           disableOnInteraction: false,
           pauseOnMouseEnter: true,
         }}
-        onSwiper={(swiper) => {
-          swiperRef.current = swiper;
-        }}
+        loop={true}
+        speed={900}
         onSlideChange={(swiper) => {
           setActiveIndex(swiper.realIndex);
         }}
         className="w-full"
       >
-        {heroSlides.map((slide) => {
+        {/* =====================================================
+            SLIDES
+        ====================================================== */}
+
+        {heroSlides.map((slide, index) => {
           const Icon = slide.icon;
 
           return (
@@ -76,9 +235,9 @@ const HeroSection = () => {
                   lg:min-h-207.5
                 "
               >
-                {/* =====================================================
+                {/* =================================================
                     BACKGROUND
-                ====================================================== */}
+                ================================================== */}
 
                 <div
                   className="absolute inset-0 bg-cover bg-no-repeat"
@@ -89,6 +248,7 @@ const HeroSection = () => {
                 />
 
                 {/* Mobile image */}
+
                 <div
                   className="absolute inset-0 bg-cover bg-no-repeat md:hidden"
                   style={{
@@ -97,14 +257,16 @@ const HeroSection = () => {
                   }}
                 />
 
-                {/* =====================================================
+                {/* =================================================
                     OVERLAYS
-                ====================================================== */}
+                ================================================== */}
 
                 {/* Overall readability */}
+
                 <div className="absolute inset-0 bg-slate-950/20" />
 
                 {/* Left dark area */}
+
                 <div
                   className="
                     absolute
@@ -121,6 +283,7 @@ const HeroSection = () => {
                 />
 
                 {/* Bottom fade */}
+
                 <div
                   className="
                     absolute
@@ -135,6 +298,7 @@ const HeroSection = () => {
                 />
 
                 {/* Right subtle shade */}
+
                 <div
                   className="
                     absolute
@@ -147,9 +311,9 @@ const HeroSection = () => {
                   "
                 />
 
-                {/* =====================================================
+                {/* =================================================
                     CONTENT
-                ====================================================== */}
+                ================================================== */}
 
                 <div
                   className="
@@ -237,6 +401,7 @@ const HeroSection = () => {
                     </h1>
 
                     {/* Brand accent */}
+
                     <div
                       className="
                         mt-6
@@ -320,7 +485,9 @@ const HeroSection = () => {
                         <p className="mt-1 text-sm font-bold sm:text-base">
                           {slide.from}
 
-                          <span className="mx-2 text-[#38BDF8]/50">→</span>
+                          <span className="mx-2 text-[#38BDF8]/50">
+                            →
+                          </span>
 
                           {slide.to}
                         </p>
@@ -375,6 +542,7 @@ const HeroSection = () => {
                         "
                       >
                         Explore Tickets
+
                         <span
                           className="
                             flex
@@ -451,149 +619,47 @@ const HeroSection = () => {
 
                       <span>500+ available tickets</span>
                     </div>
-
-                    {/* =================================================
-                        DOTS
-                        এগুলো এখন CONTENT-এর একদম নিচে
-                    ================================================== */}
-
-                    <div
-                      className="absolute
-                        -bottom-18
-                        left-1/2
-                        z-40
-                        flex
-                        -translate-x-1/2
-                        items-center
-                        gap-2"
-                    >
-                      {heroSlides.map((item, index) => {
-                        const active = index === activeIndex;
-
-                        return (
-                          <button
-                            key={item.id}
-                            type="button"
-                            aria-label={`Go to ${item.type} slide`}
-                            onClick={() =>
-                              swiperRef.current?.slideToLoop(index)
-                            }
-                            className="
-                              flex
-                              h-6
-                              w-6
-                              items-center
-                              justify-center
-                            "
-                          >
-                            <span
-                              className={`
-                                block
-                                rounded-full
-                                transition-all
-                                duration-500
-                                ${
-                                  active
-                                    ? "h-2.5 w-2.5 bg-[#38BDF8] shadow-[0_0_12px_rgba(56,189,248,0.65)]"
-                                    : "h-2 w-2 bg-white/35 hover:bg-white/70"
-                                }
-                              `}
-                            />
-                          </button>
-                        );
-                      })}
-                    </div>
                   </div>
                 </div>
+
+                {/* =================================================
+                    BOTTOM DECORATIVE LINE
+                ================================================== */}
+
+                <div
+                  className="
+                    absolute
+                    bottom-0
+                    left-0
+                    right-0
+                    h-px
+                    bg-linear-to-r
+                    from-transparent
+                    via-[#38BDF8]/60
+                    to-transparent
+                  "
+                />
               </div>
             </SwiperSlide>
           );
         })}
+
+        {/* =========================================================
+            CUSTOM DOTS
+        ========================================================== */}
+
+        <HeroDots activeIndex={activeIndex} />
+
+        {/* =========================================================
+            CUSTOM ARROWS
+        ========================================================== */}
+
+        <HeroNavigation />
       </Swiper>
 
       {/* =========================================================
-          LEFT ARROW
-      ========================================================== */}
-
-      <button
-        type="button"
-        aria-label="Previous slide"
-        onClick={() => {
-          if (swiperRef.current) {
-            swiperRef.current.slidePrev();
-          }
-        }}
-        className="
-          absolute
-          left-5
-          top-1/2
-          z-40
-          hidden
-          h-12
-          w-12
-          -translate-y-1/2
-          items-center
-          justify-center
-          rounded-xl
-          border
-          border-white/10
-          bg-black/20
-          text-white
-          backdrop-blur-xl
-          transition-all
-          duration-300
-          hover:border-[#38BDF8]/40
-          hover:bg-[#047BFB]
-          lg:flex
-          xl:left-8
-        "
-      >
-        <FaChevronLeft className="text-xs" />
-      </button>
-
-      {/* =========================================================
-          RIGHT ARROW
-      ========================================================== */}
-
-      <button
-        type="button"
-        aria-label="Next slide"
-        onClick={() => {
-          if (swiperRef.current) {
-            swiperRef.current.slideNext();
-          }
-        }}
-        className="
-          absolute
-          right-5
-          top-1/2
-          z-40
-          hidden
-          h-12
-          w-12
-          -translate-y-1/2
-          items-center
-          justify-center
-          rounded-xl
-          border
-          border-white/10
-          bg-black/20
-          text-white
-          backdrop-blur-xl
-          transition-all
-          duration-300
-          hover:border-[#38BDF8]/40
-          hover:bg-[#047BFB]
-          lg:flex
-          xl:right-8
-        "
-      >
-        <FaChevronRight className="text-xs" />
-      </button>
-
-      {/* =========================================================
           SEARCH CARD
-      ========================================================== */}
+      ========================================================= */}
 
       <div
         className="
@@ -622,7 +688,9 @@ const HeroSection = () => {
             sm:p-8
           "
         >
-          {/* Search heading */}
+          {/* =====================================================
+              SEARCH HEADING
+          ====================================================== */}
 
           <div
             className="
@@ -667,7 +735,9 @@ const HeroSection = () => {
             </div>
           </div>
 
-          {/* Search fields */}
+          {/* =====================================================
+              SEARCH FIELDS
+          ====================================================== */}
 
           <div
             className="
@@ -677,7 +747,9 @@ const HeroSection = () => {
               lg:grid-cols-[1fr_1fr_210px_145px]
             "
           >
-            {/* FROM */}
+            {/* ===================================================
+                FROM
+            ==================================================== */}
 
             <div
               className="
@@ -749,7 +821,9 @@ const HeroSection = () => {
               </div>
             </div>
 
-            {/* TO */}
+            {/* ===================================================
+                TO
+            ==================================================== */}
 
             <div
               className="
@@ -821,12 +895,14 @@ const HeroSection = () => {
               </div>
             </div>
 
-            {/* TRANSPORT */}
+            {/* ===================================================
+                TRANSPORT
+            ==================================================== */}
 
             <div
               className="
                 flex
-                min-h-[62px]
+                min-h-15.5
                 items-center
                 gap-3
                 rounded-xl
@@ -898,14 +974,16 @@ const HeroSection = () => {
               </div>
             </div>
 
-            {/* SEARCH */}
+            {/* ===================================================
+                SEARCH BUTTON
+            ==================================================== */}
 
             <Link
               href="/tickets"
               className="
                 group
                 flex
-                min-h-[62px]
+                min-h-15.5
                 items-center
                 justify-center
                 gap-2

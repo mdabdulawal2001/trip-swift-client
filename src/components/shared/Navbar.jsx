@@ -181,7 +181,7 @@ const Navbar = () => {
 
       <header
         className="
-          sticky top-0 z-50 mx-auto
+          sticky top-0 z-55 mx-auto
           border-b
           border-slate-200/70
           bg-linear-to-r
@@ -812,7 +812,7 @@ const Navbar = () => {
                 fixed
                 right-0
                 top-0
-                z-60
+                z-155
 
                 h-dvh
                 w-[68%]

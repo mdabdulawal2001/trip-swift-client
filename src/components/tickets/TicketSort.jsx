@@ -55,7 +55,7 @@ export default function TicketSort({
 
           dark:border-slate-700
           dark:bg-slate-950!
-          dark:text-white
+          dark:text-white!
           dark:focus:border-[#38BDF8]
 
           [color-scheme:light]
@@ -70,7 +70,7 @@ export default function TicketSort({
               bg-white
               text-slate-900
               dark:bg-slate-950
-              dark:text-white
+              dark:text-white!
             "
           >
             {item.label}

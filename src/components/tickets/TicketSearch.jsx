@@ -17,7 +17,7 @@ const inputClass = `
 
   dark:border-slate-700
   dark:bg-slate-950!
-  dark:text-white
+  dark:text-white!
   dark:caret-[#38BDF8]
   dark:placeholder:text-slate-500
   dark:focus:border-[#38BDF8]

@@ -29,6 +29,7 @@ export default function DashboardLayout({ children }) {
         <div className="min-w-0 flex-1">
           <DashboardNavbar
             user={user}
+            role={role}
             setSidebarOpen={setSidebarOpen}
           />
 

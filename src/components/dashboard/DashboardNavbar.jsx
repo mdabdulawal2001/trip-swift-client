@@ -7,24 +7,82 @@ import { Bell, Menu, Search, X } from "lucide-react";
 import { Avatar, Button } from "@heroui/react";
 import ThemeToggle from "@/components/shared/ThemeToggle";
 
-export default function DashboardNavbar() {
+export default function DashboardNavbar({ role = "user" }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
 
-  const navItems = [
+  const mobileMenus = {
+  user: [
     {
       label: "Dashboard",
       href: "/dashboard",
     },
     {
-      label: "Profile",
-      href: "/dashboard/profile",
-    },
-    {
-      label: "Bookings",
+      label: "My Booked Tickets",
       href: "/dashboard/bookings",
     },
-  ];
+    {
+      label: "Transaction History",
+      href: "/dashboard/transactions",
+    },
+    {
+      label: "My Profile",
+      href: "/dashboard/profile",
+    },
+  ],
+
+  vendor: [
+    {
+      label: "Dashboard",
+      href: "/dashboard",
+    },
+    {
+      label: "Add Ticket",
+      href: "/dashboard/add-ticket",
+    },
+    {
+      label: "My Added Tickets",
+      href: "/dashboard/my-tickets",
+    },
+    {
+      label: "Requested Bookings",
+      href: "/dashboard/requested-bookings",
+    },
+    {
+      label: "Revenue Overview",
+      href: "/dashboard/revenue",
+    },
+    {
+      label: "My Profile",
+      href: "/dashboard/profile",
+    },
+  ],
+
+  admin: [
+    {
+      label: "Dashboard",
+      href: "/dashboard",
+    },
+    {
+      label: "Manage Tickets",
+      href: "/dashboard/manage-tickets",
+    },
+    {
+      label: "Manage Users",
+      href: "/dashboard/manage-users",
+    },
+    {
+      label: "Advertise Tickets",
+      href: "/dashboard/advertise",
+    },
+    {
+      label: "My Profile",
+      href: "/dashboard/profile",
+    },
+  ],
+};
+
+const navItems = mobileMenus[role] || mobileMenus.user;
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/90">

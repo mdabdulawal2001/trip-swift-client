@@ -22,6 +22,7 @@ export default function TicketBrowser({
 
   const { from, to, type, sort } = filters;
 
+
   // --------------------------------------------------
   // Keep browser inputs in sync with URL
   // --------------------------------------------------
@@ -58,6 +59,14 @@ export default function TicketBrowser({
         scroll: false,
       },
     );
+  };
+
+  const handleSearch = ({ from, to }) => {
+    updateQuery({
+      from,
+      to,
+      page: 1,
+    });
   };
 
   // --------------------------------------------------
@@ -111,6 +120,7 @@ export default function TicketBrowser({
             to={to}
             setFrom={(value) => updateQuery({ from: value })}
             setTo={(value) => updateQuery({ to: value })}
+            onSearch={handleSearch}
           />
 
           <TicketFilters

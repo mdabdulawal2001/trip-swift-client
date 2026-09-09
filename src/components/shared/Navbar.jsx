@@ -884,7 +884,7 @@ const Navbar = () => {
                 text-transparent
               "
                   >
-                    IdeaVault
+                    TripSwift
                   </span>
                 </Link>
 

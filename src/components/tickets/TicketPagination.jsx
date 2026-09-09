@@ -6,120 +6,74 @@ import {
 } from "lucide-react";
 
 export default function TicketPagination({
-  page,
-  total,
-  setPage,
+  currentPage,
+  totalPages,
+  onPageChange,
 }) {
-  if (total <= 1) return null;
+  if (totalPages <= 1) return null;
 
-  const getPages = () => {
-    if (total <= 5) {
-      return Array.from(
-        { length: total },
-        (_, index) => index + 1
-      );
-    }
+  const pages = [];
 
-    if (page <= 3) {
-      return [1, 2, 3, 4, "...", total];
-    }
-
-    if (page >= total - 2) {
-      return [
-        1,
-        "...",
-        total - 3,
-        total - 2,
-        total - 1,
-        total,
-      ];
-    }
-
-    return [
-      1,
-      "...",
-      page - 1,
-      page,
-      page + 1,
-      "...",
-      total,
-    ];
-  };
-
-  const pages = getPages();
+  for (let page = 1; page <= totalPages; page++) {
+    pages.push(page);
+  }
 
   return (
-    <div className="mt-10 flex items-center justify-center gap-2">
-      <button
-        type="button"
-        disabled={page === 1}
-        onClick={() => setPage(page - 1)}
-        aria-label="Previous page"
-        className="
-          flex h-10 w-10 items-center justify-center
-          rounded-xl border border-slate-200
-          bg-white text-slate-600
-          transition-all
-          hover:border-[#047BFB] hover:text-[#047BFB]
-          disabled:pointer-events-none disabled:opacity-40
-          dark:border-slate-700 dark:bg-slate-900
-          dark:text-slate-300
-          dark:hover:border-[#38BDF8]
-          dark:hover:text-[#38BDF8]
-        "
-      >
-        <ChevronLeft size={18} />
-      </button>
+    <div className="flex flex-col items-center justify-between gap-4 border-t border-slate-200 pt-6 dark:border-slate-800 sm:flex-row">
+      <p className="text-xs text-slate-500">
+        Page{" "}
+        <span className="font-semibold text-slate-800 dark:text-slate-200">
+          {currentPage}
+        </span>{" "}
+        of{" "}
+        <span className="font-semibold text-slate-800 dark:text-slate-200">
+          {totalPages}
+        </span>
+      </p>
 
-      {pages.map((item, index) =>
-        item === "..." ? (
-          <span
-            key={`dots-${index}`}
-            className="flex h-10 w-8 items-center justify-center text-slate-400"
-          >
-            ...
-          </span>
-        ) : (
+      <div className="flex items-center gap-1.5">
+        {/* Previous */}
+        <button
+          type="button"
+          disabled={currentPage === 1}
+          onClick={() =>
+            onPageChange(currentPage - 1)
+          }
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-100 disabled:pointer-events-none disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+          aria-label="Previous page"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+
+        {/* Pages */}
+        {pages.map((page) => (
           <button
-            key={item}
+            key={page}
             type="button"
-            onClick={() => setPage(item)}
-            className={`
-              flex h-10 min-w-10 items-center justify-center
-              rounded-xl px-3 text-sm font-semibold
-              transition-all duration-200
-              ${
-                page === item
-                  ? "bg-[#047BFB] text-white shadow-lg shadow-[#047BFB]/20"
-                  : "border border-slate-200 bg-white text-slate-600 hover:border-[#047BFB] hover:text-[#047BFB] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-[#38BDF8] dark:hover:text-[#38BDF8]"
-              }
-            `}
+            onClick={() => onPageChange(page)}
+            className={`flex h-10 min-w-10 items-center justify-center rounded-xl px-3 text-sm font-semibold transition ${
+              currentPage === page
+                ? "bg-sky-500 text-white"
+                : "border border-slate-200 text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+            }`}
           >
-            {item}
+            {page}
           </button>
-        )
-      )}
+        ))}
 
-      <button
-        type="button"
-        disabled={page === total}
-        onClick={() => setPage(page + 1)}
-        aria-label="Next page"
-        className="
-          flex h-10 w-10 items-center justify-center
-          rounded-xl border border-slate-200
-          bg-white text-slate-600
-          transition-all
-          hover:border-[#047BFB] hover:text-[#047BFB]
-          disabled:pointer-events-none disabled:opacity-40
-          dark:border-slate-700 dark:bg-slate-900
-          dark:text-slate-300
-          dark:hover:border-[#38BDF8]
-          dark:hover:text-[#38BDF8]
-        "
-      >
-        <ChevronRight size={18} />
-      </button>
+        {/* Next */}
+        <button
+          type="button"
+          disabled={currentPage === totalPages}
+          onClick={() =>
+            onPageChange(currentPage + 1)
+          }
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-100 disabled:pointer-events-none disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+          aria-label="Next page"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
+
 import TicketSearch from "./TicketSearch";
 import TicketFilters from "./TicketFilters";
 import TicketSort from "./TicketSort";
@@ -13,213 +14,222 @@ export default function TicketBrowser({
   totalItems,
   totalPages,
   currentPage,
+  itemsPerPage,
   filters,
 }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const ticketsSectionRef = useRef(null);
-
-  const { from, to, type, sort } = filters;
-
-
-  // --------------------------------------------------
-  // Keep browser inputs in sync with URL
-  // --------------------------------------------------
-
-  const updateQuery = (updates) => {
+  const updateQuery = (updates, mode = "replace") => {
     const params = new URLSearchParams();
 
     const nextValues = {
-      from,
-      to,
-      type,
-      sort,
+      from: filters.from || "",
+      to: filters.to || "",
+      type: filters.type || "",
+      sort: filters.sort || "default",
+      page: currentPage,
       ...updates,
     };
 
-    Object.entries(nextValues).forEach(([key, value]) => {
-      if (value && value !== "default") {
-        params.set(key, value);
-      }
-    });
-
-    // Every new search/filter starts from page 1
-    if (!updates.page) {
-      params.set("page", "1");
-    } else {
-      params.set("page", String(updates.page));
+    if (nextValues.from) {
+      params.set("from", nextValues.from);
     }
 
-    const query = params.toString();
+    if (nextValues.to) {
+      params.set("to", nextValues.to);
+    }
 
-    router.push(
-      query ? `${pathname}?${query}#tickets-list` : `${pathname}#tickets-list`,
-      {
-        scroll: false,
-      },
-    );
-  };
+    if (nextValues.type) {
+      params.set("type", nextValues.type);
+    }
 
-  const handleSearch = ({ from, to }) => {
-    updateQuery({
-      from,
-      to,
-      page: 1,
-    });
-  };
+    if (
+      nextValues.sort &&
+      nextValues.sort !== "default"
+    ) {
+      params.set("sort", nextValues.sort);
+    }
 
-  // --------------------------------------------------
-  // Scroll to ticket section after query changes
-  // --------------------------------------------------
+    params.set("page", String(nextValues.page || 1));
 
-  useEffect(() => {
-    if (!window.location.hash) return;
+    const queryString = params.toString();
 
-    const timer = setTimeout(() => {
-      ticketsSectionRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }, 50);
+    const url = queryString
+      ? `${pathname}?${queryString}`
+      : pathname;
 
-    return () => clearTimeout(timer);
-  }, [currentPage, from, to, type, sort]);
-
-  // --------------------------------------------------
-  // Reset all
-  // --------------------------------------------------
-
-  const handleReset = () => {
-    router.push(`${pathname}#tickets-list`, {
+    router[mode](url, {
       scroll: false,
     });
   };
 
+  // Search
+  const handleSearch = ({ from, to }) => {
+    updateQuery(
+      {
+        from,
+        to,
+        page: 1,
+      },
+      "replace"
+    );
+  };
+
+  // Filter
+  const handleFilterChange = (type) => {
+    updateQuery(
+      {
+        type,
+        page: 1,
+      },
+      "replace"
+    );
+  };
+
+  // Sort
+  const handleSortChange = (sort) => {
+    updateQuery(
+      {
+        sort,
+        page: 1,
+      },
+      "replace"
+    );
+  };
+
+  // Reset
+  const handleReset = () => {
+    router.replace(pathname, {
+      scroll: false,
+    });
+  };
+
+  // Pagination
+  const handlePageChange = (page) => {
+    updateQuery(
+      {
+        page,
+      },
+      "push"
+    );
+  };
+
+  // Scroll to ticket list after query/page change
+  useEffect(() => {
+    const element = document.getElementById("tickets-list");
+
+    if (!element) return;
+
+    const timer = setTimeout(() => {
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [
+    filters.from,
+    filters.to,
+    filters.type,
+    filters.sort,
+    currentPage,
+  ]);
+
   return (
-    <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      {/* Page heading */}
-      <div className="mb-8">
-        <p className="text-sm font-semibold text-sky-500">TripSwift Tickets</p>
-
-        <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl">
-          Find Your Perfect Journey
-        </h1>
-
-        <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-500 dark:text-slate-400 sm:text-base">
-          Search available journeys by route, choose your preferred transport
-          type and sort tickets by price.
-        </p>
-      </div>
-
-      {/* Search / filter panel */}
-      <section className="mb-10 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
+    <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      {/* Search / Filter / Sort */}
+      <div className="mb-10 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
         <div className="grid gap-4 xl:grid-cols-[1.8fr_0.8fr_0.8fr]">
           <TicketSearch
-            from={from}
-            to={to}
-            setFrom={(value) => updateQuery({ from: value })}
-            setTo={(value) => updateQuery({ to: value })}
+            from={filters.from}
+            to={filters.to}
             onSearch={handleSearch}
           />
 
           <TicketFilters
-            transportType={type}
-            setTransportType={(value) => updateQuery({ type: value })}
+            value={filters.type}
+            onChange={handleFilterChange}
           />
 
           <TicketSort
-            sort={sort}
-            setSort={(value) => updateQuery({ sort: value })}
+            value={filters.sort}
+            onChange={handleSortChange}
           />
         </div>
 
-        {(from || to || type || sort !== "default") && (
-          <div className="mt-4 flex justify-end">
-            <button
-              type="button"
-              onClick={handleReset}
-              className="text-sm font-semibold text-slate-500 transition hover:text-sky-500"
-            >
-              Reset all filters
-            </button>
-          </div>
-        )}
-      </section>
+        {/* Reset */}
+        <div className="mt-4 flex justify-end">
+          <button
+            type="button"
+            onClick={handleReset}
+            className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
 
-      {/* Ticket section */}
-      <section
+      {/* Results */}
+      <div
         id="tickets-list"
-        ref={ticketsSectionRef}
         className="scroll-mt-24"
       >
-        {/* Result header */}
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="mb-6 flex items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-slate-900 dark:text-white">
-              {totalItems} {totalItems === 1 ? "ticket" : "tickets"} found
-            </p>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+              Available Tickets
+            </h1>
 
-            <p className="mt-1 text-xs text-slate-500">
-              {from || to || type
-                ? "Showing results based on your search."
-                : "Showing all available tickets."}
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              {totalItems} ticket{totalItems !== 1 ? "s" : ""} found
             </p>
           </div>
 
-          {totalItems > 0 && (
-            <p className="text-xs text-slate-400">
-              Page {currentPage} of {totalPages}
-            </p>
-          )}
+          <p className="hidden text-sm text-slate-500 sm:block dark:text-slate-400">
+            Showing{" "}
+            {tickets.length > 0
+              ? (currentPage - 1) * itemsPerPage + 1
+              : 0}{" "}
+            -
+            {" "}
+            {(currentPage - 1) * itemsPerPage +
+              tickets.length}{" "}
+            of {totalItems}
+          </p>
         </div>
 
-        {/* Results */}
         {tickets.length > 0 ? (
           <>
             <TicketGrid tickets={tickets} />
 
-            {totalPages > 1 && (
-              <div className="mt-10">
-                <TicketPagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={(page) => updateQuery({ page })}
-                />
-              </div>
-            )}
+            <TicketPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
           </>
         ) : (
-          <EmptySearchState onReset={handleReset} />
+          <div className="rounded-3xl border border-dashed border-slate-300 py-20 text-center dark:border-slate-700">
+            <h2 className="text-xl font-bold text-slate-800 dark:text-white">
+              No tickets found
+            </h2>
+
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+              Try changing your search or filter.
+            </p>
+
+            <button
+              type="button"
+              onClick={handleReset}
+              className="mt-5 rounded-xl bg-[#047BFB] px-5 py-2.5 text-sm font-semibold text-white"
+            >
+              Clear Search
+            </button>
+          </div>
         )}
-      </section>
-    </main>
-  );
-}
-
-function EmptySearchState({ onReset }) {
-  return (
-    <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900">
-      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400 dark:bg-slate-800">
-        ✈
       </div>
-
-      <h2 className="mt-5 text-lg font-bold text-slate-900 dark:text-white">
-        No tickets found
-      </h2>
-
-      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-        We couldn't find any journey matching your current search and filter
-        options.
-      </p>
-
-      <button
-        type="button"
-        onClick={onReset}
-        className="mt-6 rounded-xl bg-sky-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-600"
-      >
-        Clear Search
-      </button>
-    </div>
+    </section>
   );
 }

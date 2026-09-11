@@ -11,7 +11,6 @@ export default function TicketSearch({
   const [localFrom, setLocalFrom] = useState(from || "");
   const [localTo, setLocalTo] = useState(to || "");
 
-  // Sync local inputs with URL/query params
   useEffect(() => {
     setLocalFrom(from || "");
   }, [from]);
@@ -20,8 +19,8 @@ export default function TicketSearch({
     setLocalTo(to || "");
   }, [to]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = (event) => {
+    event.preventDefault();
 
     onSearch({
       from: localFrom.trim(),
@@ -34,7 +33,6 @@ export default function TicketSearch({
       onSubmit={handleSubmit}
       className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]"
     >
-      {/* From */}
       <div className="relative">
         <MapPin
           size={18}
@@ -44,13 +42,14 @@ export default function TicketSearch({
         <input
           type="text"
           value={localFrom}
-          onChange={(e) => setLocalFrom(e.target.value)}
+          onChange={(event) =>
+            setLocalFrom(event.target.value)
+          }
           placeholder="Departure city"
           className="w-full rounded-xl border border-slate-200 bg-transparent py-3 pl-10 pr-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-[#047BFB] dark:border-slate-700 dark:text-white"
         />
       </div>
 
-      {/* To */}
       <div className="relative">
         <MapPin
           size={18}
@@ -60,13 +59,14 @@ export default function TicketSearch({
         <input
           type="text"
           value={localTo}
-          onChange={(e) => setLocalTo(e.target.value)}
+          onChange={(event) =>
+            setLocalTo(event.target.value)
+          }
           placeholder="Destination city"
           className="w-full rounded-xl border border-slate-200 bg-transparent py-3 pl-10 pr-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-[#047BFB] dark:border-slate-700 dark:text-white"
         />
       </div>
 
-      {/* Search */}
       <button
         type="submit"
         className="flex items-center justify-center gap-2 rounded-xl bg-[#047BFB] px-5 py-3 font-semibold text-white transition hover:bg-[#035ec4]"

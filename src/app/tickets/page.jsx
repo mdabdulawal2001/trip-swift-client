@@ -1,16 +1,24 @@
 import TicketBrowser from "@/components/tickets/TicketBrowser";
 import { getTickets } from "@/lib/api";
 
+const ITEMS_PER_PAGE = 6;
+
 export default async function TicketsPage({ searchParams }) {
   const params = await searchParams;
 
+  const from = params?.from || "";
+  const to = params?.to || "";
+  const type = params?.type || "";
+  const sort = params?.sort || "default";
+  const page = Number(params?.page) || 1;
+
   const data = await getTickets({
-    from: params?.from || "",
-    to: params?.to || "",
-    type: params?.type || "",
-    sort: params?.sort || "default",
-    page: params?.page || 1,
-    limit: 6,
+    from,
+    to,
+    type,
+    sort,
+    page,
+    limit: ITEMS_PER_PAGE,
   });
 
   return (

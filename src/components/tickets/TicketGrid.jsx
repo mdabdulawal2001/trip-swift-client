@@ -50,7 +50,7 @@ export default function TicketGrid({ tickets }) {
     >
       {tickets.map((ticket) => (
         <TicketCard
-          key={ticket.id}
+          key={ticket._id}
           ticket={ticket}
         />
       ))}

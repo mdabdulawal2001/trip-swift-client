@@ -224,7 +224,7 @@ export default function TicketCard({ ticket }) {
           </div>
 
           <Link
-            href={`/tickets/${ticket.id}`}
+            href={`/tickets/${ticket._id}`}
             className="
               flex min-h-12 w-full items-center justify-center gap-2
               rounded-xl bg-[#047BFB] px-5

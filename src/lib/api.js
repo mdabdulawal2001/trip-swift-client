@@ -50,6 +50,27 @@ export async function getTickets({
   return response.json();
 }
 
+export async function getVendorTickets(email) {
+  const searchParams = new URLSearchParams();
+
+  searchParams.set("email", email);
+
+  const response = await fetch(
+    `${API_URL}/tickets/vendor?${searchParams.toString()}`,
+    {
+      cache: "no-store",
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data?.message || "Failed to fetch vendor tickets");
+  }
+
+  return data;
+}
+
 export async function getTicketById(id) {
   const response = await fetch(`${API_URL}/tickets/${id}`, {
     cache: "no-store",
@@ -60,4 +81,24 @@ export async function getTicketById(id) {
   }
 
   return response.json();
+}
+
+
+// post tickets
+export async function addTicket(ticketData) {
+  const response = await fetch(`${API_URL}/tickets`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(ticketData),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data?.message || "Failed to add ticket");
+  }
+
+  return data;
 }

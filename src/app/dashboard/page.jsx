@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-const CURRENT_ROLE = "user";
+const CURRENT_ROLE = "vendor";
 // পরে Better Auth / MongoDB থেকে আসবে:
 // "user" | "vendor" | "admin"
 

@@ -33,9 +33,7 @@ export default function MyTicketsPage() {
       } catch (error) {
         console.error("My tickets error:", error);
 
-        toast.error(
-          error.message || "Failed to load your tickets."
-        );
+        toast.error(error.message || "Failed to load your tickets.");
       } finally {
         setLoading(false);
       }
@@ -96,8 +94,8 @@ export default function MyTicketsPage() {
           </h2>
 
           <p className="mx-auto mt-2 max-w-md text-sm text-slate-500 dark:text-slate-400">
-            You have not added any tickets yet. Create your first
-            ticket and submit it for admin approval.
+            You have not added any tickets yet. Create your first ticket and
+            submit it for admin approval.
           </p>
 
           <Link href="/dashboard/add-ticket">
@@ -134,10 +132,10 @@ export default function MyTicketsPage() {
 
                       <StatusBadge
                         status={
-                          ticket.approved === true
+                          ticket.status === "approved"
                             ? "Approved"
-                            : ticket.approved === false
-                              ? "Pending"
+                            : ticket.status === "rejected"
+                              ? "Rejected"
                               : "Pending"
                         }
                       />
@@ -161,9 +159,7 @@ export default function MyTicketsPage() {
 
                 <div className="flex flex-wrap items-center gap-6">
                   <div>
-                    <p className="text-xs text-slate-500">
-                      Price
-                    </p>
+                    <p className="text-xs text-slate-500">Price</p>
 
                     <p className="font-bold text-slate-900 dark:text-white">
                       ৳{ticket.price}
@@ -171,9 +167,7 @@ export default function MyTicketsPage() {
                   </div>
 
                   <div>
-                    <p className="text-xs text-slate-500">
-                      Available
-                    </p>
+                    <p className="text-xs text-slate-500">Available</p>
 
                     <p className="font-bold text-slate-900 dark:text-white">
                       {ticket.quantity}
@@ -195,9 +189,7 @@ export default function MyTicketsPage() {
 
                     {/* Edit */}
 
-                    <Link
-                      href={`/dashboard/my-tickets/${ticket._id}/edit`}
-                    >
+                    <Link href={`/dashboard/my-tickets/${ticket._id}/edit`}>
                       <button
                         type="button"
                         className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800"
@@ -244,8 +236,7 @@ function StatusBadge({ status }) {
     Pending:
       "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400",
 
-    Rejected:
-      "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400",
+    Rejected: "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400",
   };
 
   return (

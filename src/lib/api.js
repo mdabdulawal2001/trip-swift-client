@@ -50,6 +50,7 @@ export async function getTickets({
   return response.json();
 }
 
+// vendor get tickets
 export async function getVendorTickets(email) {
   const searchParams = new URLSearchParams();
 
@@ -84,7 +85,7 @@ export async function getTicketById(id) {
 }
 
 
-// post tickets
+// vendor post tickets
 export async function addTicket(ticketData) {
   const response = await fetch(`${API_URL}/tickets`, {
     method: "POST",
@@ -98,6 +99,48 @@ export async function addTicket(ticketData) {
 
   if (!response.ok) {
     throw new Error(data?.message || "Failed to add ticket");
+  }
+
+  return data;
+}
+
+// get admin all tickets
+export async function getAdminTickets() {
+  const response = await fetch(`${API_URL}/tickets/admin`, {
+    cache: "no-store",
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message || "Failed to fetch admin tickets"
+    );
+  }
+
+  return data;
+}
+
+
+// admin update ticket status
+export async function updateTicketStatus(id, status) {
+  const response = await fetch(
+    `${API_URL}/tickets/${id}/status`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status }),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message || "Failed to update ticket status"
+    );
   }
 
   return data;

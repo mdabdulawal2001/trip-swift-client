@@ -145,3 +145,61 @@ export async function updateTicketStatus(id, status) {
 
   return data;
 }
+
+// update ticket by vendor
+export async function updateTicket(id, ticketData) {
+  const response = await fetch(`${API_URL}/tickets/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(ticketData),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data?.message || "Failed to update ticket");
+  }
+
+  return data;
+}
+
+// delete ticket by vendor
+export async function deleteTicket(id) {
+  const response = await fetch(`${API_URL}/tickets/${id}`, {
+    method: "DELETE",
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data?.message || "Failed to delete ticket");
+  }
+
+  return data;
+}
+
+// get vendor ticket by id
+export async function getVendorTicketById(id, email) {
+  const searchParams = new URLSearchParams();
+
+  searchParams.set("email", email);
+
+  const response = await fetch(
+    `${API_URL}/tickets/vendor/${id}?${searchParams.toString()}`,
+    {
+      cache: "no-store",
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message || "Failed to fetch vendor ticket"
+    );
+  }
+
+  return data;
+}

@@ -22,7 +22,6 @@ export default async function TicketDetailsPage({ params }) {
   return (
     <TicketDetails
       ticket={data.ticket}
-      relatedTickets={[]}
     />
   );
 }

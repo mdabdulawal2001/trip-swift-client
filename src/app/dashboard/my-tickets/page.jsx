@@ -5,19 +5,21 @@ import { Edit3, Eye, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@heroui/react";
 import toast from "react-hot-toast";
-
-import { getVendorTickets } from "@/lib/api";
+import { getVendorTickets, deleteTicket } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
+import ConfirmModal from "@/components/shared/ConfirmModal";
 
 export default function MyTicketsPage() {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [deletingId, setDeletingId] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
   useEffect(() => {
     const loadTickets = async () => {
       try {
         const { data: session } = await authClient.getSession();
-
         const email = session?.user?.email;
 
         if (!email) {
@@ -32,7 +34,6 @@ export default function MyTicketsPage() {
         }
       } catch (error) {
         console.error("My tickets error:", error);
-
         toast.error(error.message || "Failed to load your tickets.");
       } finally {
         setLoading(false);
@@ -42,14 +43,30 @@ export default function MyTicketsPage() {
     loadTickets();
   }, []);
 
-  const handleDelete = (ticket) => {
-    toast.success(`${ticket.title} removed successfully.`);
+  // মোডাল থেকে কনফার্ম করলে টিকিট ডিলেট হবে
+  const handleDelete = async () => {
+    if (!deletingId) return;
+
+    try {
+      setDeleteLoading(true);
+
+      await deleteTicket(deletingId);
+
+      setTickets((prev) => prev.filter((ticket) => ticket._id !== deletingId));
+
+      toast.success("Ticket deleted successfully");
+      setDeletingId(null);
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message || "Failed to delete ticket");
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   return (
     <div className="mx-auto max-w-7xl">
       {/* Header */}
-
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="mb-2 text-sm font-semibold text-sky-500">
@@ -74,7 +91,6 @@ export default function MyTicketsPage() {
       </div>
 
       {/* Loading */}
-
       {loading && (
         <div className="flex min-h-60 items-center justify-center rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-sky-500" />
@@ -82,7 +98,6 @@ export default function MyTicketsPage() {
       )}
 
       {/* Empty State */}
-
       {!loading && tickets.length === 0 && (
         <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-50 text-2xl dark:bg-sky-500/10">
@@ -107,8 +122,7 @@ export default function MyTicketsPage() {
         </div>
       )}
 
-      {/* Tickets */}
-
+      {/* Tickets List */}
       {!loading && tickets.length > 0 && (
         <div className="grid gap-5">
           {tickets.map((ticket) => (
@@ -118,7 +132,6 @@ export default function MyTicketsPage() {
             >
               <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                 {/* Ticket Info */}
-
                 <div className="flex items-start gap-4">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400">
                     {getTransportIcon(ticket.type)}
@@ -145,22 +158,17 @@ export default function MyTicketsPage() {
                       <span>
                         {ticket.from} → {ticket.to}
                       </span>
-
                       <span>{ticket.type}</span>
-
                       <span>{ticket.date}</span>
-
                       <span>{ticket.departure}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Price + Actions */}
-
                 <div className="flex flex-wrap items-center gap-6">
                   <div>
                     <p className="text-xs text-slate-500">Price</p>
-
                     <p className="font-bold text-slate-900 dark:text-white">
                       ৳{ticket.price}
                     </p>
@@ -168,7 +176,6 @@ export default function MyTicketsPage() {
 
                   <div>
                     <p className="text-xs text-slate-500">Available</p>
-
                     <p className="font-bold text-slate-900 dark:text-white">
                       {ticket.quantity}
                     </p>
@@ -176,7 +183,6 @@ export default function MyTicketsPage() {
 
                   <div className="flex gap-2">
                     {/* View */}
-
                     <Link href={`/tickets/${ticket._id}`}>
                       <button
                         type="button"
@@ -188,7 +194,6 @@ export default function MyTicketsPage() {
                     </Link>
 
                     {/* Edit */}
-
                     <Link href={`/dashboard/my-tickets/${ticket._id}/edit`}>
                       <button
                         type="button"
@@ -199,11 +204,10 @@ export default function MyTicketsPage() {
                       </button>
                     </Link>
 
-                    {/* Delete */}
-
+                    {/* Delete - এখানে শুধু ID টা স্টেটে সেট করে মোডাল ওপেন করা হচ্ছে */}
                     <button
                       type="button"
-                      onClick={() => handleDelete(ticket)}
+                      onClick={() => setDeletingId(ticket._id)}
                       className="flex h-10 w-10 items-center justify-center rounded-xl border border-red-100 text-red-500 transition hover:bg-red-50 dark:border-red-900/40 dark:hover:bg-red-500/10"
                       title="Delete ticket"
                     >
@@ -216,6 +220,20 @@ export default function MyTicketsPage() {
           ))}
         </div>
       )}
+
+      {/* 🟢 Confirm Modal (লুপের বাইরে পুরো পেজের জন্য একটিই মোডাল সংকলিত হয়েছে) */}
+      <ConfirmModal
+        isOpen={Boolean(deletingId)}
+        onClose={() => {
+          if (!deleteLoading) {
+            setDeletingId(null);
+          }
+        }}
+        onConfirm={handleDelete}
+        loading={deleteLoading}
+        title="Delete Ticket?"
+        message="This ticket will be permanently deleted. This action cannot be undone."
+      />
     </div>
   );
 }
@@ -232,10 +250,8 @@ function StatusBadge({ status }) {
   const styles = {
     Approved:
       "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400",
-
     Pending:
       "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400",
-
     Rejected: "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400",
   };
 

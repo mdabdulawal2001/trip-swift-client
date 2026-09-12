@@ -203,3 +203,105 @@ export async function getVendorTicketById(id, email) {
 
   return data;
 }
+
+
+// create booking
+
+export async function createBooking(bookingData) {
+  const response = await fetch(`${API_URL}/bookings`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(bookingData),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message || "Failed to create booking"
+    );
+  }
+
+  return data;
+}
+
+// get user bookings
+
+export async function getUserBookings(email) {
+  const searchParams = new URLSearchParams();
+
+  searchParams.set("email", email);
+
+  const response = await fetch(
+    `${API_URL}/bookings/user?${searchParams.toString()}`,
+    {
+      cache: "no-store",
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message || "Failed to fetch bookings"
+    );
+  }
+
+  return data;
+}
+
+// get vendor bookings
+export async function getVendorBookings(email) {
+  const searchParams = new URLSearchParams();
+
+  searchParams.set("email", email);
+
+  const response = await fetch(
+    `${API_URL}/bookings/vendor?${searchParams.toString()}`,
+    {
+      cache: "no-store",
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message ||
+        "Failed to fetch vendor bookings"
+    );
+  }
+
+  return data;
+}
+
+
+// update booking status by vendor
+export async function updateBookingStatus(
+  id,
+  status
+) {
+  const response = await fetch(
+    `${API_URL}/bookings/${id}/status`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status }),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message ||
+        "Failed to update booking status"
+    );
+  }
+
+  return data;
+}

@@ -1,5 +1,7 @@
 "use client";
+"use client";
 
+import { useDashboardRole } from "@/context/DashboardRoleContext";
 import {
   ArrowRight,
   BarChart3,
@@ -17,16 +19,15 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-const CURRENT_ROLE = "vendor";
-// পরে Better Auth / MongoDB থেকে আসবে:
-// "user" | "vendor" | "admin"
 
 export default function DashboardPage() {
-  if (CURRENT_ROLE === "vendor") {
+ const role = useDashboardRole();
+
+  if (role === "vendor") {
     return <VendorDashboard />;
   }
 
-  if (CURRENT_ROLE === "admin") {
+  if (role === "admin") {
     return <AdminDashboard />;
   }
 

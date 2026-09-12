@@ -7,7 +7,7 @@ import { Bell, Menu, Search, X } from "lucide-react";
 import { Avatar, Button } from "@heroui/react";
 import ThemeToggle from "@/components/shared/ThemeToggle";
 
-export default function DashboardNavbar({ role = "user" }) {
+export default function DashboardNavbar({ role }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
 

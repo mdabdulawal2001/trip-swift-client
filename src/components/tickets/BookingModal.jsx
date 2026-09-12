@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { Button, Modal } from "@heroui/react";
+import { createBooking } from "@/lib/api";
+import { authClient } from "@/lib/auth-client";
+import toast from "react-hot-toast";
 
 export default function BookingModal({
   isOpen,
@@ -9,7 +12,8 @@ export default function BookingModal({
   ticket,
 }) {
   const [quantity, setQuantity] = useState(1);
-
+  const [loading, setLoading] = useState(false);
+  
   const increase = () => {
     setQuantity((prev) =>
       Math.min(prev + 1, ticket?.quantity || 1)
@@ -25,20 +29,66 @@ export default function BookingModal({
   const totalPrice =
     Number(ticket?.price || 0) * quantity;
 
-  const handleBooking = () => {
-    console.log({
-      ticketId: ticket?._id,
-      quantity,
-      totalPrice,
-    });
+  const handleBooking = async () => {
+    try {
+      setLoading(true);
+
+      const { data: session } =
+        await authClient.getSession();
+
+      const user = session?.user;
+
+      if (!user?.email) {
+        toast.error(
+          "Please login to book a ticket"
+        );
+
+        onClose();
+
+        return;
+      }
+
+      const bookingData = {
+        ticketId: ticket._id,
+
+        userName:
+          user.name || user.email.split("@")[0],
+
+        userEmail: user.email,
+
+        quantity,
+      };
+
+      await createBooking(bookingData);
+
+      toast.success(
+        "Booking request submitted successfully"
+      );
+
+      onClose();
+
+      setQuantity(1);
+    } catch (error) {
+      console.error(error);
+
+      toast.error(
+        error.message ||
+          "Failed to create booking"
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Modal
       isOpen={isOpen}
       onOpenChange={(open) => {
-        if (!open) onClose();
+         if (!open && !loading) {
+          onClose();
+        }
       }}
+      placement="center"
     >
       <Modal.Backdrop>
         <Modal.Container>
@@ -80,7 +130,7 @@ export default function BookingModal({
                     <button
                       type="button"
                       onClick={decrease}
-                      disabled={quantity <= 1}
+                      disabled={quantity <= 1 || loading}
                       className="h-10 w-10 rounded-lg border font-bold disabled:opacity-40"
                     >
                       −
@@ -94,7 +144,7 @@ export default function BookingModal({
                       type="button"
                       onClick={increase}
                       disabled={
-                        quantity >= (ticket?.quantity || 1)
+                        quantity >= (ticket?.quantity || 1) || loading
                       }
                       className="h-10 w-10 rounded-lg border font-bold disabled:opacity-40"
                     >
@@ -124,6 +174,7 @@ export default function BookingModal({
               <Button
                 variant="flat"
                 onPress={onClose}
+                disabled={loading}
               >
                 Cancel
               </Button>
@@ -131,6 +182,7 @@ export default function BookingModal({
               <Button
                 color="primary"
                 onPress={handleBooking}
+                isLoading={loading}
               >
                 Confirm Booking
               </Button>

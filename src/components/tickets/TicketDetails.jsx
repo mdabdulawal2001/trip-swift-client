@@ -21,11 +21,10 @@ import {
 import Countdown from "./Countdown";
 import BookingModal from "./BookingModal";
 
-const TicketDetails = ({ ticket, relatedTickets = [] }) => {
+const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
 
-  const TransportIcon =
-    ticket.type === "Train" ? FaTrain : FaBus;
+  const TransportIcon = ticket.type === "Train" ? FaTrain : FaBus;
 
   const isSoldOut = ticket.quantity <= 0;
 
@@ -78,9 +77,7 @@ const TicketDetails = ({ ticket, relatedTickets = [] }) => {
                   </div>
 
                   <div className="absolute bottom-5 left-5 right-5">
-                    <p className="text-sm text-slate-300">
-                      {ticket.operator}
-                    </p>
+                    <p className="text-sm text-slate-300">{ticket.operator}</p>
 
                     <h1 className="mt-1 text-3xl font-bold text-white sm:text-4xl">
                       {ticket.title}
@@ -184,17 +181,11 @@ const TicketDetails = ({ ticket, relatedTickets = [] }) => {
                   {/* Price */}
                   <div className="flex items-end justify-between">
                     <div>
-                      <p className="text-xs text-slate-500">
-                        Ticket price
-                      </p>
-
+                      <p className="text-xs text-slate-500">Ticket price</p>
                       <p className="mt-1 text-3xl font-bold text-slate-900 dark:text-white">
-                        ৳{ticket.price.toLocaleString()}
+                        ৳{ticket.price?.toLocaleString()}
                       </p>
-
-                      <p className="mt-1 text-xs text-slate-500">
-                        per ticket
-                      </p>
+                      <p className="mt-1 text-xs text-slate-500">per ticket</p>
                     </div>
 
                     <div className="rounded-xl bg-[#047BFB]/10 px-3 py-2 text-xs font-semibold text-[#047BFB]">
@@ -204,12 +195,27 @@ const TicketDetails = ({ ticket, relatedTickets = [] }) => {
                     </div>
                   </div>
 
-                  {/* Countdown */}
-                  <div className="mt-6">
-                    <Countdown
-                      targetDate={ticket.departureDateTime}
-                    />
-                  </div>
+                  {/* Status Alert Banner (যদি ticket approved না হয়) */}
+                  {ticket.status !== "approved" && (
+                    <div className="mt-4 rounded-xl bg-amber-500/10 border border-amber-500/20 p-3 text-xs font-medium text-amber-600 dark:text-amber-400">
+                      Status:{" "}
+                      <span className="capitalize font-bold">
+                        {ticket.status}
+                      </span>
+                      .
+                      {ticket.status === "pending" &&
+                        " This ticket is waiting for admin approval."}
+                      {ticket.status === "rejected" &&
+                        " This ticket has been rejected for booking."}
+                    </div>
+                  )}
+
+                  {/* Countdown - শুধুমাত্র Approved টিকিট হলে দেখাবে */}
+                  {ticket.status === "approved" && (
+                    <div className="mt-6">
+                      <Countdown targetDate={ticket.departureDateTime} />
+                    </div>
+                  )}
 
                   {/* Route summary */}
                   <div className="mt-6 rounded-xl bg-slate-50 p-4 dark:bg-slate-800/60">
@@ -217,51 +223,55 @@ const TicketDetails = ({ ticket, relatedTickets = [] }) => {
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#047BFB]/10 text-[#047BFB]">
                         <FaMapMarkerAlt />
                       </div>
-
                       <div>
-                        <p className="text-xs text-slate-500">
-                          Route
-                        </p>
-
+                        <p className="text-xs text-slate-500">Route</p>
                         <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
                           {ticket.from}
-                          <span className="mx-2 text-[#047BFB]">
-                            →
-                          </span>
+                          <span className="mx-2 text-[#047BFB]">→</span>
                           {ticket.to}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Book */}
-                  <button
-                    disabled={cannotBook}
-                    onClick={() => setIsBookingOpen(true)}
-                    className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold transition ${
-                      cannotBook
-                        ? "cursor-not-allowed bg-slate-200 text-slate-500 dark:bg-slate-800"
-                        : "bg-[#047BFB] text-white hover:bg-[#035EC4] hover:shadow-lg"
-                    }`}
-                  >
-                    {isSoldOut
-                      ? "Sold Out"
-                      : isExpired
-                        ? "Departure Passed"
-                        : "Book Now"}
+                  {/* Action Button Section */}
+                  {isManagementView ? (
+                    <div className="mt-6 text-center text-xs font-semibold text-slate-500">
+                      Management View Only
+                    </div>
+                  ) : (
+                    <button
+                      disabled={cannotBook || ticket.status !== "approved"}
+                      onClick={() => setIsBookingOpen(true)}
+                      className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold transition ${
+                        cannotBook || ticket.status !== "approved"
+                          ? "cursor-not-allowed bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-600"
+                          : "bg-[#047BFB] text-white hover:bg-[#035EC4] hover:shadow-lg"
+                      }`}
+                    >
+                      {ticket.status === "pending"
+                        ? "Approval Pending"
+                        : ticket.status === "rejected"
+                          ? "Ticket Rejected"
+                          : isSoldOut
+                            ? "Sold Out"
+                            : isExpired
+                              ? "Departure Passed"
+                              : "Book Now"}
 
-                    {!cannotBook && <FaArrowRight />}
-                  </button>
+                      {ticket.status === "approved" && !cannotBook && (
+                        <FaArrowRight />
+                      )}
+                    </button>
+                  )}
 
-                  {/* Trust */}
+                  {/* Trust / Security Info */}
                   <div className="mt-5 flex items-start gap-3 rounded-xl border border-slate-200 p-4 dark:border-slate-800">
                     <FaShieldAlt className="mt-0.5 shrink-0 text-[#047BFB]" />
-
                     <div>
                       <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                         Safe & reliable booking
                       </p>
-
                       <p className="mt-1 text-[11px] leading-5 text-slate-500">
                         Your booking information is securely handled by
                         TripSwift.
@@ -295,9 +305,7 @@ const InfoItem = ({ icon: Icon, label, value }) => {
       </div>
 
       <div>
-        <p className="text-xs text-slate-500">
-          {label}
-        </p>
+        <p className="text-xs text-slate-500">{label}</p>
 
         <p className="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-200">
           {value}
@@ -306,6 +314,5 @@ const InfoItem = ({ icon: Icon, label, value }) => {
     </div>
   );
 };
-
 
 export default TicketDetails;

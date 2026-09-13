@@ -4,6 +4,34 @@ export default function BookingRow({
   quantity,
   status,
 }) {
+  const normalizedStatus = String(
+    status || "pending"
+  ).toLowerCase();
+
+  const statusConfig = {
+    accepted: {
+      label: "Accepted",
+      className:
+        "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400",
+    },
+
+    rejected: {
+      label: "Rejected",
+      className:
+        "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400",
+    },
+
+    pending: {
+      label: "Pending",
+      className:
+        "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400",
+    },
+  };
+
+  const config =
+    statusConfig[normalizedStatus] ||
+    statusConfig.pending;
+
   return (
     <div className="flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60 sm:flex-row sm:items-center sm:justify-between">
       <div>
@@ -17,13 +45,9 @@ export default function BookingRow({
       </div>
 
       <span
-        className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${
-          status === "Accepted"
-            ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
-            : "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
-        }`}
+        className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${config.className}`}
       >
-        {status}
+        {config.label}
       </span>
     </div>
   );

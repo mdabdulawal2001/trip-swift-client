@@ -12,7 +12,7 @@ export default function DashboardLayout({ children }) {
 
   // Temporary role for testing.
   // Later this will come from Better Auth + MongoDB.
-  const role = "vendor"; // "user" | "vendor" | "admin"
+  const role = "user"; // "user" | "vendor" | "admin"
 
   const user = {
     name: "Abdul Awal",

@@ -1,5 +1,12 @@
+"use client";
+
 import {
-    ArrowRight,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+
+import {
   Megaphone,
   Ticket,
   TrendingUp,
@@ -7,14 +14,146 @@ import {
   Users,
 } from "lucide-react";
 
+import toast from "react-hot-toast";
+
 import DashboardContainer from "@/components/dashboard/shared/DashboardContainer";
 import StatCard from "@/components/dashboard/shared/StatCard";
 import SectionTitle from "@/components/dashboard/shared/SectionTitle";
 import ProgressRow from "@/components/dashboard/shared/ProgressRow";
 import Activity from "@/components/dashboard/shared/Activity";
+
+import { getAdminDashboardStats } from "@/lib/api";
+
 import Link from "next/link";
 
 export default function AdminDashboard() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const loadDashboardData = useCallback(
+    async () => {
+      try {
+        setLoading(true);
+
+        const result =
+          await getAdminDashboardStats();
+
+        setData(result);
+      } catch (error) {
+        console.error(
+          "Admin dashboard error:",
+          error
+        );
+
+        toast.error(
+          error.message ||
+            "Failed to load admin dashboard."
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    loadDashboardData();
+
+    const handleFocus = () => {
+      loadDashboardData();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        loadDashboardData();
+      }
+    };
+
+    window.addEventListener(
+      "focus",
+      handleFocus
+    );
+
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibilityChange
+    );
+
+    return () => {
+      window.removeEventListener(
+        "focus",
+        handleFocus
+      );
+
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange
+      );
+    };
+  }, [loadDashboardData]);
+
+  const stats = data?.stats || {};
+  const approvalStats =
+    data?.approvalStats || {};
+
+  const activities =
+    data?.activities || [];
+
+  const formatActivityTime = (dateValue) => {
+    if (!dateValue) return "";
+
+    const date = new Date(dateValue);
+
+    if (Number.isNaN(date.getTime())) {
+      return "";
+    }
+
+    const diff =
+      Date.now() - date.getTime();
+
+    const minutes = Math.floor(
+      diff / 60000
+    );
+
+    if (minutes < 1) {
+      return "Just now";
+    }
+
+    if (minutes < 60) {
+      return `${minutes} min ago`;
+    }
+
+    const hours = Math.floor(
+      minutes / 60
+    );
+
+    if (hours < 24) {
+      return `${hours} hour${
+        hours !== 1 ? "s" : ""
+      } ago`;
+    }
+
+    const days = Math.floor(
+      hours / 24
+    );
+
+    return `${days} day${
+      days !== 1 ? "s" : ""
+    } ago`;
+  };
+
+  const getActivityIcon = (type) => {
+    if (type === "vendor") {
+      return <UserRound />;
+    }
+
+    if (type === "ticket") {
+      return <Ticket />;
+    }
+
+    return <TrendingUp />;
+  };
+
   return (
     <DashboardContainer
       eyebrow="Admin Dashboard"
@@ -25,29 +164,45 @@ export default function AdminDashboard() {
         <StatCard
           icon={<Users />}
           label="Total Users"
-          value="1,248"
-          change="+8.2%"
+          value={
+            loading
+              ? "..."
+              : stats.totalUsers || 0
+          }
+          change="Registered users"
         />
 
         <StatCard
           icon={<UserRound />}
           label="Vendors"
-          value="86"
-          change="+12 this month"
+          value={
+            loading
+              ? "..."
+              : stats.vendors || 0
+          }
+          change="Registered vendors"
         />
 
         <StatCard
           icon={<Ticket />}
           label="Pending Tickets"
-          value="14"
+          value={
+            loading
+              ? "..."
+              : stats.pendingTickets || 0
+          }
           change="Needs review"
         />
 
         <StatCard
           icon={<TrendingUp />}
           label="Total Bookings"
-          value="4,862"
-          change="+16.8%"
+          value={
+            loading
+              ? "..."
+              : stats.totalBookings || 0
+          }
+          change="All bookings"
         />
       </div>
 
@@ -62,20 +217,26 @@ export default function AdminDashboard() {
           <div className="mt-6 space-y-5">
             <ProgressRow
               label="Approved"
-              value="72%"
-              progress={72}
+              value={`${approvalStats.approved || 0}%`}
+              progress={
+                approvalStats.approved || 0
+              }
             />
 
             <ProgressRow
               label="Pending"
-              value="18%"
-              progress={18}
+              value={`${approvalStats.pending || 0}%`}
+              progress={
+                approvalStats.pending || 0
+              }
             />
 
             <ProgressRow
               label="Rejected"
-              value="10%"
-              progress={10}
+              value={`${approvalStats.rejected || 0}%`}
+              progress={
+                approvalStats.rejected || 0
+              }
             />
           </div>
         </div>
@@ -88,26 +249,37 @@ export default function AdminDashboard() {
           />
 
           <div className="mt-6 space-y-4">
-            <Activity
-              icon={<UserRound />}
-              title="New vendor registered"
-              description="Rahim Travel joined the platform"
-              time="12 min ago"
-            />
-
-            <Activity
-              icon={<Ticket />}
-              title="New ticket submitted"
-              description="Dhaka → Sylhet requires approval"
-              time="35 min ago"
-            />
-
-            <Activity
-              icon={<Megaphone />}
-              title="Advertisement updated"
-              description="2 tickets are currently featured"
-              time="1 hour ago"
-            />
+            {loading ? (
+              <>
+                <ActivitySkeleton />
+                <ActivitySkeleton />
+                <ActivitySkeleton />
+              </>
+            ) : activities.length === 0 ? (
+              <div className="rounded-2xl bg-slate-50 p-6 text-center dark:bg-slate-800/60">
+                <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+                  No recent activity.
+                </p>
+              </div>
+            ) : (
+              activities.map(
+                (activity, index) => (
+                  <Activity
+                    key={`${activity.type}-${activity.createdAt}-${index}`}
+                    icon={getActivityIcon(
+                      activity.type
+                    )}
+                    title={activity.title}
+                    description={
+                      activity.description
+                    }
+                    time={formatActivityTime(
+                      activity.createdAt
+                    )}
+                  />
+                )
+              )
+            )}
           </div>
         </div>
       </div>
@@ -138,6 +310,19 @@ export default function AdminDashboard() {
   );
 }
 
+function ActivitySkeleton() {
+  return (
+    <div className="flex gap-3">
+      <div className="h-10 w-10 shrink-0 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
+
+      <div className="flex-1 space-y-2">
+        <div className="h-4 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+        <div className="h-3 w-56 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+      </div>
+    </div>
+  );
+}
+
 function AdminAction({
   href,
   icon,
@@ -164,8 +349,8 @@ function AdminAction({
           </p>
         </div>
 
-        <span>
-          <ArrowRight className="ml-auto h-4 w-4 text-slate-400 transition group-hover:translate-x-1 group-hover:text-sky-500" />
+        <span className="ml-auto">
+          <TrendingUp className="h-4 w-4 text-slate-400 transition group-hover:translate-x-1 group-hover:text-sky-500" />
         </span>
       </div>
     </Link>

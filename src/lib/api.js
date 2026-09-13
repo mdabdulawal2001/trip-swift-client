@@ -325,3 +325,26 @@ export async function updateBookingStatus(
 
   return data;
 }
+
+
+// get admin dashboard stats
+
+export async function getAdminDashboardStats() {
+  const response = await fetch(
+    `${API_URL}/admin/dashboard-stats`,
+    {
+      cache: "no-store",
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message ||
+        "Failed to fetch admin dashboard stats"
+    );
+  }
+
+  return data;
+}

@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-
 import {
   CalendarDays,
   CheckCircle2,
@@ -29,9 +28,7 @@ export default function UserDashboard() {
     try {
       setLoading(true);
 
-      const { data: session } =
-        await authClient.getSession();
-
+      const { data: session } = await authClient.getSession();
       const email = session?.user?.email;
 
       if (!email) {
@@ -40,17 +37,11 @@ export default function UserDashboard() {
       }
 
       const data = await getUserBookings(email);
-
       setBookings(data?.bookings || []);
     } catch (error) {
-      console.error(
-        "User dashboard error:",
-        error
-      );
-
+      console.error("User dashboard error:", error);
       toast.error(
-        error.message ||
-          "Failed to load dashboard data."
+        error.message || "Failed to load dashboard data."
       );
     } finally {
       setLoading(false);
@@ -71,18 +62,10 @@ export default function UserDashboard() {
     };
 
     window.addEventListener("focus", handleFocus);
-
-    document.addEventListener(
-      "visibilitychange",
-      handleVisibilityChange
-    );
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      window.removeEventListener(
-        "focus",
-        handleFocus
-      );
-
+      window.removeEventListener("focus", handleFocus);
       document.removeEventListener(
         "visibilitychange",
         handleVisibilityChange
@@ -90,58 +73,45 @@ export default function UserDashboard() {
     };
   }, [loadDashboardData]);
 
+  // Dynamic Statistics Calculation
   const totalBookings = bookings.length;
 
   const pendingBookings = bookings.filter(
     (booking) =>
-      String(booking.status).toLowerCase() ===
-      "pending"
+      String(booking.status || "").toLowerCase() === "pending"
   ).length;
 
-  const completedTrips = bookings.filter(
-    (booking) => {
-      const status = String(
-        booking.status || ""
-      ).toLowerCase();
-
-      return (
-        status === "paid" ||
-        status === "completed"
-      );
-    }
-  ).length;
+  const completedTrips = bookings.filter((booking) => {
+    const status = String(booking.status || "").toLowerCase();
+    return status === "paid" || status === "completed" || status === "confirmed";
+  }).length;
 
   const totalSpent = bookings
     .filter(
       (booking) =>
-        String(
-          booking.paymentStatus || ""
-        ).toLowerCase() === "paid"
+        String(booking.paymentStatus || "").toLowerCase() === "paid" ||
+        String(booking.status || "").toLowerCase() === "paid"
     )
     .reduce(
       (total, booking) =>
-        total +
-        Number(booking.totalPrice || 0),
+        total + Number(booking.totalPrice || booking.price || 0),
       0
     );
 
+  // Upcoming Journey Calculation
   const upcomingJourney = useMemo(() => {
     const now = Date.now();
 
     return (
       bookings
         .filter((booking) => {
-          const departure = new Date(
-            booking.departureDateTime
-          ).getTime();
-
-          const status = String(
-            booking.status || ""
-          ).toLowerCase();
+          const departure = new Date(booking.departureDateTime).getTime();
+          const status = String(booking.status || "").toLowerCase();
 
           return (
             departure > now &&
-            status !== "rejected"
+            status !== "rejected" &&
+            status !== "cancelled"
           );
         })
         .sort(
@@ -154,12 +124,8 @@ export default function UserDashboard() {
 
   const formatDate = (dateValue) => {
     if (!dateValue) return "N/A";
-
     const date = new Date(dateValue);
-
-    if (Number.isNaN(date.getTime())) {
-      return "N/A";
-    }
+    if (Number.isNaN(date.getTime())) return "N/A";
 
     return date.toLocaleDateString("en-GB", {
       day: "2-digit",
@@ -170,12 +136,8 @@ export default function UserDashboard() {
 
   const formatTime = (dateValue) => {
     if (!dateValue) return "N/A";
-
     const date = new Date(dateValue);
-
-    if (Number.isNaN(date.getTime())) {
-      return "N/A";
-    }
+    if (Number.isNaN(date.getTime())) return "N/A";
 
     return date.toLocaleTimeString("en-US", {
       hour: "2-digit",
@@ -243,7 +205,6 @@ export default function UserDashboard() {
                 <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                   No upcoming journey
                 </p>
-
                 <p className="mt-1 text-xs text-slate-400">
                   Your upcoming confirmed booking will appear here.
                 </p>
@@ -252,14 +213,10 @@ export default function UserDashboard() {
               <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-600 dark:bg-sky-500/10 dark:text-sky-400">
-                    {String(
-                      upcomingJourney.status || "Pending"
-                    )
+                    {String(upcomingJourney.status || "Pending")
                       .charAt(0)
                       .toUpperCase() +
-                      String(
-                        upcomingJourney.status || "Pending"
-                      ).slice(1)}
+                      String(upcomingJourney.status || "Pending").slice(1)}
                   </span>
 
                   <h3 className="mt-3 text-lg font-bold text-slate-900 dark:text-white">
@@ -278,20 +235,14 @@ export default function UserDashboard() {
                 </div>
 
                 <div className="sm:text-right">
-                  <p className="text-xs text-slate-400">
-                    Departure
-                  </p>
+                  <p className="text-xs text-slate-400">Departure</p>
 
                   <p className="mt-1 font-bold text-slate-900 dark:text-white">
-                    {formatDate(
-                      upcomingJourney.departureDateTime
-                    )}
+                    {formatDate(upcomingJourney.departureDateTime)}
                   </p>
 
                   <p className="text-sm text-sky-500">
-                    {formatTime(
-                      upcomingJourney.departureDateTime
-                    )}
+                    {formatTime(upcomingJourney.departureDateTime)}
                   </p>
                 </div>
               </div>

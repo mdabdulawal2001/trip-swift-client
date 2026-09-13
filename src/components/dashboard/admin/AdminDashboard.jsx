@@ -1,18 +1,8 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import {
-  Megaphone,
-  Ticket,
-  TrendingUp,
-  UserRound,
-  Users,
-} from "lucide-react";
+import { Megaphone, Ticket, TrendingUp, UserRound, Users } from "lucide-react";
 
 import toast from "react-hot-toast";
 
@@ -30,31 +20,21 @@ export default function AdminDashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const loadDashboardData = useCallback(
-    async () => {
-      try {
-        setLoading(true);
+  const loadDashboardData = useCallback(async () => {
+    try {
+      setLoading(true);
 
-        const result =
-          await getAdminDashboardStats();
+      const result = await getAdminDashboardStats();
 
-        setData(result);
-      } catch (error) {
-        console.error(
-          "Admin dashboard error:",
-          error
-        );
+      setData(result);
+    } catch (error) {
+      console.error("Admin dashboard error:", error);
 
-        toast.error(
-          error.message ||
-            "Failed to load admin dashboard."
-        );
-      } finally {
-        setLoading(false);
-      }
-    },
-    []
-  );
+      toast.error(error.message || "Failed to load admin dashboard.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     loadDashboardData();
@@ -69,35 +49,25 @@ export default function AdminDashboard() {
       }
     };
 
-    window.addEventListener(
-      "focus",
-      handleFocus
-    );
+    window.addEventListener("focus", handleFocus);
 
-    document.addEventListener(
-      "visibilitychange",
-      handleVisibilityChange
-    );
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      window.removeEventListener(
-        "focus",
-        handleFocus
-      );
+      window.removeEventListener("focus", handleFocus);
 
-      document.removeEventListener(
-        "visibilitychange",
-        handleVisibilityChange
-      );
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [loadDashboardData]);
 
+  // AdminDashboard.js / AdminDashboard.jsx
   const stats = data?.stats || {};
-  const approvalStats =
-    data?.approvalStats || {};
-
-  const activities =
-    data?.activities || [];
+  const approvalStats = data?.approvalStats || {
+    approved: 0,
+    pending: 0,
+    rejected: 0,
+  };
+  const activities = data?.activities || [];
 
   const formatActivityTime = (dateValue) => {
     if (!dateValue) return "";
@@ -108,12 +78,9 @@ export default function AdminDashboard() {
       return "";
     }
 
-    const diff =
-      Date.now() - date.getTime();
+    const diff = Date.now() - date.getTime();
 
-    const minutes = Math.floor(
-      diff / 60000
-    );
+    const minutes = Math.floor(diff / 60000);
 
     if (minutes < 1) {
       return "Just now";
@@ -123,23 +90,15 @@ export default function AdminDashboard() {
       return `${minutes} min ago`;
     }
 
-    const hours = Math.floor(
-      minutes / 60
-    );
+    const hours = Math.floor(minutes / 60);
 
     if (hours < 24) {
-      return `${hours} hour${
-        hours !== 1 ? "s" : ""
-      } ago`;
+      return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
     }
 
-    const days = Math.floor(
-      hours / 24
-    );
+    const days = Math.floor(hours / 24);
 
-    return `${days} day${
-      days !== 1 ? "s" : ""
-    } ago`;
+    return `${days} day${days !== 1 ? "s" : ""} ago`;
   };
 
   const getActivityIcon = (type) => {
@@ -164,44 +123,28 @@ export default function AdminDashboard() {
         <StatCard
           icon={<Users />}
           label="Total Users"
-          value={
-            loading
-              ? "..."
-              : stats.totalUsers || 0
-          }
+          value={loading ? "..." : stats.totalUsers || 0}
           change="Registered users"
         />
 
         <StatCard
           icon={<UserRound />}
           label="Vendors"
-          value={
-            loading
-              ? "..."
-              : stats.vendors || 0
-          }
+          value={loading ? "..." : stats.vendors || 0}
           change="Registered vendors"
         />
 
         <StatCard
           icon={<Ticket />}
           label="Pending Tickets"
-          value={
-            loading
-              ? "..."
-              : stats.pendingTickets || 0
-          }
+          value={loading ? "..." : stats.pendingTickets || 0}
           change="Needs review"
         />
 
         <StatCard
           icon={<TrendingUp />}
           label="Total Bookings"
-          value={
-            loading
-              ? "..."
-              : stats.totalBookings || 0
-          }
+          value={loading ? "..." : stats.totalBookings || 0}
           change="All bookings"
         />
       </div>
@@ -218,25 +161,19 @@ export default function AdminDashboard() {
             <ProgressRow
               label="Approved"
               value={`${approvalStats.approved || 0}%`}
-              progress={
-                approvalStats.approved || 0
-              }
+              progress={approvalStats.approved || 0}
             />
 
             <ProgressRow
               label="Pending"
               value={`${approvalStats.pending || 0}%`}
-              progress={
-                approvalStats.pending || 0
-              }
+              progress={approvalStats.pending || 0}
             />
 
             <ProgressRow
               label="Rejected"
               value={`${approvalStats.rejected || 0}%`}
-              progress={
-                approvalStats.rejected || 0
-              }
+              progress={approvalStats.rejected || 0}
             />
           </div>
         </div>
@@ -262,23 +199,15 @@ export default function AdminDashboard() {
                 </p>
               </div>
             ) : (
-              activities.map(
-                (activity, index) => (
-                  <Activity
-                    key={`${activity.type}-${activity.createdAt}-${index}`}
-                    icon={getActivityIcon(
-                      activity.type
-                    )}
-                    title={activity.title}
-                    description={
-                      activity.description
-                    }
-                    time={formatActivityTime(
-                      activity.createdAt
-                    )}
-                  />
-                )
-              )
+              activities.map((activity, index) => (
+                <Activity
+                  key={`${activity.type}-${activity.createdAt}-${index}`}
+                  icon={getActivityIcon(activity.type)}
+                  title={activity.title}
+                  description={activity.description}
+                  time={formatActivityTime(activity.createdAt)}
+                />
+              ))
             )}
           </div>
         </div>
@@ -323,12 +252,7 @@ function ActivitySkeleton() {
   );
 }
 
-function AdminAction({
-  href,
-  icon,
-  title,
-  description,
-}) {
+function AdminAction({ href, icon, title, description }) {
   return (
     <Link
       href={href}
@@ -340,13 +264,9 @@ function AdminAction({
         </div>
 
         <div>
-          <h3 className="font-bold text-slate-900 dark:text-white">
-            {title}
-          </h3>
+          <h3 className="font-bold text-slate-900 dark:text-white">{title}</h3>
 
-          <p className="mt-1 text-xs text-slate-500">
-            {description}
-          </p>
+          <p className="mt-1 text-xs text-slate-500">{description}</p>
         </div>
 
         <span className="ml-auto">

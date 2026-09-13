@@ -204,6 +204,26 @@ export async function getVendorTicketById(id, email) {
   return data;
 }
 
+// get admin ticket by id
+export async function getAdminTicketById(id) {
+  const response = await fetch(
+    `${API_URL}/tickets/admin/${id}`,
+    {
+      cache: "no-store",
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message || "Failed to fetch admin ticket"
+    );
+  }
+
+  return data;
+}
+
 
 // create booking
 

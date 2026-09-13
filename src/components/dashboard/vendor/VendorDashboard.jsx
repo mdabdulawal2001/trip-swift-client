@@ -11,7 +11,7 @@ import DashboardContainer from "@/components/dashboard/shared/DashboardContainer
 import StatCard from "@/components/dashboard/shared/StatCard";
 import SectionTitle from "@/components/dashboard/shared/SectionTitle";
 import QuickActions from "@/components/dashboard/shared/QuickActions";
-import BookingRow from "@/components/dashboard/shared/BookingRow";
+import RecentBookingRequests from "./RecentBookingRequests";
 
 export default function VendorDashboard() {
   return (
@@ -59,19 +59,17 @@ export default function VendorDashboard() {
           />
 
           <div className="mt-8 flex h-52 items-end gap-3 sm:gap-5">
-            {[42, 58, 48, 70, 64, 88].map(
-              (height, index) => (
+            {[42, 58, 48, 70, 64, 88].map((height, index) => (
+              <div
+                key={index}
+                className="flex h-full flex-1 items-end justify-center"
+              >
                 <div
-                  key={index}
-                  className="flex h-full flex-1 items-end justify-center"
-                >
-                  <div
-                    className="w-full max-w-12 rounded-t-xl bg-sky-500 transition hover:bg-sky-600"
-                    style={{ height: `${height}%` }}
-                  />
-                </div>
-              )
-            )}
+                  className="w-full max-w-12 rounded-t-xl bg-sky-500 transition hover:bg-sky-600"
+                  style={{ height: `${height}%` }}
+                />
+              </div>
+            ))}
           </div>
 
           <div className="mt-3 flex justify-between text-xs text-slate-400">
@@ -117,28 +115,7 @@ export default function VendorDashboard() {
           href="/dashboard/requested-bookings"
         />
 
-        <div className="mt-5 space-y-3">
-          <BookingRow
-            name="Abdul Karim"
-            route="Dhaka → Cox's Bazar"
-            quantity="2 tickets"
-            status="Pending"
-          />
-
-          <BookingRow
-            name="Sadia Rahman"
-            route="Dhaka → Sylhet"
-            quantity="1 ticket"
-            status="Pending"
-          />
-
-          <BookingRow
-            name="Tanvir Hasan"
-            route="Dhaka → Rajshahi"
-            quantity="3 tickets"
-            status="Accepted"
-          />
-        </div>
+        <RecentBookingRequests />
       </div>
     </DashboardContainer>
   );

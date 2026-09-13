@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import RelatedTickets from "./RelatedTickets";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -158,7 +159,7 @@ const TicketDetails = ({ ticket, relatedTickets = [] }) => {
                     </h3>
 
                     <div className="mt-3 flex flex-wrap gap-2">
-                      {ticket.perks.map((perk) => (
+                      {(ticket.perks || []).map((perk) => (
                         <span
                           key={perk}
                           className="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300"
@@ -272,29 +273,7 @@ const TicketDetails = ({ ticket, relatedTickets = [] }) => {
             </div>
 
             {/* Related Tickets */}
-            {relatedTickets.length > 0 && (
-              <section className="mt-20">
-                <div className="mb-8">
-                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#047BFB]">
-                    You may also like
-                  </p>
-
-                  <h2 className="mt-2 text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
-                    Similar Tickets
-                  </h2>
-                </div>
-
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {relatedTickets.slice(0, 3).map((related, index) => (
-                    <RelatedTicket
-                      key={related.id}
-                      ticket={related}
-                      index={index}
-                    />
-                  ))}
-                </div>
-              </section>
-            )}
+            <RelatedTickets tickets={relatedTickets} />
           </div>
         </section>
       </main>
@@ -328,50 +307,5 @@ const InfoItem = ({ icon: Icon, label, value }) => {
   );
 };
 
-const RelatedTicket = ({ ticket, index }) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{
-        duration: 0.45,
-        delay: index * 0.08,
-      }}
-      whileHover={{ y: -5 }}
-      className="overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:border-[#38BDF8]/50 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900"
-    >
-      <img
-        src={ticket.image}
-        alt={ticket.title}
-        className="h-40 w-full object-cover"
-      />
-
-      <div className="p-5">
-        <p className="text-xs text-slate-500">
-          {ticket.operator}
-        </p>
-
-        <h3 className="mt-1 font-bold text-slate-900 dark:text-white">
-          {ticket.title}
-        </h3>
-
-        <div className="mt-4 flex items-center justify-between">
-          <p className="font-bold text-[#047BFB]">
-            ৳{ticket.price.toLocaleString()}
-          </p>
-
-          <Link
-            href={`/tickets/${ticket.id}`}
-            className="flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-[#047BFB] dark:text-slate-400"
-          >
-            View
-            <FaArrowRight />
-          </Link>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
 
 export default TicketDetails;

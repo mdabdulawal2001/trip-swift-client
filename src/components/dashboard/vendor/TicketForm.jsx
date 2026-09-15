@@ -38,7 +38,7 @@ export default function TicketForm() {
   };
 
   const handleSubmit = async (event) => {
-      event.preventDefault();
+    event.preventDefault();
     const { data: session } = await authClient.getSession();
 
     const vendorEmail = session?.user?.email;
@@ -81,9 +81,7 @@ export default function TicketForm() {
         router.push("/dashboard/my-tickets");
       }
     } catch (error) {
-      console.error("Add ticket error:", error);
-
-      toast.error(error.message || "Failed to add ticket");
+      toast.error(error?.message || "Failed to add ticket");
     } finally {
       setLoading(false);
     }

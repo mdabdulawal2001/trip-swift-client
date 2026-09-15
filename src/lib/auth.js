@@ -1,21 +1,11 @@
 import { betterAuth } from "better-auth";
 import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
-import {
-  admin as adminPlugin,
-  jwt,
-} from "better-auth/plugins";
+import { admin as adminPlugin, jwt } from "better-auth/plugins";
 
-import {
-  ac,
-  admin,
-  user,
-  vendor,
-} from "./permissions";
+import { ac, admin, user, vendor } from "./permissions";
 
-const client = new MongoClient(
-  process.env.MONGODB_URI
-);
+const client = new MongoClient(process.env.MONGODB_URI);
 
 const db = client.db("trip-swift-db");
 
@@ -23,7 +13,7 @@ export const auth = betterAuth({
   database: mongodbAdapter(db, {
     client,
   }),
-  
+
   user: {
     additionalFields: {
       phone: {
@@ -37,6 +27,14 @@ export const auth = betterAuth({
         required: false,
         input: true,
       },
+
+      isFraud: {
+        type: "boolean",
+        required: false,
+        defaultValue: false,
+        input: false,
+        returned: true,
+      },
     },
   },
 
@@ -46,10 +44,8 @@ export const auth = betterAuth({
 
   socialProviders: {
     google: {
-      clientId:
-        process.env.GOOGLE_CLIENT_ID,
-      clientSecret:
-        process.env.GOOGLE_CLIENT_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     },
   },
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import {
   FaArrowRight,
@@ -182,8 +183,23 @@ const HeroDots = ({ activeIndex }) => {
 
 const HeroSection = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const [transport, setTransport] = useState("");
 
   const activeSlide = heroSlides[activeIndex];
+  const router = useRouter();
+
+  const handleSearch = (e) => {
+    if (e) e.preventDefault();
+
+    const params = new URLSearchParams();
+    if (from.trim()) params.set("from", from.trim());
+    if (to.trim()) params.set("to", to.trim());
+    if (transport) params.set("type", transport);
+
+    router.push(`/tickets?${params.toString()}`);
+  };
 
   return (
     <section
@@ -485,9 +501,7 @@ const HeroSection = () => {
                         <p className="mt-1 text-sm font-bold sm:text-base">
                           {slide.from}
 
-                          <span className="mx-2 text-[#38BDF8]/50">
-                            →
-                          </span>
+                          <span className="mx-2 text-[#38BDF8]/50">→</span>
 
                           {slide.to}
                         </p>
@@ -542,7 +556,6 @@ const HeroSection = () => {
                         "
                       >
                         Explore Tickets
-
                         <span
                           className="
                             flex
@@ -663,43 +676,40 @@ const HeroSection = () => {
 
       <div
         className="
-          absolute
-          -bottom-48
-          left-1/2
-          z-50
-          w-[calc(100%-1.5rem)]
-          max-w-6xl
-          -translate-x-1/2
-          sm:-bottom-20
-          sm:w-[calc(100%-3rem)]
-          lg:-bottom-22
-        "
+    absolute
+    -bottom-48
+    left-1/2
+    z-50
+    w-[calc(100%-1.5rem)]
+    max-w-6xl
+    -translate-x-1/2
+    sm:-bottom-20
+    sm:w-[calc(100%-3rem)]
+    lg:-bottom-22
+  "
       >
         <div
           className="
-            rounded-[24px]
-            border
-            border-slate-200
-            bg-white
-            p-5
-            shadow-[0_30px_80px_rgba(15,23,42,0.30)]
-            dark:border-slate-700
-            dark:bg-slate-900
-            sm:p-8
-          "
+      rounded-[24px]
+      border
+      border-slate-200
+      bg-white
+      p-5
+      shadow-[0_30px_80px_rgba(15,23,42,0.30)]
+      dark:border-slate-700
+      dark:bg-slate-900
+      sm:p-8
+    "
         >
-          {/* =====================================================
-              SEARCH HEADING
-          ====================================================== */}
-
+          {/* SEARCH HEADING */}
           <div
             className="
-              mb-3
-              flex
-              items-center
-              justify-between
-              px-1
-            "
+        mb-3
+        flex
+        items-center
+        justify-between
+        px-1
+      "
           >
             <div>
               <p className="text-sm font-bold text-slate-900 dark:text-white">
@@ -713,78 +723,73 @@ const HeroSection = () => {
 
             <div
               className="
-                hidden
-                items-center
-                gap-2
-                rounded-full
-                bg-sky-50
-                px-3
-                py-1.5
-                text-[10px]
-                font-bold
-                uppercase
-                tracking-wider
-                text-[#047BFB]
-                sm:flex
-                dark:bg-[#047BFB]/10
-                dark:text-[#38BDF8]
-              "
+          hidden
+          items-center
+          gap-2
+          rounded-full
+          bg-sky-50
+          px-3
+          py-1.5
+          text-[10px]
+          font-bold
+          uppercase
+          tracking-wider
+          text-[#047BFB]
+          sm:flex
+          dark:bg-[#047BFB]/10
+          dark:text-[#38BDF8]
+        "
             >
               <span className="h-1.5 w-1.5 rounded-full bg-[#047BFB]" />
               Live Search
             </div>
           </div>
 
-          {/* =====================================================
-              SEARCH FIELDS
-          ====================================================== */}
-
-          <div
+          {/* SEARCH FORM */}
+          <form
+            onSubmit={handleSearch}
             className="
-              grid
-              gap-2.5
-              md:grid-cols-2
-              lg:grid-cols-[1fr_1fr_210px_145px]
-            "
+        grid
+        gap-2.5
+        md:grid-cols-2
+        lg:grid-cols-[1fr_1fr_210px_145px]
+      "
           >
-            {/* ===================================================
-                FROM
-            ==================================================== */}
-
+            {/* FROM */}
             <div
               className="
-                flex
-                min-h-15.5
-                items-center
-                gap-3
-                rounded-xl
-                border
-                border-slate-200
-                bg-slate-50
-                px-3.5
-                transition-all
-                focus-within:border-[#047BFB]
-                focus-within:bg-white
-                dark:border-slate-700
-                dark:bg-slate-800/70
-                dark:focus-within:border-[#047BFB]
-                dark:focus-within:bg-slate-800
-              "
+          flex
+          min-h-15.5
+          items-center
+          gap-3
+          rounded-xl
+          border
+          border-slate-200
+          bg-slate-50
+          px-3.5
+          transition-all
+          focus-within:border-[#047BFB]
+          focus-within:bg-white
+          dark:border-slate-700
+          dark:bg-slate-800/70
+          dark:focus-within:border-[#047BFB]
+          dark:focus-within:bg-slate-800
+        "
             >
               <div
                 className="
-                  flex
-                  h-10
-                  w-10
-                  shrink-0
-                  items-center
-                  justify-center
-                  rounded-lg
-                  bg-sky-50
-                  text-[#047BFB]
-                  dark:bg-[#047BFB]/10
-                  dark:text-[#38BDF8]
-                "
+            flex
+            h-10
+            w-10
+            shrink-0
+            items-center
+            justify-center
+            rounded-lg
+            bg-sky-50
+            text-[#047BFB]
+            dark:bg-[#047BFB]/10
+            dark:text-[#38BDF8]
+          "
               >
                 <FaLocationDot className="text-xs" />
               </div>
@@ -792,13 +797,13 @@ const HeroSection = () => {
               <div className="min-w-0 flex-1">
                 <label
                   className="
-                    block
-                    text-[9px]
-                    font-bold
-                    uppercase
-                    tracking-[0.15em]
-                    text-slate-400
-                  "
+              block
+              text-[9px]
+              font-bold
+              uppercase
+              tracking-[0.15em]
+              text-slate-400
+            "
                 >
                   From
                 </label>
@@ -806,59 +811,58 @@ const HeroSection = () => {
                 <input
                   type="text"
                   placeholder="Departure city"
+                  value={from}
+                  onChange={(e) => setFrom(e.target.value)}
                   className="
-                    mt-1
-                    w-full
-                    bg-transparent
-                    text-sm
-                    font-semibold
-                    text-slate-800
-                    outline-none
-                    placeholder:text-slate-400
-                    dark:text-white
-                  "
+              mt-1
+              w-full
+              bg-transparent
+              text-sm
+              font-semibold
+              text-slate-800
+              outline-none
+              placeholder:text-slate-400
+              dark:text-white
+            "
                 />
               </div>
             </div>
 
-            {/* ===================================================
-                TO
-            ==================================================== */}
-
+            {/* TO */}
             <div
               className="
-                flex
-                min-h-15.5
-                items-center
-                gap-3
-                rounded-xl
-                border
-                border-slate-200
-                bg-slate-50
-                px-3.5
-                transition-all
-                focus-within:border-[#047BFB]
-                focus-within:bg-white
-                dark:border-slate-700
-                dark:bg-slate-800/70
-                dark:focus-within:border-[#047BFB]
-                dark:focus-within:bg-slate-800
-              "
+          flex
+          min-h-15.5
+          items-center
+          gap-3
+          rounded-xl
+          border
+          border-slate-200
+          bg-slate-50
+          px-3.5
+          transition-all
+          focus-within:border-[#047BFB]
+          focus-within:bg-white
+          dark:border-slate-700
+          dark:bg-slate-800/70
+          dark:focus-within:border-[#047BFB]
+          dark:focus-within:bg-slate-800
+        "
             >
               <div
                 className="
-                  flex
-                  h-10
-                  w-10
-                  shrink-0
-                  items-center
-                  justify-center
-                  rounded-lg
-                  bg-sky-50
-                  text-[#047BFB]
-                  dark:bg-[#047BFB]/10
-                  dark:text-[#38BDF8]
-                "
+            flex
+            h-10
+            w-10
+            shrink-0
+            items-center
+            justify-center
+            rounded-lg
+            bg-sky-50
+            text-[#047BFB]
+            dark:bg-[#047BFB]/10
+            dark:text-[#38BDF8]
+          "
               >
                 <FaLocationDot className="text-xs" />
               </div>
@@ -866,13 +870,13 @@ const HeroSection = () => {
               <div className="min-w-0 flex-1">
                 <label
                   className="
-                    block
-                    text-[9px]
-                    font-bold
-                    uppercase
-                    tracking-[0.15em]
-                    text-slate-400
-                  "
+              block
+              text-[9px]
+              font-bold
+              uppercase
+              tracking-[0.15em]
+              text-slate-400
+            "
                 >
                   To
                 </label>
@@ -880,54 +884,53 @@ const HeroSection = () => {
                 <input
                   type="text"
                   placeholder="Destination city"
+                  value={to}
+                  onChange={(e) => setTo(e.target.value)}
                   className="
-                    mt-1
-                    w-full
-                    bg-transparent
-                    text-sm
-                    font-semibold
-                    text-slate-800
-                    outline-none
-                    placeholder:text-slate-400
-                    dark:text-white
-                  "
+              mt-1
+              w-full
+              bg-transparent
+              text-sm
+              font-semibold
+              text-slate-800
+              outline-none
+              placeholder:text-slate-400
+              dark:text-white
+            "
                 />
               </div>
             </div>
 
-            {/* ===================================================
-                TRANSPORT
-            ==================================================== */}
-
+            {/* TRANSPORT */}
             <div
               className="
-                flex
-                min-h-15.5
-                items-center
-                gap-3
-                rounded-xl
-                border
-                border-slate-200
-                bg-slate-50
-                px-3.5
-                dark:border-slate-700
-                dark:bg-slate-800/70
-              "
+          flex
+          min-h-15.5
+          items-center
+          gap-3
+          rounded-xl
+          border
+          border-slate-200
+          bg-slate-50
+          px-3.5
+          dark:border-slate-700
+          dark:bg-slate-800/70
+        "
             >
               <div
                 className="
-                  flex
-                  h-10
-                  w-10
-                  shrink-0
-                  items-center
-                  justify-center
-                  rounded-lg
-                  bg-sky-50
-                  text-[#047BFB]
-                  dark:bg-[#047BFB]/10
-                  dark:text-[#38BDF8]
-                "
+            flex
+            h-10
+            w-10
+            shrink-0
+            items-center
+            justify-center
+            rounded-lg
+            bg-sky-50
+            text-[#047BFB]
+            dark:bg-[#047BFB]/10
+            dark:text-[#38BDF8]
+          "
               >
                 {activeSlide?.icon &&
                   (() => {
@@ -940,77 +943,81 @@ const HeroSection = () => {
               <div className="min-w-0 flex-1">
                 <label
                   className="
-                    block
-                    text-[9px]
-                    font-bold
-                    uppercase
-                    tracking-[0.15em]
-                    text-slate-400
-                  "
+              block
+              text-[9px]
+              font-bold
+              uppercase
+              tracking-[0.15em]
+              text-slate-400
+            "
                 >
                   Transport
                 </label>
 
                 <select
+                  value={transport}
+                  onChange={(e) => setTransport(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSearch(e);
+                    }
+                  }}
                   className="
-                    mt-1
-                    w-full
-                    cursor-pointer
-                    bg-transparent
-                    text-sm
-                    font-semibold
-                    text-slate-800
-                    outline-none
-                    dark:bg-slate-800
-                    dark:text-white
-                  "
+              mt-1
+              w-full
+              cursor-pointer
+              bg-transparent
+              text-sm
+              font-semibold
+              text-slate-800
+              outline-none
+              dark:bg-slate-800
+              dark:text-white
+            "
                 >
                   <option value="">All types</option>
-                  <option value="bus">AC Bus</option>
-                  <option value="train">Train</option>
-                  <option value="plane">Plane</option>
-                  <option value="car">Car</option>
+                  <option value="AC Bus">AC Bus</option>
+                  <option value="Train">Train</option>
+                  <option value="Flight">Flight</option>
+                  <option value="Car">Car</option>
                 </select>
               </div>
             </div>
 
-            {/* ===================================================
-                SEARCH BUTTON
-            ==================================================== */}
-
-            <Link
-              href="/tickets"
+            {/* SEARCH BUTTON */}
+            <button
+              type="submit"
               className="
-                group
-                flex
-                min-h-15.5
-                items-center
-                justify-center
-                gap-2
-                rounded-xl
-                bg-[#047BFB]
-                px-5
-                text-sm
-                font-bold
-                text-white
-                shadow-[0_10px_30px_rgba(4,123,251,0.25)]
-                transition-all
-                duration-300
-                hover:-translate-y-0.5
-                hover:bg-[#035EC4]
-                hover:shadow-xl
-              "
+          group
+          flex
+          min-h-15.5
+          items-center
+          justify-center
+          gap-2
+          rounded-xl
+          bg-[#047BFB]
+          px-5
+          text-sm
+          font-bold
+          text-white
+          shadow-[0_10px_30px_rgba(4,123,251,0.25)]
+          transition-all
+          duration-300
+          hover:-translate-y-0.5
+          hover:bg-[#035EC4]
+          hover:shadow-xl
+        "
             >
               <span
                 className="
-                  flex
-                  h-8
-                  w-8
-                  items-center
-                  justify-center
-                  rounded-lg
-                  bg-white/15
-                "
+            flex
+            h-8
+            w-8
+            items-center
+            justify-center
+            rounded-lg
+            bg-white/15
+          "
               >
                 <FaMagnifyingGlass className="text-[11px]" />
               </span>
@@ -1019,14 +1026,14 @@ const HeroSection = () => {
 
               <FaArrowRight
                 className="
-                  text-[9px]
-                  transition-transform
-                  duration-300
-                  group-hover:translate-x-1
-                "
+            text-[9px]
+            transition-transform
+            duration-300
+            group-hover:translate-x-1
+          "
               />
-            </Link>
-          </div>
+            </button>
+          </form>
         </div>
       </div>
     </section>

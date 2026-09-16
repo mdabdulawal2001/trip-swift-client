@@ -96,9 +96,7 @@ export async function addTicket(ticketData) {
   const data = await response.json();
 
   if (!response.ok) {
-    const errorData = await response.json();
-
-    throw new Error(errorData?.message || "Failed to add ticket");
+    throw new Error(data?.message || "Failed to add ticket");
   }
 
   return data;

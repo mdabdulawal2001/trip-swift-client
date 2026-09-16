@@ -39,6 +39,7 @@ export default function VendorDashboard() {
         await authClient.getSession();
 
       const email = session?.user?.email;
+      console.log("Vendor Dashboard Session Email:", email);
 
       if (!email) {
         return;

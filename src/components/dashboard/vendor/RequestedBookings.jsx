@@ -18,6 +18,7 @@ export default function RequestedBookings() {
       const { data: session } = await authClient.getSession();
 
       const email = session?.user?.email;
+      console.log("Requested Bookings Session Email:", email);
 
       if (!email) {
         return;
@@ -26,6 +27,7 @@ export default function RequestedBookings() {
       const data = await getVendorBookings(email);
 
       setRequests(data?.bookings || []);
+      console.log(data)
     } catch (error) {
       console.error(error);
 

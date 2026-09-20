@@ -307,6 +307,39 @@ export async function getAdminDashboardStats() {
   return data;
 }
 
+// checkout session
+export async function createCheckoutSession(
+  bookingId,
+  userEmail
+) {
+  const response = await fetch(
+    "/api/checkout_sessions",
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        bookingId,
+        userEmail,
+      }),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message ||
+        "Failed to create checkout session"
+    );
+  }
+
+  return data;
+}
+
 // get advertised tickets for homepage
 export async function getAdvertisedTickets() {
   const response = await fetch(`${API_URL}/tickets/advertised`, {
@@ -342,3 +375,108 @@ export async function updateTicketAdvertisement(id, advertised) {
 
   return data;
 }
+
+// payment related functions
+export async function createPayment(
+  bookingId,
+  userEmail
+) {
+  const response = await fetch(
+    `${API_URL}/payments`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        bookingId,
+        userEmail,
+      }),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message || "Payment failed"
+    );
+  }
+
+  return data;
+}
+
+export async function getUserPayments(email) {
+  const searchParams =
+    new URLSearchParams();
+
+  searchParams.set("email", email);
+
+  const response = await fetch(
+    `${API_URL}/payments/user?${searchParams.toString()}`,
+    {
+      cache: "no-store",
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message ||
+        "Failed to fetch transactions"
+    );
+  }
+
+  return data;
+}
+
+// vendor
+export async function getVendorPayments(email) {
+  const searchParams =
+    new URLSearchParams();
+
+  searchParams.set("email", email);
+
+  const response = await fetch(
+    `${API_URL}/payments/vendor?${searchParams.toString()}`,
+    {
+      cache: "no-store",
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message ||
+        "Failed to fetch vendor revenue"
+    );
+  }
+
+  return data;
+}
+
+// admin
+export async function getAdminPayments() {
+  const response = await fetch(
+    `${API_URL}/payments/admin`,
+    {
+      cache: "no-store",
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message ||
+        "Failed to fetch admin revenue"
+    );
+  }
+
+  return data;
+}
+
+
+

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 
@@ -16,7 +17,11 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-import { getUserBookings } from "@/lib/api";
+import {
+  getUserBookings,
+  createCheckoutSession,
+} from "@/lib/api";
+
 import { authClient } from "@/lib/auth-client";
 
 const statusConfig = {
@@ -50,53 +55,212 @@ const statusConfig = {
 };
 
 export default function MyBookedTickets() {
+  const searchParams = useSearchParams();
+
+  const paymentStatus = searchParams.get("payment");
+  const sessionId = searchParams.get("session_id");
+
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [paymentId, setPaymentId] = useState(null);
 
-  useEffect(() => {
-    const loadBookings = async () => {
-      try {
-        const { data: session } =
-          await authClient.getSession();
+  // =========================
+  // Load User Bookings
+  // =========================
+  const loadBookings = async () => {
+    try {
+      const { data: session } =
+        await authClient.getSession();
 
-        const email = session?.user?.email;
+      const email = session?.user?.email;
 
-        if (!email) {
-          return;
-        }
-
-        const data = await getUserBookings(email);
-
-        setBookings(data?.bookings || []);
-      } catch (error) {
-        console.error(error);
-
-        toast.error(
-          error.message ||
-            "Failed to load your bookings"
-        );
-      } finally {
-        setLoading(false);
+      if (!email) {
+        setBookings([]);
+        return;
       }
-    };
 
+      const data = await getUserBookings(email);
+
+      setBookings(data?.bookings || []);
+    } catch (error) {
+      console.error(
+        "Failed to load bookings:",
+        error
+      );
+
+      toast.error(
+        error?.message ||
+          "Failed to load bookings"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // =========================
+  // Initial Load
+  // =========================
+  useEffect(() => {
     loadBookings();
   }, []);
 
+  // =========================
+  // Verify Stripe Payment
+  // =========================
+  useEffect(() => {
+    if (
+      paymentStatus !== "success" ||
+      !sessionId
+    ) {
+      return;
+    }
+
+    const verifyPayment = async () => {
+      try {
+        const response = await fetch(
+          "/api/verify_payment",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json",
+            },
+
+            body: JSON.stringify({
+              sessionId,
+            }),
+          }
+        );
+
+        const data =
+          await response.json();
+
+        if (!response.ok || !data?.success) {
+          throw new Error(
+            data?.message ||
+              "Payment verification failed"
+          );
+        }
+
+        toast.success(
+          "Payment successful! Your booking is now paid."
+        );
+
+        // Reload booking data
+        await loadBookings();
+
+        // Remove payment query parameters
+        window.history.replaceState(
+          {},
+          "",
+          "/dashboard/bookings"
+        );
+      } catch (error) {
+        console.error(
+          "Payment verification error:",
+          error
+        );
+
+        toast.error(
+          error?.message ||
+            "Payment verification failed"
+        );
+      }
+    };
+
+    verifyPayment();
+  }, [paymentStatus, sessionId]);
+
+  // =========================
+  // Payment Cancelled
+  // =========================
+  useEffect(() => {
+    if (paymentStatus !== "cancelled") {
+      return;
+    }
+
+    toast.error("Payment was cancelled.");
+
+    window.history.replaceState(
+      {},
+      "",
+      "/dashboard/bookings"
+    );
+  }, [paymentStatus]);
+
+  // =========================
+  // Start Stripe Checkout
+  // =========================
+  const handlePayment = async (booking) => {
+    try {
+      setPaymentId(booking._id);
+
+      const { data: session } =
+        await authClient.getSession();
+
+      const email = session?.user?.email;
+
+      if (!email) {
+        toast.error(
+          "Please login to continue payment"
+        );
+
+        setPaymentId(null);
+        return;
+      }
+
+      const data =
+        await createCheckoutSession(
+          booking._id,
+          email
+        );
+
+      if (!data?.url) {
+        throw new Error(
+          "Stripe checkout URL was not returned"
+        );
+      }
+
+      // Redirect to Stripe Checkout
+      window.location.href = data.url;
+    } catch (error) {
+      console.error(
+        "Payment checkout error:",
+        error
+      );
+
+      toast.error(
+        error?.message ||
+          "Failed to start payment"
+      );
+
+      setPaymentId(null);
+    }
+  };
+
+  // =========================
+  // Summary
+  // =========================
   const allBookings = bookings.length;
 
   const pendingBookings = bookings.filter(
-    (booking) => booking.status === "pending"
+    (booking) =>
+      booking.status === "pending"
   ).length;
 
   const acceptedBookings = bookings.filter(
-    (booking) => booking.status === "accepted"
+    (booking) =>
+      booking.status === "accepted"
   ).length;
 
   const paidBookings = bookings.filter(
-    (booking) => booking.paymentStatus === "paid"
+    (booking) =>
+      booking.paymentStatus === "paid"
   ).length;
 
+  // =========================
+  // Loading
+  // =========================
   if (loading) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
@@ -107,6 +271,9 @@ export default function MyBookedTickets() {
     );
   }
 
+  // =========================
+  // UI
+  // =========================
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -124,7 +291,8 @@ export default function MyBookedTickets() {
         </h1>
 
         <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-          Track your bookings, payment status and upcoming journeys.
+          Track your bookings, payment status and
+          upcoming journeys.
         </p>
       </div>
 
@@ -196,7 +364,7 @@ export default function MyBookedTickets() {
                         Booking ID
                       </p>
 
-                      <p className="text-sm font-bold text-slate-900 dark:text-white">
+                      <p className="break-all text-sm font-bold text-slate-900 dark:text-white">
                         {booking._id}
                       </p>
                     </div>
@@ -206,6 +374,7 @@ export default function MyBookedTickets() {
                     className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${status.className}`}
                   >
                     <StatusIcon className="h-3.5 w-3.5" />
+
                     {status.label}
                   </span>
                 </div>
@@ -244,7 +413,7 @@ export default function MyBookedTickets() {
                           icon={MapPin}
                           label="Quantity"
                           value={`${booking.quantity} Ticket${
-                            booking.quantity > 1
+                            Number(booking.quantity) > 1
                               ? "s"
                               : ""
                           }`}
@@ -265,27 +434,51 @@ export default function MyBookedTickets() {
                         ).toLocaleString()}
                       </p>
 
-                      {/* Pay */}
+                      {/* Pay Now */}
                       {booking.status ===
                         "accepted" &&
                         booking.paymentStatus ===
                           "unpaid" && (
                           <button
-                            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-sky-600"
+                            onClick={() =>
+                              handlePayment(
+                                booking
+                              )
+                            }
+                            disabled={
+                              paymentId ===
+                              booking._id
+                            }
+                            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-60"
                           >
-                            <CreditCard className="h-4 w-4" />
-                            Pay Now
+                            <CreditCard
+                              size={18}
+                              className={
+                                paymentId ===
+                                booking._id
+                                  ? "animate-pulse"
+                                  : ""
+                              }
+                            />
+
+                            {paymentId ===
+                            booking._id
+                              ? "Redirecting..."
+                              : "Pay Now"}
                           </button>
                         )}
 
+                      {/* Paid */}
                       {booking.paymentStatus ===
                         "paid" && (
                         <div className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-emerald-50 px-4 py-2.5 text-sm font-bold text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
                           <CheckCircle2 className="h-4 w-4" />
+
                           Payment Complete
                         </div>
                       )}
 
+                      {/* Pending */}
                       {booking.status ===
                         "pending" && (
                         <div className="mt-4 text-center text-xs font-medium text-slate-400">
@@ -293,6 +486,7 @@ export default function MyBookedTickets() {
                         </div>
                       )}
 
+                      {/* Rejected */}
                       {booking.status ===
                         "rejected" && (
                         <div className="mt-4 text-center text-xs font-medium text-red-400">
@@ -330,6 +524,7 @@ function Info({ icon: Icon, label, value }) {
     <div>
       <div className="flex items-center gap-1.5 text-xs text-slate-400">
         <Icon className="h-3.5 w-3.5" />
+
         {label}
       </div>
 

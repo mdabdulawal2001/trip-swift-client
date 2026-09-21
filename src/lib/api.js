@@ -407,13 +407,8 @@ export async function createPayment(
 }
 
 export async function getUserPayments(email) {
-  const searchParams =
-    new URLSearchParams();
-
-  searchParams.set("email", email);
-
   const response = await fetch(
-    `${API_URL}/payments/user?${searchParams.toString()}`,
+    `${API_URL}/payments/user?email=${encodeURIComponent(email)}`,
     {
       cache: "no-store",
     }
@@ -423,23 +418,16 @@ export async function getUserPayments(email) {
 
   if (!response.ok) {
     throw new Error(
-      data?.message ||
-        "Failed to fetch transactions"
+      data?.message || "Failed to fetch user payments"
     );
   }
 
   return data;
 }
 
-// vendor
 export async function getVendorPayments(email) {
-  const searchParams =
-    new URLSearchParams();
-
-  searchParams.set("email", email);
-
   const response = await fetch(
-    `${API_URL}/payments/vendor?${searchParams.toString()}`,
+    `${API_URL}/payments/vendor?email=${encodeURIComponent(email)}`,
     {
       cache: "no-store",
     }
@@ -449,8 +437,7 @@ export async function getVendorPayments(email) {
 
   if (!response.ok) {
     throw new Error(
-      data?.message ||
-        "Failed to fetch vendor revenue"
+      data?.message || "Failed to fetch vendor payments"
     );
   }
 

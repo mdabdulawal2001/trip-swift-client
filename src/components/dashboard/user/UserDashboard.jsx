@@ -17,11 +17,12 @@ import StatCard from "@/components/dashboard/shared/StatCard";
 import SectionTitle from "@/components/dashboard/shared/SectionTitle";
 import QuickActions from "@/components/dashboard/shared/QuickActions";
 
-import { getUserBookings } from "@/lib/api";
+import { getUserBookings, getUserPayments } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 
 export default function UserDashboard() {
   const [bookings, setBookings] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const loadDashboardData = useCallback(async () => {
@@ -29,20 +30,26 @@ export default function UserDashboard() {
       setLoading(true);
 
       const { data: session } = await authClient.getSession();
+
       const email = session?.user?.email;
 
       if (!email) {
         setBookings([]);
+        setPayments([]);
         return;
       }
 
-      const data = await getUserBookings(email);
-      setBookings(data?.bookings || []);
+      const [bookingData, paymentData] = await Promise.all([
+        getUserBookings(email),
+        getUserPayments(email),
+      ]);
+
+      setBookings(bookingData?.bookings || []);
+      setPayments(paymentData?.payments || []);
     } catch (error) {
       console.error("User dashboard error:", error);
-      toast.error(
-        error.message || "Failed to load dashboard data."
-      );
+
+      toast.error(error.message || "Failed to load dashboard data.");
     } finally {
       setLoading(false);
     }
@@ -66,10 +73,7 @@ export default function UserDashboard() {
 
     return () => {
       window.removeEventListener("focus", handleFocus);
-      document.removeEventListener(
-        "visibilitychange",
-        handleVisibilityChange
-      );
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [loadDashboardData]);
 
@@ -77,27 +81,22 @@ export default function UserDashboard() {
   const totalBookings = bookings.length;
 
   const pendingBookings = bookings.filter(
-    (booking) =>
-      String(booking.status || "").toLowerCase() === "pending"
+    (booking) => String(booking.status || "").toLowerCase() === "pending",
   ).length;
 
-  const completedTrips = bookings.filter((booking) => {
-    const status = String(booking.status || "").toLowerCase();
-    return status === "paid" || status === "completed" || status === "confirmed";
-  }).length;
+  // const completedTrips = bookings.filter((booking) => {
+  //   const status = String(booking.status || "").toLowerCase();
+  //   return (
+  //     status === "paid" || status === "completed" || status === "confirmed"
+  //   );
+  // }).length;
 
-  const totalSpent = bookings
-    .filter(
-      (booking) =>
-        String(booking.paymentStatus || "").toLowerCase() === "paid" ||
-        String(booking.status || "").toLowerCase() === "paid"
-    )
-    .reduce(
-      (total, booking) =>
-        total + Number(booking.totalPrice || booking.price || 0),
-      0
-    );
+  const completedTrips = payments.length;
 
+  const totalSpent = payments.reduce(
+    (total, payment) => total + Number(payment.amount || 0),
+    0,
+  );
   // Upcoming Journey Calculation
   const upcomingJourney = useMemo(() => {
     const now = Date.now();
@@ -109,15 +108,13 @@ export default function UserDashboard() {
           const status = String(booking.status || "").toLowerCase();
 
           return (
-            departure > now &&
-            status !== "rejected" &&
-            status !== "cancelled"
+            departure > now && status !== "rejected" && status !== "cancelled"
           );
         })
         .sort(
           (a, b) =>
             new Date(a.departureDateTime).getTime() -
-            new Date(b.departureDateTime).getTime()
+            new Date(b.departureDateTime).getTime(),
         )[0] || null
     );
   }, [bookings]);
@@ -176,11 +173,7 @@ export default function UserDashboard() {
         <StatCard
           icon={<WalletCards />}
           label="Total Spent"
-          value={
-            loading
-              ? "..."
-              : `৳${totalSpent.toLocaleString()}`
-          }
+          value={loading ? "..." : `৳${totalSpent.toLocaleString()}`}
           change="Paid bookings"
         />
       </div>
@@ -220,8 +213,7 @@ export default function UserDashboard() {
                   </span>
 
                   <h3 className="mt-3 text-lg font-bold text-slate-900 dark:text-white">
-                    {upcomingJourney.from || "Unknown"}{" "}
-                    →{" "}
+                    {upcomingJourney.from || "Unknown"} →{" "}
                     {upcomingJourney.to || "Unknown"}
                   </h3>
 

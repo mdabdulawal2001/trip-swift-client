@@ -22,6 +22,7 @@ import RecentBookingRequests from "@/components/dashboard/vendor/RecentBookingRe
 import {
   getVendorTickets,
   getVendorBookings,
+  getVendorPayments,
 } from "@/lib/api";
 
 import { authClient } from "@/lib/auth-client";
@@ -29,14 +30,14 @@ import { authClient } from "@/lib/auth-client";
 export default function VendorDashboard() {
   const [tickets, setTickets] = useState([]);
   const [bookings, setBookings] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const loadDashboardData = async () => {
     try {
       setLoading(true);
 
-      const { data: session } =
-        await authClient.getSession();
+      const { data: session } = await authClient.getSession();
 
       const email = session?.user?.email;
       console.log("Vendor Dashboard Session Email:", email);
@@ -45,24 +46,19 @@ export default function VendorDashboard() {
         return;
       }
 
-      const [ticketData, bookingData] =
-        await Promise.all([
-          getVendorTickets(email),
-          getVendorBookings(email),
-        ]);
+      const [ticketData, bookingData, paymentData] = await Promise.all([
+        getVendorTickets(email),
+        getVendorBookings(email),
+        getVendorPayments(email),
+      ]);
 
       setTickets(ticketData?.tickets || []);
       setBookings(bookingData?.bookings || []);
+      setPayments(paymentData?.payments || []);
     } catch (error) {
-      console.error(
-        "Vendor dashboard error:",
-        error
-      );
+      console.error("Vendor dashboard error:", error);
 
-      toast.error(
-        error.message ||
-          "Failed to load dashboard data."
-      );
+      toast.error(error.message || "Failed to load dashboard data.");
     } finally {
       setLoading(false);
     }
@@ -75,48 +71,27 @@ export default function VendorDashboard() {
       loadDashboardData();
     };
 
-    window.addEventListener(
-      "focus",
-      handleFocus
-    );
+    window.addEventListener("focus", handleFocus);
 
     return () => {
-      window.removeEventListener(
-        "focus",
-        handleFocus
-      );
+      window.removeEventListener("focus", handleFocus);
     };
   }, []);
 
   const totalTickets = tickets.length;
 
   const activeTickets = tickets.filter(
-    (ticket) => ticket.status === "approved"
+    (ticket) => ticket.status === "approved",
   ).length;
 
   const pendingRequests = bookings.filter(
-    (booking) => booking.status === "pending"
+    (booking) => booking.status === "pending",
   ).length;
 
-  /*
-    Payment এখনো implement করা হয়নি।
-
-    তাই আপাতত accepted booking-এর
-    totalPrice-কে revenue হিসেবে দেখাচ্ছি।
-
-    Payment system implement করার পরে
-    এটাকে paid booking / paymentStatus অনুযায়ী
-    আরও accurate করা যাবে।
-  */
-  const totalRevenue = bookings
-    .filter(
-      (booking) => booking.status === "accepted"
-    )
-    .reduce(
-      (total, booking) =>
-        total + Number(booking.totalPrice || 0),
-      0
-    );
+  const totalRevenue = payments.reduce(
+    (total, payment) => total + Number(payment.amount || 0),
+    0,
+  );
 
   const monthlyTicketData = useMemo(() => {
     const currentDate = new Date();
@@ -127,7 +102,7 @@ export default function VendorDashboard() {
       const date = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() - i,
-        1
+        1,
       );
 
       months.push({
@@ -143,9 +118,7 @@ export default function VendorDashboard() {
     tickets.forEach((ticket) => {
       if (!ticket.createdAt) return;
 
-      const createdDate = new Date(
-        ticket.createdAt
-      );
+      const createdDate = new Date(ticket.createdAt);
 
       if (Number.isNaN(createdDate.getTime())) {
         return;
@@ -154,7 +127,7 @@ export default function VendorDashboard() {
       const matchedMonth = months.find(
         (item) =>
           item.year === createdDate.getFullYear() &&
-          item.monthIndex === createdDate.getMonth()
+          item.monthIndex === createdDate.getMonth(),
       );
 
       if (matchedMonth) {
@@ -166,10 +139,8 @@ export default function VendorDashboard() {
   }, [tickets]);
 
   const maxTicketCount = Math.max(
-    ...monthlyTicketData.map(
-      (item) => item.count
-    ),
-    1
+    ...monthlyTicketData.map((item) => item.count),
+    1,
   );
 
   return (
@@ -183,39 +154,29 @@ export default function VendorDashboard() {
         <StatCard
           icon={<Ticket />}
           label="Total Tickets"
-          value={
-            loading ? "..." : totalTickets
-          }
+          value={loading ? "..." : totalTickets}
           change="All added tickets"
         />
 
         <StatCard
           icon={<CheckCircle2 />}
           label="Active Tickets"
-          value={
-            loading ? "..." : activeTickets
-          }
+          value={loading ? "..." : activeTickets}
           change="Approved tickets"
         />
 
         <StatCard
           icon={<Clock3 />}
           label="Pending Requests"
-          value={
-            loading ? "..." : pendingRequests
-          }
+          value={loading ? "..." : pendingRequests}
           change="Needs attention"
         />
 
         <StatCard
           icon={<DollarSign />}
           label="Total Revenue"
-          value={
-            loading
-              ? "..."
-              : `৳${totalRevenue.toLocaleString()}`
-          }
-          change="Accepted bookings"
+          value={loading ? "..." : `৳${totalRevenue.toLocaleString()}`}
+          change="Paid bookings"
         />
       </div>
 
@@ -229,50 +190,37 @@ export default function VendorDashboard() {
           />
 
           <div className="mt-8 flex h-52 items-end gap-3 sm:gap-5">
-            {monthlyTicketData.map(
-              (item) => {
-                const height =
-                  item.count === 0
-                    ? 4
-                    : Math.max(
-                        (item.count /
-                          maxTicketCount) *
-                          100,
-                        8
-                      );
+            {monthlyTicketData.map((item) => {
+              const height =
+                item.count === 0
+                  ? 4
+                  : Math.max((item.count / maxTicketCount) * 100, 8);
 
-                return (
+              return (
+                <div
+                  key={`${item.year}-${item.monthIndex}`}
+                  className="flex h-full flex-1 items-end justify-center"
+                >
                   <div
-                    key={`${item.year}-${item.monthIndex}`}
-                    className="flex h-full flex-1 items-end justify-center"
-                  >
-                    <div
-                      className="w-full max-w-12 rounded-t-xl bg-sky-500 transition hover:bg-sky-600"
-                      style={{
-                        height: `${height}%`,
-                      }}
-                      title={`${item.month}: ${item.count} ticket${
-                        item.count !== 1
-                          ? "s"
-                          : ""
-                      }`}
-                    />
-                  </div>
-                );
-              }
-            )}
+                    className="w-full max-w-12 rounded-t-xl bg-sky-500 transition hover:bg-sky-600"
+                    style={{
+                      height: `${height}%`,
+                    }}
+                    title={`${item.month}: ${item.count} ticket${
+                      item.count !== 1 ? "s" : ""
+                    }`}
+                  />
+                </div>
+              );
+            })}
           </div>
 
           <div className="mt-3 flex justify-between text-xs text-slate-400">
-            {monthlyTicketData.map(
-              (item) => (
-                <span
-                  key={`${item.year}-${item.monthIndex}-label`}
-                >
-                  {item.month}
-                </span>
-              )
-            )}
+            {monthlyTicketData.map((item) => (
+              <span key={`${item.year}-${item.monthIndex}-label`}>
+                {item.month}
+              </span>
+            ))}
           </div>
         </div>
 

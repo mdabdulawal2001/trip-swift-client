@@ -111,7 +111,7 @@ export async function POST(request) {
       line_items: [
         {
           price_data: {
-            currency: "usd",
+            currency: "bdt",
             product_data: {
               name: booking.ticketTitle || "TripSwift Ticket",
               description: `${booking.from || ""} → ${
@@ -129,7 +129,7 @@ export async function POST(request) {
         userEmail,
       },
 
-      success_url: `${origin}/dashboard/bookings?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
 
       cancel_url: `${origin}/dashboard/bookings?payment=cancelled`,
 

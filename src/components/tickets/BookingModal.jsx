@@ -54,7 +54,7 @@ export default function BookingModal({
         userName:
           user.name || user.email.split("@")[0],
 
-        userEmail: user.email,
+        // userEmail: user.email,
 
         quantity,
       };

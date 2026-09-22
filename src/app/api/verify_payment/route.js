@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
+
 import { stripe } from "@/lib/stripe";
 
 export async function POST(request) {
   try {
+    // ============================================================
+    // REQUEST BODY
+    // ============================================================
+
     const body = await request.json();
 
     const sessionId = String(
@@ -19,6 +25,60 @@ export async function POST(request) {
       );
     }
 
+    // ============================================================
+    // CURRENT AUTHENTICATED USER
+    // ============================================================
+
+    const requestHeaders = await headers();
+
+    const { auth } = await import("@/lib/auth");
+
+    const authSession = await auth.api.getSession({
+      headers: requestHeaders,
+    });
+
+    const currentUserEmail = String(
+      authSession?.user?.email || ""
+    )
+      .trim()
+      .toLowerCase();
+
+    if (!currentUserEmail) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "You must be logged in to verify payment",
+        },
+        { status: 401 }
+      );
+    }
+
+    // ============================================================
+    // GET JWT TOKEN
+    // ============================================================
+
+    const {
+      token: authToken,
+      error: tokenError,
+    } = await auth.api.getToken({
+      headers: requestHeaders,
+    });
+
+    if (tokenError || !authToken) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Authorization token is required",
+        },
+        { status: 401 }
+      );
+    }
+
+    // ============================================================
+    // GET STRIPE SESSION
+    // ============================================================
+
     const session =
       await stripe.checkout.sessions.retrieve(
         sessionId
@@ -34,7 +94,10 @@ export async function POST(request) {
       );
     }
 
-    // Payment must actually be paid
+    // ============================================================
+    // PAYMENT MUST ACTUALLY BE PAID
+    // ============================================================
+
     if (session.payment_status !== "paid") {
       return NextResponse.json(
         {
@@ -47,13 +110,20 @@ export async function POST(request) {
       );
     }
 
+    // ============================================================
+    // STRIPE METADATA
+    // ============================================================
+
     const bookingId =
       session.metadata?.bookingId;
 
-    const userEmail =
-      session.metadata?.userEmail;
+    const stripeUserEmail = String(
+      session.metadata?.userEmail || ""
+    )
+      .trim()
+      .toLowerCase();
 
-    if (!bookingId || !userEmail) {
+    if (!bookingId || !stripeUserEmail) {
       return NextResponse.json(
         {
           success: false,
@@ -63,6 +133,27 @@ export async function POST(request) {
         { status: 400 }
       );
     }
+
+    // ============================================================
+    // VERIFY STRIPE SESSION BELONGS TO CURRENT USER
+    // ============================================================
+
+    if (
+      stripeUserEmail !== currentUserEmail
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Payment session does not belong to the current user.",
+        },
+        { status: 403 }
+      );
+    }
+
+    // ============================================================
+    // SERVER API URL
+    // ============================================================
 
     const serverApiUrl =
       process.env.NEXT_PUBLIC_SERVER_API_URL;
@@ -78,13 +169,19 @@ export async function POST(request) {
       );
     }
 
-    // Get booking from backend
+    // ============================================================
+    // GET REAL BOOKING FROM EXPRESS BACKEND
+    // ============================================================
+
     const bookingResponse = await fetch(
-      `${serverApiUrl}/bookings/${bookingId}?email=${encodeURIComponent(
-        userEmail
-      )}`,
+      `${serverApiUrl}/bookings/${bookingId}`,
       {
         method: "GET",
+
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+
         cache: "no-store",
       }
     );
@@ -110,16 +207,80 @@ export async function POST(request) {
       );
     }
 
-    const booking = bookingData.booking;
+    const booking =
+      bookingData.booking;
 
-    // Prevent amount mismatch
+    // ============================================================
+    // EXTRA BOOKING OWNERSHIP CHECK
+    // ============================================================
+
+    const bookingUserEmail = String(
+      booking?.userEmail || ""
+    )
+      .trim()
+      .toLowerCase();
+
+    if (
+      !bookingUserEmail ||
+      bookingUserEmail !== currentUserEmail
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "You are not authorized to verify this booking payment",
+        },
+        { status: 403 }
+      );
+    }
+
+    // ============================================================
+    // PREVENT VERIFYING A REJECTED / UNACCEPTED BOOKING
+    // ============================================================
+
+    if (booking.status !== "accepted") {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "This booking is not accepted for payment",
+        },
+        { status: 400 }
+      );
+    }
+
+    // ============================================================
+    // PREVENT DUPLICATE PAYMENT
+    // ============================================================
+
+    if (booking.paymentStatus === "paid") {
+      return NextResponse.json(
+        {
+          success: true,
+          message:
+            "Payment has already been verified",
+          alreadyProcessed: true,
+          payment: null,
+        },
+        { status: 200 }
+      );
+    }
+
+    // ============================================================
+    // VERIFY STRIPE AMOUNT
+    // ============================================================
+
     const stripeAmount =
       Number(session.amount_total || 0) / 100;
 
     const bookingAmount =
       Number(booking.totalPrice);
 
-    if (stripeAmount !== bookingAmount) {
+    if (
+      !Number.isFinite(stripeAmount) ||
+      !Number.isFinite(bookingAmount) ||
+      stripeAmount !== bookingAmount
+    ) {
       return NextResponse.json(
         {
           success: false,
@@ -130,7 +291,28 @@ export async function POST(request) {
       );
     }
 
-    // Confirm payment in Express backend
+    // ============================================================
+    // PAYMENT CONFIRM SECRET
+    // ============================================================
+
+    const paymentConfirmSecret =
+      process.env.PAYMENT_CONFIRM_SECRET;
+
+    if (!paymentConfirmSecret) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Payment confirmation secret is not configured",
+        },
+        { status: 500 }
+      );
+    }
+
+    // ============================================================
+    // CONFIRM PAYMENT IN EXPRESS BACKEND
+    // ============================================================
+
     const confirmResponse = await fetch(
       `${serverApiUrl}/payments/confirm`,
       {
@@ -138,13 +320,20 @@ export async function POST(request) {
 
         headers: {
           "Content-Type": "application/json",
+
+          "x-payment-confirm-secret":
+            paymentConfirmSecret,
         },
 
         body: JSON.stringify({
           bookingId,
-          stripeSessionId: session.id,
+
+          stripeSessionId:
+            session.id,
+
           paymentIntentId:
             session.payment_intent || null,
+
           amount: bookingAmount,
         }),
       }
@@ -171,15 +360,21 @@ export async function POST(request) {
       );
     }
 
+    // ============================================================
+    // SUCCESS
+    // ============================================================
+
     return NextResponse.json({
       success: true,
+
       message:
         "Payment verified and confirmed successfully",
 
       alreadyProcessed:
         confirmData.alreadyProcessed || false,
 
-      payment: confirmData.payment || null,
+      payment:
+        confirmData.payment || null,
     });
   } catch (error) {
     console.error(

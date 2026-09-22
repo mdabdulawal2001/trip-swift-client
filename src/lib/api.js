@@ -6,6 +6,97 @@ if (!API_URL) {
   );
 }
 
+// ============================================================
+// JWT TOKEN
+// ============================================================
+
+const getToken = async () => {
+  // Client side
+  if (typeof window !== "undefined") {
+    const { authClient } = await import("@/lib/auth-client");
+
+    const { data, error } = await authClient.token();
+
+    if (error) {
+      throw new Error(
+        error.message || "Failed to get client JWT token",
+      );
+    }
+
+    return data?.token || null;
+  }
+
+  // Server side
+  try {
+    const { auth } = await import("@/lib/auth");
+    const { headers } = await import("next/headers");
+
+    const { token, error } = await auth.api.getToken({
+      headers: await headers(),
+    });
+
+    if (error) {
+      throw new Error(
+        error.message || "Failed to get server JWT token",
+      );
+    }
+
+    return token || null;
+  } catch (error) {
+    console.error("JWT Error:", error);
+
+    throw error;
+  }
+};
+
+// ============================================================
+// AUTH HEADERS
+// ============================================================
+
+const getAuthHeaders = async () => {
+  const token = await getToken();
+
+  return {
+    "Content-Type": "application/json",
+
+    ...(token && {
+      Authorization: `Bearer ${token}`,
+    }),
+  };
+};
+
+// ============================================================
+// AUTH FETCH
+// ============================================================
+
+const authFetch = async (endpoint, options = {}) => {
+  const headers = await getAuthHeaders();
+
+  const response = await fetch(`${API_URL}${endpoint}`, {
+    ...options,
+
+    headers: {
+      ...headers,
+      ...(options.headers || {}),
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message || "Something went wrong",
+    );
+  }
+
+  return data;
+};
+
+// ============================================================
+// PUBLIC TICKETS
+// ============================================================
+
+// get all approved tickets
 export async function getTickets({
   from = "",
   to = "",
@@ -49,14 +140,10 @@ export async function getTickets({
   return response.json();
 }
 
-// vendor get tickets
-export async function getVendorTickets(email) {
-  const searchParams = new URLSearchParams();
-
-  searchParams.set("email", email);
-
+// get advertised tickets for homepage
+export async function getAdvertisedTickets() {
   const response = await fetch(
-    `${API_URL}/tickets/vendor?${searchParams.toString()}`,
+    `${API_URL}/tickets/advertised`,
     {
       cache: "no-store",
     },
@@ -65,16 +152,22 @@ export async function getVendorTickets(email) {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data?.message || "Failed to fetch vendor tickets");
+    throw new Error(
+      data?.message || "Failed to fetch advertised tickets",
+    );
   }
 
   return data;
 }
 
+// get ticket by id
 export async function getTicketById(id) {
-  const response = await fetch(`${API_URL}/tickets/${id}`, {
-    cache: "no-store",
-  });
+  const response = await fetch(
+    `${API_URL}/tickets/${id}`,
+    {
+      cache: "no-store",
+    },
+  );
 
   if (!response.ok) {
     throw new Error("Failed to fetch ticket");
@@ -83,91 +176,47 @@ export async function getTicketById(id) {
   return response.json();
 }
 
+// ============================================================
+// VENDOR TICKETS
+// ============================================================
+
+// vendor get tickets
+export async function getVendorTickets(email) {
+  const searchParams = new URLSearchParams();
+
+  searchParams.set("email", email);
+
+  return authFetch(
+    `/tickets/vendor?${searchParams.toString()}`,
+    {
+      cache: "no-store",
+    },
+  );
+}
+
 // vendor post tickets
 export async function addTicket(ticketData) {
-  const response = await fetch(`${API_URL}/tickets`, {
+  return authFetch("/tickets", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+
     body: JSON.stringify(ticketData),
   });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data?.message || "Failed to add ticket");
-  }
-
-  return data;
-}
-
-// get admin all tickets
-export async function getAdminTickets() {
-  const response = await fetch(`${API_URL}/tickets/admin`, {
-    cache: "no-store",
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data?.message || "Failed to fetch admin tickets");
-  }
-
-  return data;
-}
-
-// admin update ticket status
-export async function updateTicketStatus(id, status) {
-  const response = await fetch(`${API_URL}/tickets/${id}/status`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ status }),
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data?.message || "Failed to update ticket status");
-  }
-
-  return data;
 }
 
 // update ticket by vendor
 export async function updateTicket(id, ticketData) {
-  const response = await fetch(`${API_URL}/tickets/${id}`, {
+  return authFetch(`/tickets/${id}`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
+
     body: JSON.stringify(ticketData),
   });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data?.message || "Failed to update ticket");
-  }
-
-  return data;
 }
 
 // delete ticket by vendor
 export async function deleteTicket(id) {
-  const response = await fetch(`${API_URL}/tickets/${id}`, {
+  return authFetch(`/tickets/${id}`, {
     method: "DELETE",
   });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data?.message || "Failed to delete ticket");
-  }
-
-  return data;
 }
 
 // get vendor ticket by id
@@ -176,78 +225,82 @@ export async function getVendorTicketById(id, email) {
 
   searchParams.set("email", email);
 
-  const response = await fetch(
-    `${API_URL}/tickets/vendor/${id}?${searchParams.toString()}`,
+  return authFetch(
+    `/tickets/vendor/${id}?${searchParams.toString()}`,
     {
       cache: "no-store",
     },
   );
+}
 
-  const data = await response.json();
+// admin toggle ticket advertisement
+export async function updateTicketAdvertisement(
+  id,
+  advertised,
+) {
+  return authFetch(`/tickets/${id}/advertise`, {
+    method: "PATCH",
 
-  if (!response.ok) {
-    throw new Error(data?.message || "Failed to fetch vendor ticket");
-  }
+    body: JSON.stringify({
+      advertised,
+    }),
+  });
+}
 
-  return data;
+// ============================================================
+// ADMIN TICKETS
+// ============================================================
+
+// get admin all tickets
+export async function getAdminTickets() {
+  return authFetch("/tickets/admin", {
+    cache: "no-store",
+  });
+}
+
+// admin update ticket status
+export async function updateTicketStatus(id, status) {
+  return authFetch(`/tickets/${id}/status`, {
+    method: "PATCH",
+
+    body: JSON.stringify({
+      status,
+    }),
+  });
 }
 
 // get admin ticket by id
 export async function getAdminTicketById(id) {
-  const response = await fetch(`${API_URL}/tickets/admin/${id}`, {
+  return authFetch(`/tickets/admin/${id}`, {
     cache: "no-store",
   });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data?.message || "Failed to fetch admin ticket");
-  }
-
-  return data;
 }
 
-// create booking
+// ============================================================
+// BOOKINGS
+// ============================================================
 
+// create booking
 export async function createBooking(bookingData) {
-  const response = await fetch(`${API_URL}/bookings`, {
+  return authFetch("/bookings", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+
     body: JSON.stringify(bookingData),
   });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data?.message || "Failed to create booking");
-  }
-
-  return data;
 }
 
 // get user bookings
-
 export async function getUserBookings(email) {
   const searchParams = new URLSearchParams();
 
   searchParams.set("email", email);
 
-  const response = await fetch(
-    `${API_URL}/bookings/user?${searchParams.toString()}`,
+  return authFetch(
+    `/bookings/user?${searchParams.toString()}`,
     {
       cache: "no-store",
     },
   );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data?.message || "Failed to fetch bookings");
-  }
-
-  return data;
 }
 
 // get vendor bookings
@@ -256,214 +309,111 @@ export async function getVendorBookings(email) {
 
   searchParams.set("email", email);
 
-  const response = await fetch(
-    `${API_URL}/bookings/vendor?${searchParams.toString()}`,
+  return authFetch(
+    `/bookings/vendor?${searchParams.toString()}`,
     {
       cache: "no-store",
     },
   );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data?.message || "Failed to fetch vendor bookings");
-  }
-
-  return data;
 }
 
 // update booking status by vendor
 export async function updateBookingStatus(id, status) {
-  const response = await fetch(`${API_URL}/bookings/${id}/status`, {
+  return authFetch(`/bookings/${id}/status`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ status }),
+
+    body: JSON.stringify({
+      status,
+    }),
   });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data?.message || "Failed to update booking status");
-  }
-
-  return data;
 }
+
+// ============================================================
+// ADMIN DASHBOARD
+// ============================================================
 
 // get admin dashboard stats
-
 export async function getAdminDashboardStats() {
-  const response = await fetch(`${API_URL}/admin/dashboard-stats`, {
+  return authFetch("/admin/dashboard-stats", {
     cache: "no-store",
   });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data?.message || "Failed to fetch admin dashboard stats");
-  }
-
-  return data;
 }
+
+// ============================================================
+// STRIPE CHECKOUT
+// ============================================================
 
 // checkout session
-export async function createCheckoutSession(
-  bookingId,
-  userEmail
-) {
-  const response = await fetch(
-    "/api/checkout_sessions",
-    {
-      method: "POST",
-
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify({
-        bookingId,
-        userEmail,
-      }),
-    }
-  );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(
-      data?.message ||
-        "Failed to create checkout session"
-    );
-  }
-
-  return data;
-}
-
-// get advertised tickets for homepage
-export async function getAdvertisedTickets() {
-  const response = await fetch(`${API_URL}/tickets/advertised`, {
-    cache: "no-store",
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data?.message || "Failed to fetch advertised tickets");
-  }
-
-  return data;
-}
-
-// admin toggle ticket advertisement
-export async function updateTicketAdvertisement(id, advertised) {
-  const response = await fetch(`${API_URL}/tickets/${id}/advertise`, {
-    method: "PATCH",
+export async function createCheckoutSession(bookingId, userEmail) {
+  const response = await fetch("/api/checkout_sessions", {
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      advertised,
+      bookingId,
+      userEmail,
     }),
   });
 
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data?.message || "Failed to update advertisement");
+    throw new Error(
+      data?.message || "Failed to create checkout session",
+    );
   }
 
   return data;
 }
 
-// payment related functions
+// ============================================================
+// PAYMENT
+// ============================================================
+
+// create payment
 export async function createPayment(
   bookingId,
-  userEmail
+  userEmail,
 ) {
-  const response = await fetch(
-    `${API_URL}/payments`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        bookingId,
-        userEmail,
-      }),
-    }
-  );
+  return authFetch("/payments", {
+    method: "POST",
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(
-      data?.message || "Payment failed"
-    );
-  }
-
-  return data;
+    body: JSON.stringify({
+      bookingId,
+      userEmail,
+    }),
+  });
 }
 
+// get user payments
 export async function getUserPayments(email) {
-  const response = await fetch(
-    `${API_URL}/payments/user?email=${encodeURIComponent(email)}`,
+  const searchParams = new URLSearchParams();
+
+  searchParams.set("email", email);
+
+  return authFetch(
+    `/payments/user?${searchParams.toString()}`,
     {
       cache: "no-store",
-    }
+    },
   );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(
-      data?.message || "Failed to fetch user payments"
-    );
-  }
-
-  return data;
 }
 
+// get vendor payments
 export async function getVendorPayments(email) {
-  const response = await fetch(
-    `${API_URL}/payments/vendor?email=${encodeURIComponent(email)}`,
+  return authFetch(
+    `/payments/vendor?email=${encodeURIComponent(email)}`,
     {
       cache: "no-store",
-    }
+    },
   );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(
-      data?.message || "Failed to fetch vendor payments"
-    );
-  }
-
-  return data;
 }
 
-// admin
+// get admin payments
 export async function getAdminPayments() {
-  const response = await fetch(
-    `${API_URL}/payments/admin`,
-    {
-      cache: "no-store",
-    }
-  );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(
-      data?.message ||
-        "Failed to fetch admin revenue"
-    );
-  }
-
-  return data;
+  return authFetch("/payments/admin", {
+    cache: "no-store",
+  });
 }
-
-
 

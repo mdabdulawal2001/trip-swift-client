@@ -68,6 +68,14 @@ export const auth = betterAuth({
       defaultRole: "user",
     }),
 
-    jwt(),
+    jwt({
+      jwt: {
+        definePayload: ({ user }) => ({
+          id: user.id,
+          email: user.email,
+          role: user.role,
+        }),
+      },
+    }),
   ],
 });

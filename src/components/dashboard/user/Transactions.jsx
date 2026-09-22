@@ -9,6 +9,9 @@ import {
   XCircle,
 } from "lucide-react";
 
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 
@@ -23,8 +26,7 @@ export default function Transactions() {
     try {
       setLoading(true);
 
-      const { data: session } =
-        await authClient.getSession();
+      const { data: session } = await authClient.getSession();
 
       const email = session?.user?.email;
 
@@ -37,15 +39,9 @@ export default function Transactions() {
 
       setPayments(data?.payments || []);
     } catch (error) {
-      console.error(
-        "Transactions loading error:",
-        error
-      );
+      console.error("Transactions loading error:", error);
 
-      toast.error(
-        error?.message ||
-          "Failed to load transactions."
-      );
+      toast.error(error?.message || "Failed to load transactions.");
     } finally {
       setLoading(false);
     }
@@ -64,38 +60,156 @@ export default function Transactions() {
       }
     };
 
-    window.addEventListener(
-      "focus",
-      handleFocus
-    );
+    window.addEventListener("focus", handleFocus);
 
-    document.addEventListener(
-      "visibilitychange",
-      handleVisibilityChange
-    );
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      window.removeEventListener(
-        "focus",
-        handleFocus
-      );
+      window.removeEventListener("focus", handleFocus);
 
-      document.removeEventListener(
-        "visibilitychange",
-        handleVisibilityChange
-      );
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [loadPayments]);
 
   const totalPaid = payments.reduce(
-    (total, payment) =>
-      total + Number(payment.amount || 0),
-    0
+    (total, payment) => total + Number(payment.amount || 0),
+    0,
   );
 
   const successfulPayments = payments.filter(
-    (payment) => payment.status === "paid"
+    (payment) => payment.status === "paid",
   ).length;
+
+  const handleExport = () => {
+    if (!payments.length) {
+      toast.error("No transactions available to export.");
+      return;
+    }
+
+    try {
+      const doc = new jsPDF();
+
+      const pageWidth = doc.internal.pageSize.getWidth();
+
+      // Header
+      doc.setFontSize(22);
+      doc.setFont("helvetica", "bold");
+      doc.text("TripSwift", 14, 20);
+
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      doc.text("Transaction History", 14, 28);
+
+      // Export date
+      doc.setFontSize(9);
+      doc.setTextColor(100);
+      doc.text(`Generated: ${formatDate(new Date())}`, pageWidth - 14, 20, {
+        align: "right",
+      });
+
+      // Summary
+      doc.setTextColor(40);
+      doc.setFontSize(10);
+
+      doc.text(`Total Paid: BDT ${totalPaid.toLocaleString()}`, 14, 40);
+
+      doc.text(`Successful Transactions: ${successfulPayments}`, 14, 47);
+
+      // Table
+      const tableRows = payments.map((payment) => [
+        payment.transactionId || "N/A",
+        payment.bookingId ? String(payment.bookingId).slice(-8) : "N/A",
+        payment.ticketTitle || "Ticket",
+        formatDate(payment.paymentDate),
+        `BDT ${Number(payment.amount || 0).toLocaleString()}`,
+        "Stripe",
+        payment.status || "N/A",
+      ]);
+
+      autoTable(doc, {
+        startY: 56,
+
+        head: [
+          [
+            "Transaction ID",
+            "Booking ID",
+            "Ticket",
+            "Payment Date",
+            "Amount",
+            "Method",
+            "Status",
+          ],
+        ],
+
+        body: tableRows,
+
+        theme: "grid",
+
+        styles: {
+          fontSize: 8,
+          cellPadding: 3,
+          valign: "middle",
+        },
+
+        headStyles: {
+          fontStyle: "bold",
+          textColor: 255,
+        },
+
+        columnStyles: {
+          0: { cellWidth: 30 },
+          1: { cellWidth: 24 },
+          2: { cellWidth: 35 },
+          3: { cellWidth: 27 },
+          4: { cellWidth: 25 },
+          5: { cellWidth: 20 },
+          6: { cellWidth: 22 },
+        },
+
+        didParseCell: (data) => {
+          if (data.section === "body" && data.column.index === 6) {
+            data.cell.styles.fontStyle = "bold";
+          }
+        },
+
+        margin: {
+          left: 14,
+          right: 14,
+        },
+      });
+
+      // Footer
+      const pageCount = doc.internal.getNumberOfPages();
+
+      for (let page = 1; page <= pageCount; page++) {
+        doc.setPage(page);
+
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        doc.setFontSize(8);
+        doc.setTextColor(120);
+
+        doc.text(
+          `TripSwift • Transaction History • Page ${page} of ${pageCount}`,
+          pageWidth / 2,
+          pageHeight - 10,
+          {
+            align: "center",
+          },
+        );
+      }
+
+      const fileDate = new Date().toISOString().slice(0, 10);
+
+      doc.save(`tripswift-transactions-${fileDate}.pdf`);
+
+      toast.success("Transaction PDF downloaded successfully.");
+    } catch (error) {
+      toast.error("Transaction PDF export error:", error);
+
+      toast.error("Failed to generate transaction PDF.");
+    }
+  };
 
   const formatDate = (dateValue) => {
     if (!dateValue) return "N/A";
@@ -122,22 +236,21 @@ export default function Transactions() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-sky-500">
-            Payments
-          </p>
+          <p className="text-sm font-semibold text-sky-500">Payments</p>
 
           <h1 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
             Transaction History
           </h1>
 
           <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-            View and track all your ticket payment
-            transactions.
+            View and track all your ticket payment transactions.
           </p>
         </div>
 
         <button
           type="button"
+          onClick={handleExport}
+          disabled={loading || payments.length === 0}
           className="flex w-fit items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:text-sky-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-sky-700"
         >
           <ArrowDownToLine className="h-4 w-4" />
@@ -150,31 +263,16 @@ export default function Transactions() {
         <StatCard
           icon={CreditCard}
           label="Total Paid"
-          value={
-            loading
-              ? "..."
-              : `৳${totalPaid.toLocaleString()}`
-          }
+          value={loading ? "..." : `৳${totalPaid.toLocaleString()}`}
         />
 
         <StatCard
           icon={CheckCircle2}
           label="Successful"
-          value={
-            loading
-              ? "..."
-              : String(successfulPayments).padStart(
-                  2,
-                  "0"
-                )
-          }
+          value={loading ? "..." : String(successfulPayments).padStart(2, "0")}
         />
 
-        <StatCard
-          icon={XCircle}
-          label="Failed"
-          value="00"
-        />
+        <StatCard icon={XCircle} label="Failed" value="00" />
       </div>
 
       {/* Desktop Table */}
@@ -255,9 +353,7 @@ function StatCard({ icon: Icon, label, value }) {
         <Icon className="h-5 w-5" />
       </div>
 
-      <p className="mt-4 text-xs text-slate-400">
-        {label}
-      </p>
+      <p className="mt-4 text-xs text-slate-400">{label}</p>
 
       <p className="mt-1 text-xl font-bold text-slate-900 dark:text-white">
         {value}
@@ -266,10 +362,7 @@ function StatCard({ icon: Icon, label, value }) {
   );
 }
 
-function TransactionRow({
-  payment,
-  formatDate,
-}) {
+function TransactionRow({ payment, formatDate }) {
   return (
     <tr className="transition hover:bg-slate-50 dark:hover:bg-slate-950">
       <td className="px-5 py-5">
@@ -278,10 +371,7 @@ function TransactionRow({
         </p>
 
         <p className="mt-1 text-xs text-slate-400">
-          Booking:{" "}
-          {String(payment.bookingId || "").slice(
-            -8
-          )}
+          Booking: {String(payment.bookingId || "").slice(-8)}
         </p>
       </td>
 
@@ -312,10 +402,7 @@ function TransactionRow({
   );
 }
 
-function TransactionCard({
-  payment,
-  formatDate,
-}) {
+function TransactionCard({ payment, formatDate }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
       <div className="flex items-start justify-between gap-3">
@@ -325,10 +412,7 @@ function TransactionCard({
           </p>
 
           <p className="mt-1 text-xs text-slate-400">
-            Booking:{" "}
-            {String(payment.bookingId || "").slice(
-              -8
-            )}
+            Booking: {String(payment.bookingId || "").slice(-8)}
           </p>
         </div>
 
@@ -343,9 +427,7 @@ function TransactionCard({
 
       <div className="mt-4 grid grid-cols-2 gap-4">
         <div>
-          <p className="text-xs text-slate-400">
-            Date
-          </p>
+          <p className="text-xs text-slate-400">Date</p>
 
           <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-300">
             {formatDate(payment.paymentDate)}
@@ -353,9 +435,7 @@ function TransactionCard({
         </div>
 
         <div>
-          <p className="text-xs text-slate-400">
-            Payment
-          </p>
+          <p className="text-xs text-slate-400">Payment</p>
 
           <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-300">
             Stripe
@@ -364,9 +444,7 @@ function TransactionCard({
       </div>
 
       <div className="mt-5 flex items-center justify-between rounded-xl bg-slate-50 p-4 dark:bg-slate-950">
-        <span className="text-xs text-slate-400">
-          Amount
-        </span>
+        <span className="text-xs text-slate-400">Amount</span>
 
         <span className="font-bold text-slate-900 dark:text-white">
           ৳{Number(payment.amount || 0).toLocaleString()}
@@ -416,10 +494,7 @@ function LoadingCards() {
 function EmptyRow() {
   return (
     <tr>
-      <td
-        colSpan={6}
-        className="px-5 py-16 text-center text-sm text-slate-400"
-      >
+      <td colSpan={6} className="px-5 py-16 text-center text-sm text-slate-400">
         No payment transactions found.
       </td>
     </tr>

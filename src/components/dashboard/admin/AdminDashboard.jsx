@@ -2,7 +2,14 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { Megaphone, Ticket, TrendingUp, UserRound, Users } from "lucide-react";
+import {
+  Megaphone,
+  Ticket,
+  TrendingUp,
+  UserRound,
+  Users,
+  WalletCards,
+} from "lucide-react";
 
 import toast from "react-hot-toast";
 
@@ -30,7 +37,9 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error("Admin dashboard error:", error);
 
-      toast.error(error.message || "Failed to load admin dashboard.");
+      toast.error(
+        error.message || "Failed to load admin dashboard."
+      );
     } finally {
       setLoading(false);
     }
@@ -51,23 +60,34 @@ export default function AdminDashboard() {
 
     window.addEventListener("focus", handleFocus);
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibilityChange
+    );
 
     return () => {
       window.removeEventListener("focus", handleFocus);
 
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange
+      );
     };
   }, [loadDashboardData]);
 
-  // AdminDashboard.js / AdminDashboard.jsx
   const stats = data?.stats || {};
+
   const approvalStats = data?.approvalStats || {
     approved: 0,
     pending: 0,
     rejected: 0,
   };
+
   const activities = data?.activities || [];
+
+  const formatCurrency = (amount) => {
+    return `৳${Number(amount || 0).toLocaleString("en-BD")}`;
+  };
 
   const formatActivityTime = (dateValue) => {
     if (!dateValue) return "";
@@ -119,6 +139,7 @@ export default function AdminDashboard() {
       title="Platform Overview"
       description="Monitor users, tickets, bookings and platform activity."
     >
+      {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           icon={<Users />}
@@ -135,21 +156,27 @@ export default function AdminDashboard() {
         />
 
         <StatCard
-          icon={<Ticket />}
-          label="Pending Tickets"
-          value={loading ? "..." : stats.pendingTickets || 0}
-          change="Needs review"
+          icon={<WalletCards />}
+          label="Total Revenue"
+          value={
+            loading
+              ? "..."
+              : formatCurrency(stats.totalRevenue)
+          }
+          change="From successful payments"
         />
 
         <StatCard
-          icon={<TrendingUp />}
+          icon={<Ticket />}
           label="Total Bookings"
           value={loading ? "..." : stats.totalBookings || 0}
           change="All bookings"
         />
       </div>
 
+      {/* Approval + Activity */}
       <div className="mt-6 grid gap-6 xl:grid-cols-2">
+        {/* Ticket Approval */}
         <div className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
           <SectionTitle
             title="Ticket Approval"
@@ -178,6 +205,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
+        {/* Platform Activity */}
         <div className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
           <SectionTitle
             title="Platform Activity"
@@ -213,6 +241,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      {/* Quick Actions */}
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
         <AdminAction
           href="/dashboard/manage-tickets"
@@ -246,13 +275,19 @@ function ActivitySkeleton() {
 
       <div className="flex-1 space-y-2">
         <div className="h-4 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+
         <div className="h-3 w-56 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
       </div>
     </div>
   );
 }
 
-function AdminAction({ href, icon, title, description }) {
+function AdminAction({
+  href,
+  icon,
+  title,
+  description,
+}) {
   return (
     <Link
       href={href}
@@ -264,9 +299,13 @@ function AdminAction({ href, icon, title, description }) {
         </div>
 
         <div>
-          <h3 className="font-bold text-slate-900 dark:text-white">{title}</h3>
+          <h3 className="font-bold text-slate-900 dark:text-white">
+            {title}
+          </h3>
 
-          <p className="mt-1 text-xs text-slate-500">{description}</p>
+          <p className="mt-1 text-xs text-slate-500">
+            {description}
+          </p>
         </div>
 
         <span className="ml-auto">

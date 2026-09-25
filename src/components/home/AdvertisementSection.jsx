@@ -79,9 +79,9 @@ const AdvertisementSection = () => {
           className="mb-10"
         >
           <div className="mb-3 flex items-center gap-2">
-            <span className="h-1 w-8 rounded-full bg-[#047BFB]" />
+            <span className="h-1 w-8 rounded-full bg-[#1978B8]" />
 
-            <span className="text-sm font-semibold uppercase tracking-[0.18em] text-[#047BFB]">
+            <span className="text-sm font-semibold uppercase tracking-[0.18em] text-[#238FD7]">
               Featured Deals
             </span>
           </div>
@@ -90,7 +90,7 @@ const AdvertisementSection = () => {
             <div>
               <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl lg:text-[42px]">
                 Featured{" "}
-                <span className="text-[#047BFB]">
+                <span className="text-[#238FD7]">
                   Tickets
                 </span>
               </h2>
@@ -193,7 +193,7 @@ const AdvertisementSection = () => {
                           />
 
                           <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-800 backdrop-blur dark:bg-slate-900/90 dark:text-white">
-                            <TransportIcon className="text-[#047BFB]" />
+                            <TransportIcon className="text-[#238FD7]" />
 
                             {ticket.type}
                           </div>
@@ -274,7 +274,7 @@ const AdvertisementSection = () => {
                               </p>
                             </div>
 
-                            <span className="flex items-center gap-1 text-xs font-bold text-[#047BFB]">
+                            <span className="flex items-center gap-1 text-xs font-bold bg-[#238FD7] text-white py-3 px-4 rounded-lg hover:bg-[#1A73AD] transition-all duration-300 ease-in-out shadow-sm hover:shadow-md hover:-translate-y-0.5">
                               View details
 
                               <FaArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />

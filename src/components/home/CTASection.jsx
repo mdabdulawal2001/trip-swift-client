@@ -11,7 +11,7 @@ const CTASection = () => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.7 }}
-        className="relative mx-auto max-w-7xl overflow-hidden rounded-3xl bg-linear-to-br from-[#035EC4] via-[#047BFB] to-[#38BDF8] px-6 py-14 text-center text-white sm:px-12 sm:py-16 lg:px-20"
+        className="relative mx-auto max-w-7xl overflow-hidden rounded-3xl bg-linear-to-br from-[#035EC4] via-[#238FD7] to-[#38BDF8] px-6 py-14 text-center text-white sm:px-12 sm:py-16 lg:px-20"
       >
         {/* Decorative elements */}
         <div className="absolute -left-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-2xl" />

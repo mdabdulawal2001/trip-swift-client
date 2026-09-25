@@ -6,6 +6,7 @@ import ThemeProvider from "@/components/providers/ThemeProvider";
 import { ProfileProvider } from "@/context/ProfileContext";
 import Footer from "@/components/shared/Footer";
 import { Toaster } from "react-hot-toast";
+import NavbarCopy from "@/components/shared/NavbarCopy";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,10 +30,11 @@ export default function RootLayout({ children }) {
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="">
+      <body className="bg-[#F4F9FC] dark:bg-[#071522]!">
         <ThemeProvider>
           <ProfileProvider>
-            <Navbar />
+            <NavbarCopy />
+            {/* <Navbar /> */}
             {children}
             <Footer />
           </ProfileProvider>

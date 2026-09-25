@@ -14,9 +14,11 @@ import {
   FaCcMastercard,
   FaCcAmex,
   FaPaypal,
+  FaTwitter,
 } from "react-icons/fa";
 
 import Image from "next/image";
+import { FaX, FaXTwitter } from "react-icons/fa6";
 
 const Footer = () => {
   return (
@@ -92,7 +94,7 @@ const Footer = () => {
                   label: "Facebook",
                 },
                 {
-                  icon: FaInstagram,
+                  icon: FaXTwitter,
                   label: "Instagram",
                 },
                 {
@@ -107,7 +109,7 @@ const Footer = () => {
                     key={social.label}
                     href="#"
                     aria-label={social.label}
-                    className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-sm text-slate-600 transition-all duration-300 hover:border-[#047BFB] hover:bg-[#047BFB] hover:text-white dark:border-slate-800 dark:text-slate-400"
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-sm text-slate-600 transition-all duration-300 hover:border-[#047BFB] hover:bg-[#238FD7] hover:text-white dark:border-slate-800 dark:text-slate-400"
                   >
                     <Icon />
                   </a>
@@ -132,7 +134,7 @@ const Footer = () => {
                 <li key={label}>
                   <Link
                     href={href}
-                    className="text-sm text-slate-600 transition-colors hover:text-[#047BFB] dark:text-slate-400"
+                    className="text-sm text-slate-600 transition-colors duration-300 hover:text-[#238FD7] hover:underline dark:text-slate-400 dark:hover:text-[#238FD7]"
                   >
                     {label}
                   </Link>
@@ -149,7 +151,7 @@ const Footer = () => {
 
             <div className="mt-5 space-y-4">
               <div className="flex gap-3">
-                <FaMapMarkerAlt className="mt-1 shrink-0 text-[#047BFB]" />
+                <FaMapMarkerAlt className="mt-1 shrink-0 text-[#238FD7]" />
 
                 <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">
                   Dhaka, Bangladesh
@@ -157,7 +159,7 @@ const Footer = () => {
               </div>
 
               <div className="flex gap-3">
-                <FaPhoneAlt className="mt-1 shrink-0 text-[#047BFB]" />
+                <FaPhoneAlt className="mt-1 shrink-0 text-[#238FD7]" />
 
                 <p className="text-sm text-slate-600 dark:text-slate-400">
                   +880 1XXX-XXXXXX
@@ -165,7 +167,7 @@ const Footer = () => {
               </div>
 
               <div className="flex gap-3">
-                <FaEnvelope className="mt-1 shrink-0 text-[#047BFB]" />
+                <FaEnvelope className="mt-1 shrink-0 text-[#238FD7]" />
 
                 <p className="break-all text-sm text-slate-600 dark:text-slate-400">
                   support@tripswift.com
@@ -190,9 +192,9 @@ const Footer = () => {
                 (Icon, index) => (
                   <div
                     key={index}
-                    className="flex h-10 w-14 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-2xl text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+                    className="flex h-10 w-14 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-2xl text-[#238FD7] dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 hover:bg-[#a0c3da] transition-colors duration-300 cursor-pointer"
                   >
-                    <Icon />
+                    <Icon className="text-[#238FD7]"/>
                   </div>
                 )
               )}

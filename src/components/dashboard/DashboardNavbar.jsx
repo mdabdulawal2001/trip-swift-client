@@ -1,118 +1,74 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Bell, Menu, Search, X } from "lucide-react";
-import { Avatar, Button } from "@heroui/react";
+
+import { Bell, Menu } from "lucide-react";
+
+import { Avatar } from "@heroui/react";
+
 import ThemeToggle from "@/components/shared/ThemeToggle";
 
-export default function DashboardNavbar({ role }) {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const pathname = usePathname();
-
-  const mobileMenus = {
-  user: [
-    {
-      label: "Dashboard",
-      href: "/dashboard",
-    },
-    {
-      label: "My Booked Tickets",
-      href: "/dashboard/bookings",
-    },
-    {
-      label: "Transaction History",
-      href: "/dashboard/transactions",
-    },
-    {
-      label: "My Profile",
-      href: "/dashboard/profile",
-    },
-  ],
-
-  vendor: [
-    {
-      label: "Dashboard",
-      href: "/dashboard",
-    },
-    {
-      label: "Add Ticket",
-      href: "/dashboard/add-ticket",
-    },
-    {
-      label: "My Added Tickets",
-      href: "/dashboard/my-tickets",
-    },
-    {
-      label: "Requested Bookings",
-      href: "/dashboard/requested-bookings",
-    },
-    {
-      label: "Revenue Overview",
-      href: "/dashboard/revenue",
-    },
-    {
-      label: "My Profile",
-      href: "/dashboard/profile",
-    },
-  ],
-
-  admin: [
-    {
-      label: "Dashboard",
-      href: "/dashboard",
-    },
-    {
-      label: "Manage Tickets",
-      href: "/dashboard/manage-tickets",
-    },
-    {
-      label: "Manage Users",
-      href: "/dashboard/manage-users",
-    },
-    {
-      label: "Advertise Tickets",
-      href: "/dashboard/advertise",
-    },
-    {
-      label: "My Profile",
-      href: "/dashboard/profile",
-    },
-  ],
-};
-
-const navItems = mobileMenus[role] || mobileMenus.user;
-
+export default function DashboardNavbar({
+  role,
+  onMenuClick,
+  setSidebarOpen,
+}) {
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/90">
+    <header className="sticky top-0 z-40 rounded-lg border-b border-slate-200/80 bg-white/90 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/90">
       <div className="flex h-18 items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Left */}
+
+        {/* ================================================== */}
+        {/* LEFT */}
+        {/* ================================================== */}
+
         <div className="flex items-center gap-4">
-          {/* Mobile menu */}
+
+          {/* MOBILE MENU BUTTON */}
+
           <button
             type="button"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 lg:hidden"
-            aria-label="Toggle menu"
+            onClick={() =>
+              setSidebarOpen((prev) => !prev)
+            }
+            className="
+              flex
+              h-10
+              w-10
+              items-center
+              justify-center
+              rounded-xl
+              border
+              border-slate-200
+              text-slate-700
+              transition
+              hover:bg-slate-100
+              dark:border-slate-700
+              dark:text-slate-200
+              dark:hover:bg-slate-800
+              lg:hidden
+            "
+            aria-label="Open dashboard sidebar"
           >
-            {mobileOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
+            <Menu className="h-5 w-5" />
           </button>
+
+          {/* DESKTOP BRAND */}
 
           <Link
             href="/dashboard"
             className="hidden items-center gap-2 lg:flex"
           >
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-500 text-white">
-              <span className="text-sm font-bold">TS</span>
+              <span className="text-sm font-bold">
+                TS
+              </span>
             </div>
 
             <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-              Trip<span className="text-sky-500">Swift</span>
+              Trip
+              <span className="text-sky-500">
+                Swift
+              </span>
             </span>
           </Link>
 
@@ -129,34 +85,95 @@ const navItems = mobileMenus[role] || mobileMenus.user;
           </div>
         </div>
 
-        {/* Right */}
+        {/* ================================================== */}
+        {/* RIGHT */}
+        {/* ================================================== */}
+
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Search */}
+
+          {/* SEARCH */}
+
           <button
             type="button"
-            className="hidden h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white sm:flex"
+            className="
+              hidden
+              h-10
+              w-10
+              items-center
+              justify-center
+              rounded-xl
+              text-slate-500
+              transition
+              hover:bg-slate-100
+              hover:text-slate-900
+              dark:hover:bg-slate-800
+              dark:hover:text-white
+              sm:flex
+            "
           >
-            <Search className="h-5 w-5" />
+            <span className="text-lg">
+              ⌕
+            </span>
           </button>
 
-          {/* Notification */}
+          {/* NOTIFICATION */}
+
           <button
             type="button"
-            className="relative flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
+            className="
+              relative
+              flex
+              h-10
+              w-10
+              items-center
+              justify-center
+              rounded-xl
+              text-slate-500
+              transition
+              hover:bg-slate-100
+              hover:text-slate-900
+              dark:hover:bg-slate-800
+              dark:hover:text-white
+            "
           >
             <Bell className="h-5 w-5" />
 
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-sky-500 ring-2 ring-white dark:ring-slate-950" />
+            <span
+              className="
+                absolute
+                right-2
+                top-2
+                h-2
+                w-2
+                rounded-full
+                bg-sky-500
+                ring-2
+                ring-white
+                dark:ring-slate-950
+              "
+            />
           </button>
+
+          {/* THEME */}
 
           <ThemeToggle />
 
           <div className="hidden h-8 w-px bg-slate-200 dark:bg-slate-800 sm:block" />
 
-          {/* User */}
+          {/* USER */}
+
           <button
             type="button"
-            className="flex items-center gap-2 rounded-xl p-1 transition hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="
+              flex
+              items-center
+              gap-2
+              rounded-xl
+              p-1
+              transition
+              hover:bg-slate-100
+              dark:hover:bg-slate-800
+            "
           >
             <Avatar
               size="sm"
@@ -176,35 +193,6 @@ const navItems = mobileMenus[role] || mobileMenus.user;
           </button>
         </div>
       </div>
-
-      {/* Mobile Navigation */}
-      {mobileOpen && (
-        <div className="border-t border-slate-200 bg-white px-4 py-4 dark:border-slate-800 dark:bg-slate-950 lg:hidden">
-          <nav className="space-y-1">
-            {navItems.map((item) => {
-              const active =
-                item.href === "/dashboard"
-                  ? pathname === "/dashboard"
-                  : pathname.startsWith(item.href);
-
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={`block rounded-xl px-4 py-3 text-sm font-medium transition ${
-                    active
-                      ? "bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400"
-                      : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-      )}
     </header>
   );
 }

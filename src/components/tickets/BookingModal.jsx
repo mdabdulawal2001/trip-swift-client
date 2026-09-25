@@ -6,6 +6,7 @@ import { createBooking } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import Swal from "sweetalert2";
 
 export default function BookingModal({ isOpen, onClose, ticket }) {
   const [quantity, setQuantity] = useState(1);
@@ -30,7 +31,12 @@ export default function BookingModal({ isOpen, onClose, ticket }) {
       const user = session?.user;
 
       if (!user?.email) {
-        toast.error("Please login to book a ticket");
+        // toast.error("Please login to book a ticket");
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Please login to book a ticket!",
+        });
 
         onClose();
 
@@ -49,7 +55,11 @@ export default function BookingModal({ isOpen, onClose, ticket }) {
 
       await createBooking(bookingData);
 
-      toast.success("Booking request submitted successfully");
+      Swal.fire({
+        title: "Good job!",
+        text: "Your Booking request submitted successfully!",
+        icon: "success",
+      });
 
       onClose();
 
@@ -141,21 +151,21 @@ export default function BookingModal({ isOpen, onClose, ticket }) {
                 variant="flat"
                 onPress={onClose}
                 disabled={loading}
-                className="shadow-sm text-red-500 hover:bg-[#fe4583] hover:text-white hover:transition-colors duration-500"
+                className="border shadow-sm text-red-500 hover:bg-[#fe4583] hover:text-white hover:transition-colors duration-500"
               >
                 Cancel
               </Button>
 
-              <Link href={`/dashboard/bookings`}>
-                <Button
-                  color="primary"
-                  onPress={handleBooking}
-                  isLoading={loading}
-                  className="bg-[#238fd8] hover:bg-[#4567fdf6] hover:transition-colors duration-300"
-                >
-                  Confirm Booking
-                </Button>
-              </Link>
+              {/* <Link href={`/dashboard/bookings`}> */}
+              <Button
+                color="primary"
+                onPress={handleBooking}
+                isLoading={loading}
+                className="bg-[#238fd8] hover:bg-[#1978B8] hover:transition-colors duration-300"
+              >
+                Confirm Booking
+              </Button>
+              {/* </Link> */}
             </Modal.Footer>
           </Modal.Dialog>
         </Modal.Container>

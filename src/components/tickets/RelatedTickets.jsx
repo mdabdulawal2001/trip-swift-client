@@ -4,9 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { FaArrowRight } from "react-icons/fa";
 
-export default function RelatedTickets({
-  tickets = [],
-}) {
+export default function RelatedTickets({ tickets = [] }) {
   if (!tickets.length) {
     return null;
   }
@@ -25,21 +23,14 @@ export default function RelatedTickets({
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {tickets.slice(0, 3).map((ticket, index) => (
-          <RelatedTicket
-            key={ticket._id}
-            ticket={ticket}
-            index={index}
-          />
+          <RelatedTicket key={ticket._id} ticket={ticket} index={index} />
         ))}
       </div>
     </section>
   );
 }
 
-function RelatedTicket({
-  ticket,
-  index,
-}) {
+function RelatedTicket({ ticket, index }) {
   return (
     <motion.div
       initial={{
@@ -69,9 +60,7 @@ function RelatedTicket({
       />
 
       <div className="p-5">
-        <p className="text-xs text-slate-500">
-          {ticket.operator}
-        </p>
+        <p className="text-xs text-slate-500">{ticket.operator}</p>
 
         <h3 className="mt-1 font-bold text-slate-900 dark:text-white">
           {ticket.title}
@@ -82,16 +71,16 @@ function RelatedTicket({
         </p>
 
         <div className="mt-4 flex items-center justify-between">
-          <p className="font-bold text-[#047BFB]">
+          <p className="font-bold text-[#238FD7] text-[20px]">
             ৳{Number(ticket.price).toLocaleString()}
           </p>
 
           <Link
             href={`/tickets/${ticket._id}`}
-            className="flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-[#047BFB] dark:text-slate-400"
+            className="cursor-pointer flex items-center gap-1 text-xs font-bold bg-[#238FD7] text-white py-2.5 px-3 rounded-lg hover:bg-[#1A73AD] transition-all duration-300 ease-in-out shadow-sm hover:shadow-md hover:-translate-y-0.5"
           >
             View
-            <FaArrowRight />
+            <FaArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
         </div>
       </div>

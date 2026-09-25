@@ -47,7 +47,7 @@ export default function DashboardLayout({
 
   return (
     <DashboardRoleProvider role={role}>
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+      <div className="mt-10 mb-10 max-w-7xl min-h-screen mx-auto bg-slate-50 dark:bg-slate-950">
         <div className="flex min-h-screen">
           <DashboardSidebar
             role={role}

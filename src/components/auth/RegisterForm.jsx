@@ -103,7 +103,7 @@ const RegisterForm = () => {
           transition={{ duration: 0.45, delay: 0.1 }}
           className="mb-7 text-center"
         >
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-cyan-400">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-[#238FD7] dark:bg-blue-500/10 dark:text-cyan-400">
             <UserPlus className="h-6 w-6" />
           </div>
 
@@ -303,7 +303,7 @@ const RegisterForm = () => {
           {/* SUBMIT */}
           <Button
             type="submit"
-            className="mt-1 h-12 w-full cursor-pointer rounded-xl bg-[#4148E8] text-sm font-bold text-white shadow-sm transition-all duration-300 hover:bg-[#343BD1] hover:shadow-lg hover:shadow-blue-500/20 active:scale-[0.98] dark:bg-blue-500 dark:hover:bg-blue-600"
+            className="mt-1 h-12 w-full cursor-pointer rounded-xl bg-[#238FD7] text-sm font-bold text-white shadow-sm transition-all duration-300 hover:bg-[#1978B8] hover:shadow-lg hover:shadow-blue-500/20 active:scale-[0.98] dark:bg-blue-500 dark:hover:bg-blue-600"
           >
             <UserPlus className="h-4 w-4" />
             Create Account
@@ -315,7 +315,7 @@ const RegisterForm = () => {
           Already have an account?{" "}
           <Link
             href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
-            className="cursor-pointer text-blue-500 font-medium"
+            className="cursor-pointer text-[#1978B8] hover:text-[#6fb2de] font-medium hover:transition-colors duration-200"
           >
             Login
           </Link>

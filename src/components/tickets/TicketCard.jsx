@@ -227,11 +227,11 @@ export default function TicketCard({ ticket }) {
             href={`/tickets/${ticket._id}`}
             className="
               flex min-h-12 w-full items-center justify-center gap-2
-              rounded-xl bg-[#248ed7] px-5
+              rounded-xl bg-[#238FD7] px-5
               text-sm font-bold text-white
               shadow-lg shadow-[#047BFB]/20
               transition-all duration-300
-              hover:-translate-y-0.5 hover:bg-[#035EC4]
+              hover:-translate-y-0.5 hover:bg-[#1978B8]
               hover:shadow-xl hover:shadow-[#047BFB]/25
               focus:outline-none focus:ring-2
               focus:ring-[#047BFB]/40 focus:ring-offset-2

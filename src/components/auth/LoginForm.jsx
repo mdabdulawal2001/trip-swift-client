@@ -124,7 +124,7 @@ const LoginForm = () => {
                 duration: 0.4,
                 delay: 0.2,
               }}
-              className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-cyan-400"
+              className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-[#238FD7] dark:bg-blue-500/10 dark:text-cyan-400"
             >
               <LogIn className="h-6 w-6" />
             </motion.div>
@@ -172,38 +172,43 @@ const LoginForm = () => {
 
             {/* Password */}
             <TextField
-              isRequired
-              name="password"
-              type={`${isShowPassword ? "text" : "password"}`}
-              validate={(value) => {
-                if (!value) {
-                  return "Password is required";
-                }
-                return null;
-              }}
-            >
-              <Label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                Password
-              </Label>
+            isRequired
+            name="password"
+            type="password"
+            validate={(value) => {
+              if (!value) {
+                return "Password is required";
+              }
+              return null;
+            }}
+          >
+            <Label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+              Password
+            </Label>
 
-              <div className="relative mt-1.5">
-                <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            {/* Input + Eye Button */}
+            <div className="relative mt-1.5">
+              <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-slate-400" />
 
-                <Input
-                  name="password"
-                  className="w-full pl-10"
-                  placeholder="Enter your password"
-                />
-              </div>
+              <Input
+                name="password"
+                type={isShowPassword ? "text" : "password"}
+                className="w-full pl-10 pr-10"
+                placeholder="Create a strong password"
+              />
 
-              <FieldError />
-              <span
-                className="cursor-pointer absolute right-3 top-74 md:top-73.75"
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 z-10 flex h-5 w-5 -translate-y-1/2 cursor-pointer items-center justify-center text-slate-500 transition-colors hover:text-slate-700 dark:hover:text-slate-200"
                 onClick={() => setIsShowPassword(!isShowPassword)}
+                aria-label={isShowPassword ? "Hide password" : "Show password"}
               >
-                {isShowPassword ? <FaEye></FaEye> : <FaEyeSlash />}
-              </span>
-            </TextField>
+                {isShowPassword ? <FaEye /> : <FaEyeSlash />}
+              </button>
+            </div>
+
+            <FieldError />
+          </TextField>
 
             {/* Forgot Password */}
             <div className="-mt-1 flex justify-end">
@@ -218,7 +223,7 @@ const LoginForm = () => {
             {/* Submit */}
             <Button
               type="submit"
-              className="h-12 w-full cursor-pointer rounded-xl bg-[#4148E8] text-sm font-bold text-white shadow-sm transition-all duration-300 hover:bg-[#343BD1] hover:shadow-lg hover:shadow-blue-500/20 active:scale-[0.98] dark:bg-blue-500 dark:hover:bg-blue-600"
+              className="h-12 w-full cursor-pointer rounded-xl bg-[#238FD7] text-sm font-bold text-white shadow-sm transition-all duration-300 hover:bg-[#1978B8] hover:shadow-lg hover:shadow-blue-500/20 active:scale-[0.98] dark:bg-blue-500 dark:hover:bg-blue-600"
             >
               <LogIn className="h-4 w-4" />
               Login
@@ -230,7 +235,7 @@ const LoginForm = () => {
             Don’t have an account?{" "}
             <Link href={`/register?callbackUrl=${encodeURIComponent(
                 callbackUrl
-              )}`} className="text-blue-500 cursor-pointer">
+              )}`} className="cursor-pointer text-[#1978B8] hover:text-[#6fb2de] font-medium hover:transition-colors duration-200">
               Register
             </Link>
           </p>

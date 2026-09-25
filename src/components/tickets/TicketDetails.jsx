@@ -38,11 +38,11 @@ const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
     <>
       <main className="min-h-screen bg-slate-50/70 dark:bg-slate-950">
         {/* Breadcrumb / Back */}
-        <section className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
-          <div className="mx-auto max-w-7xl px-5 py-5 sm:px-8 lg:px-8">
+        <section className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950!">
+          <div className="flex justify-center md:justify-start mx-auto max-w-7xl px-5 py-5 sm:px-8 lg:px-8">
             <Link
               href="/tickets"
-              className="group inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-[#047BFB] dark:text-slate-400"
+              className="group inline-flex items-center gap-2 text-sm font-semibold bg-[#238FD7] px-4 py-3 rounded-xl text-white transition hover:bg-[#1978B8] dark:text-slate-400"
             >
               <FaArrowLeft className="transition-transform group-hover:-translate-x-1" />
               Back to all tickets
@@ -246,7 +246,7 @@ const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
                       className={`cursor-pointer mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold transition ${
                         cannotBook || ticket.status !== "approved"
                           ? "cursor-not-allowed bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-600"
-                          : "bg-[#238fd8] text-white hover:bg-[#035EC4] hover:transition-all duration-500 hover:gap-4 hover:shadow-lg"
+                          : "bg-[#238fd8] text-white hover:bg-[#1978B8] hover:transition-all duration-500 hover:gap-4 hover:shadow-lg"
                       }`}
                     >
                       {ticket.status === "pending"

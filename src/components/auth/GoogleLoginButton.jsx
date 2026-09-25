@@ -52,7 +52,7 @@ const GoogleLoginButton = ({callbackUrl = "/"}) => {
         whileTap={{ scale: 0.98 }}
         className="mt-5 flex h-12 w-full cursor-pointer items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 shadow-sm transition-all duration-300 hover:border-blue-200 hover:bg-slate-50 hover:shadow-md dark:border-slate-700 dark:bg-slate-900! dark:text-slate-200 dark:hover:border-blue-800 dark:hover:bg-slate-800"
       >
-        <FaGoogle className="h-5 w-5 text-blue-600 dark:text-cyan-400"/>
+        <FaGoogle className="h-5 w-5 text-[#238FD7] dark:text-cyan-400"/>
         {isLoading ? "Connecting..." : "Continue with Google"}
       </motion.button>
     </div>

@@ -73,7 +73,7 @@ const Countdown = ({ targetDate }) => {
         {items.map(([label, value]) => (
           <div
             key={label}
-            className="rounded-xl bg-white p-3 text-center dark:bg-slate-900"
+            className="rounded-xl bg-white p-3 text-center dark:bg-slate-900!"
           >
             <p className="text-xl font-bold text-[#047BFB] sm:text-2xl">
               {String(value).padStart(2, "0")}

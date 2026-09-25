@@ -134,7 +134,7 @@ const Footer = () => {
                 <li key={label}>
                   <Link
                     href={href}
-                    className="text-sm text-slate-600 transition-colors duration-300 hover:text-[#238FD7] hover:underline dark:text-slate-400 dark:hover:text-[#238FD7]"
+                    className="text-sm text-slate-600 hover:text-[#238FD7] hover:underline hover:transition-all hover:duration-300 dark:text-slate-400 dark:hover:text-[#238FD7]"
                   >
                     {label}
                   </Link>
@@ -207,7 +207,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom */}
-        <div className="mt-14 flex flex-col gap-4 border-t border-slate-200 pt-6 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-14 flex flex-col items-center gap-4 border-t border-slate-200 pt-6 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-slate-500 dark:text-slate-500">
             © {new Date().getFullYear()} TripSwift. All rights reserved.
           </p>
@@ -215,14 +215,14 @@ const Footer = () => {
           <div className="flex gap-5 text-xs text-slate-500">
             <Link
               href="#"
-              className="transition hover:text-[#047BFB]"
+              className="transition hover:text-[#047BFB] hover:underline"
             >
               Privacy Policy
             </Link>
 
             <Link
               href="#"
-              className="transition hover:text-[#047BFB]"
+              className="transition hover:text-[#047BFB] hover:underline"
             >
               Terms & Conditions
             </Link>

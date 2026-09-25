@@ -13,7 +13,7 @@ export default function TicketFilters({
       <select
         value={value || ""}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-[#047BFB] dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-semibold text-slate-800 outline-none transition-all duration-300 focus:border-[#047BFB] focus:ring-2 focus:ring-[#047BFB]/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
       >
         <option value="">All Transport</option>
         <option value="AC Bus">AC Bus</option>

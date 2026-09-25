@@ -5,43 +5,32 @@ import { Button, Modal } from "@heroui/react";
 import { createBooking } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
-export default function BookingModal({
-  isOpen,
-  onClose,
-  ticket,
-}) {
+export default function BookingModal({ isOpen, onClose, ticket }) {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
-  
+
   const increase = () => {
-    setQuantity((prev) =>
-      Math.min(prev + 1, ticket?.quantity || 1)
-    );
+    setQuantity((prev) => Math.min(prev + 1, ticket?.quantity || 1));
   };
 
   const decrease = () => {
-    setQuantity((prev) =>
-      Math.max(prev - 1, 1)
-    );
+    setQuantity((prev) => Math.max(prev - 1, 1));
   };
 
-  const totalPrice =
-    Number(ticket?.price || 0) * quantity;
+  const totalPrice = Number(ticket?.price || 0) * quantity;
 
   const handleBooking = async () => {
     try {
       setLoading(true);
 
-      const { data: session } =
-        await authClient.getSession();
+      const { data: session } = await authClient.getSession();
 
       const user = session?.user;
 
       if (!user?.email) {
-        toast.error(
-          "Please login to book a ticket"
-        );
+        toast.error("Please login to book a ticket");
 
         onClose();
 
@@ -51,8 +40,7 @@ export default function BookingModal({
       const bookingData = {
         ticketId: ticket._id,
 
-        userName:
-          user.name || user.email.split("@")[0],
+        userName: user.name || user.email.split("@")[0],
 
         // userEmail: user.email,
 
@@ -61,9 +49,7 @@ export default function BookingModal({
 
       await createBooking(bookingData);
 
-      toast.success(
-        "Booking request submitted successfully"
-      );
+      toast.success("Booking request submitted successfully");
 
       onClose();
 
@@ -71,10 +57,7 @@ export default function BookingModal({
     } catch (error) {
       console.error(error);
 
-      toast.error(
-        error.message ||
-          "Failed to create booking"
-      );
+      toast.error(error.message || "Failed to create booking");
     } finally {
       setLoading(false);
     }
@@ -84,7 +67,7 @@ export default function BookingModal({
     <Modal
       isOpen={isOpen}
       onOpenChange={(open) => {
-         if (!open && !loading) {
+        if (!open && !loading) {
           onClose();
         }
       }}
@@ -102,9 +85,7 @@ export default function BookingModal({
             <Modal.Body>
               <div className="space-y-5">
                 <div>
-                  <p className="text-lg font-bold">
-                    {ticket?.title}
-                  </p>
+                  <p className="text-lg font-bold">{ticket?.title}</p>
 
                   <p className="text-sm text-default-500">
                     {ticket?.from} → {ticket?.to}
@@ -112,19 +93,13 @@ export default function BookingModal({
                 </div>
 
                 <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-800">
-                  <p className="text-sm text-default-500">
-                    Price per ticket
-                  </p>
+                  <p className="text-sm text-default-500">Price per ticket</p>
 
-                  <p className="text-xl font-bold">
-                    ৳{ticket?.price}
-                  </p>
+                  <p className="text-xl font-bold">৳{ticket?.price}</p>
                 </div>
 
                 <div>
-                  <p className="mb-3 text-sm font-medium">
-                    Number of Tickets
-                  </p>
+                  <p className="mb-3 text-sm font-medium">Number of Tickets</p>
 
                   <div className="flex items-center justify-between rounded-xl border p-2">
                     <button
@@ -136,16 +111,12 @@ export default function BookingModal({
                       −
                     </button>
 
-                    <span className="text-lg font-bold">
-                      {quantity}
-                    </span>
+                    <span className="text-lg font-bold">{quantity}</span>
 
                     <button
                       type="button"
                       onClick={increase}
-                      disabled={
-                        quantity >= (ticket?.quantity || 1) || loading
-                      }
+                      disabled={quantity >= (ticket?.quantity || 1) || loading}
                       className="h-10 w-10 rounded-lg border font-bold disabled:opacity-40"
                     >
                       +
@@ -153,19 +124,14 @@ export default function BookingModal({
                   </div>
 
                   <p className="mt-2 text-xs text-default-500">
-                    Maximum {ticket?.quantity} tickets
-                    available.
+                    Maximum {ticket?.quantity} tickets available.
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between rounded-xl border p-4">
-                  <span className="font-medium">
-                    Total
-                  </span>
+                  <span className="font-medium">Total</span>
 
-                  <span className="text-xl font-bold">
-                    ৳{totalPrice}
-                  </span>
+                  <span className="text-xl font-bold">৳{totalPrice}</span>
                 </div>
               </div>
             </Modal.Body>
@@ -175,17 +141,21 @@ export default function BookingModal({
                 variant="flat"
                 onPress={onClose}
                 disabled={loading}
+                className="shadow-sm text-red-500 hover:bg-[#fe4583] hover:text-white hover:transition-colors duration-500"
               >
                 Cancel
               </Button>
 
-              <Button
-                color="primary"
-                onPress={handleBooking}
-                isLoading={loading}
-              >
-                Confirm Booking
-              </Button>
+              <Link href={`/dashboard/bookings`}>
+                <Button
+                  color="primary"
+                  onPress={handleBooking}
+                  isLoading={loading}
+                  className="bg-[#238fd8] hover:bg-[#4567fdf6] hover:transition-colors duration-300"
+                >
+                  Confirm Booking
+                </Button>
+              </Link>
             </Modal.Footer>
           </Modal.Dialog>
         </Modal.Container>

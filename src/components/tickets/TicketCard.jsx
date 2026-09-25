@@ -108,7 +108,7 @@ export default function TicketCard({ ticket }) {
       <div className="flex flex-1 flex-col p-5">
         {/* Operator */}
         <div className="mb-3 flex items-center justify-between gap-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#047BFB]">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#238fd8]">
             {ticket.operator}
           </p>
 
@@ -133,8 +133,8 @@ export default function TicketCard({ ticket }) {
         <div
           className="
             mt-5 rounded-2xl border border-slate-100
-            bg-slate-50 p-4
-            dark:border-slate-800 dark:bg-slate-950/70
+            bg-slate-100 p-4
+            dark:border-slate-800! dark:bg-slate-950/70
           "
         >
           <div className="flex items-center gap-3">
@@ -227,7 +227,7 @@ export default function TicketCard({ ticket }) {
             href={`/tickets/${ticket._id}`}
             className="
               flex min-h-12 w-full items-center justify-center gap-2
-              rounded-xl bg-[#047BFB] px-5
+              rounded-xl bg-[#248ed7] px-5
               text-sm font-bold text-white
               shadow-lg shadow-[#047BFB]/20
               transition-all duration-300

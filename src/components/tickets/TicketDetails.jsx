@@ -210,7 +210,7 @@ const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
                     </div>
                   )}
 
-                  {/* Countdown - শুধুমাত্র Approved টিকিট হলে দেখাবে */}
+                  {/* Countdown */}
                   {ticket.status === "approved" && (
                     <div className="mt-6">
                       <Countdown targetDate={ticket.departureDateTime} />
@@ -243,10 +243,10 @@ const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
                     <button
                       disabled={cannotBook || ticket.status !== "approved"}
                       onClick={() => setIsBookingOpen(true)}
-                      className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold transition ${
+                      className={`cursor-pointer mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold transition ${
                         cannotBook || ticket.status !== "approved"
                           ? "cursor-not-allowed bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-600"
-                          : "bg-[#047BFB] text-white hover:bg-[#035EC4] hover:shadow-lg"
+                          : "bg-[#238fd8] text-white hover:bg-[#035EC4] hover:transition-all duration-500 hover:gap-4 hover:shadow-lg"
                       }`}
                     >
                       {ticket.status === "pending"
@@ -267,7 +267,7 @@ const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
 
                   {/* Trust / Security Info */}
                   <div className="mt-5 flex items-start gap-3 rounded-xl border border-slate-200 p-4 dark:border-slate-800">
-                    <FaShieldAlt className="mt-0.5 shrink-0 text-[#047BFB]" />
+                    <FaShieldAlt className="mt-0.5 shrink-0 text-[#238fd8]" />
                     <div>
                       <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                         Safe & reliable booking

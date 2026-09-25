@@ -74,7 +74,7 @@ const WhyTripSwift = () => {
           <div className="mb-4 flex items-center justify-center gap-2">
             <span className="h-px w-8 bg-blue-400 dark:bg-[#38BDF8]" />
 
-            <span className="text-sm font-semibold uppercase tracking-[0.28em] text-blue-600 dark:text-[#38BDF8]">
+            <span className="text-sm font-semibold uppercase tracking-[0.28em] text-[#238FD7] dark:text-[#38BDF8]">
               Why TripSwift
             </span>
 
@@ -83,7 +83,7 @@ const WhyTripSwift = () => {
 
           <h2 className="text-3xl font-bold tracking-tight text-[#10264A] sm:text-4xl lg:text-[42px] dark:text-white!">
             Travel Better.{" "}
-            <span className="text-blue-600 dark:text-[#38BDF8]">
+            <span className="text-[#238FD7] dark:text-[#38BDF8]">
               Travel Smarter.
             </span>
           </h2>
@@ -112,7 +112,7 @@ const WhyTripSwift = () => {
                 whileHover={{ y: -6 }}
                 className="group rounded-2xl border border-blue-100 bg-white/75 p-6 shadow-[0_8px_30px_rgba(15,73,130,0.025)] transition-all duration-300 hover:border-blue-200 hover:bg-white dark:border-slate-800 dark:bg-slate-900/60 dark:shadow-none dark:hover:border-[#38BDF8]/40 dark:hover:bg-slate-900"
               >
-                <div className="flex h-15 w-15 items-center justify-center rounded-[1.7rem] bg-blue-50 text-3xl text-blue-600 transition-all duration-300 group-hover:bg-blue-600 group-hover:text-white dark:h-12 dark:w-12 dark:rounded-xl dark:bg-[#047BFB]/10 dark:text-xl dark:text-[#38BDF8] dark:group-hover:bg-[#047BFB] dark:group-hover:text-white">
+                <div className="flex w-12 h-12 items-center justify-center rounded-xl bg-blue-50 text-3xl text-[#248ED7] transition-all duration-300 group-hover:bg-[#248ED7] group-hover:text-white dark:h-12 dark:w-12 dark:rounded-xl dark:bg-[#047BFB]/10 dark:text-xl dark:text-[#38BDF8] dark:group-hover:bg-[#248ED7] dark:group-hover:text-white">
                   <Icon />
                 </div>
 

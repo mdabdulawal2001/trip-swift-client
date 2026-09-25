@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { FaArrowRight, FaCompass } from "react-icons/fa";
 
 const CTASection = () => {
@@ -38,11 +39,13 @@ const CTASection = () => {
             journey with TripSwift.
           </p>
 
-          <button className="group mt-8 inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-bold text-[#035EC4] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+          <Link href={`/tickets`}>
+            <button className="cursor-pointer group mt-8 inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-bold text-[#035EC4] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
             Explore Tickets
 
             <FaArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
           </button>
+          </Link>
         </div>
       </motion.div>
     </section>

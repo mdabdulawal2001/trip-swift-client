@@ -219,7 +219,7 @@ export default function ProfilePage() {
           <div className="-mt-10 flex flex-col gap-5 sm:-mt-12 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-end">
               {/* Avatar */}
-              <div className="relative h-28 w-28 rounded-[1.75rem] border-4 border-white object-cover shadow-xl dark:border-slate-900">
+              <div className="relative h-28 w-28 rounded-[1.75rem] border-4 border-white object-cover shadow-xl dark:border-slate-900!">
                 {profile.image ? (
                   <Image
                     src={profile.image}

@@ -13,6 +13,8 @@ export default function DashboardNavbar({
   onMenuClick,
   setSidebarOpen,
 }) {
+
+
   return (
     <header className="sticky top-0 z-40 rounded-lg border-b border-slate-200/80 bg-white/90 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/90">
       <div className="flex h-18 items-center justify-between px-4 sm:px-6 lg:px-8">

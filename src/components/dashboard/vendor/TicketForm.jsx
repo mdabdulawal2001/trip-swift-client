@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { addTicket } from "@/lib/api";
@@ -51,6 +51,9 @@ export default function TicketForm() {
     setLoading(true);
 
     try {
+      const departureDate = formData.departureDateTime
+        ? formData.departureDateTime.split("T")[0]
+        : "";
       const ticketData = {
         title: formData.title.trim(),
         operator: formData.operator.trim(),
@@ -60,7 +63,7 @@ export default function TicketForm() {
         price: Number(formData.price),
         quantity: Number(formData.quantity),
         departure: formData.departure.trim(),
-        date: formData.date,
+        date: departureDate,
         departureDateTime: formData.departureDateTime,
         image: formData.image.trim(),
         perks: formData.perks
@@ -87,6 +90,13 @@ export default function TicketForm() {
     }
   };
 
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto",
+    });
+  }, []);
   return (
     <div className="mx-auto w-full max-w-5xl">
       <div className="mb-8">
@@ -227,18 +237,18 @@ export default function TicketForm() {
             Schedule
           </h2>
 
-          <div className="grid gap-5 md:grid-cols-2">
-            <InputField
+          <div>
+            {/* <InputField
               label="Departure Date"
               name="date"
               type="date"
               value={formData.date}
               onChange={handleChange}
               required
-            />
+            /> */}
 
             <InputField
-              label="Departure Time"
+              label="Departure Date & Time"
               name="departureDateTime"
               type="datetime-local"
               value={formData.departureDateTime}

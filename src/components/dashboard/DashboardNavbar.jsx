@@ -16,7 +16,7 @@ export default function DashboardNavbar({
 
 
   return (
-    <header className="sticky top-0 z-40 rounded-lg border-b border-slate-200/80 bg-white/90 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/90">
+    <header className="sticky top-0 z-40 rounded-lg border-b border-slate-200/80 bg-white/90 backdrop-blur-xl dark:border-slate-800! dark:bg-slate-950/90!">
       <div className="flex h-18 items-center justify-between px-4 sm:px-6 lg:px-8">
 
         {/* ================================================== */}
@@ -60,7 +60,7 @@ export default function DashboardNavbar({
             href="/dashboard"
             className="hidden items-center gap-2 lg:flex"
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-500 text-white">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#238FD7] text-white">
               <span className="text-sm font-bold">
                 TS
               </span>
@@ -68,7 +68,7 @@ export default function DashboardNavbar({
 
             <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
               Trip
-              <span className="text-sky-500">
+              <span className="text-[#238FD7]">
                 Swift
               </span>
             </span>

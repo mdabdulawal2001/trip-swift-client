@@ -17,7 +17,7 @@ const UserAvatar = ({ user, size = "sm" }) => {
 
   return (
     <div
-      className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-linear-to-br from-[#4148E8] to-[#6F9CFF] font-bold text-white ${sizeClasses[size]}`}
+      className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-linear-to-br from-[#238FD7] to-[#55A9D8] font-bold text-white ${sizeClasses[size]}`}
     >
       {showImage ? (
         <Image

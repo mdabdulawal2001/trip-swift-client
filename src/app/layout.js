@@ -1,12 +1,14 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/shared/Navbar";
+
 
 import ThemeProvider from "@/components/providers/ThemeProvider";
 import { ProfileProvider } from "@/context/ProfileContext";
 import Footer from "@/components/shared/Footer";
 import { Toaster } from "react-hot-toast";
-import NavbarCopy from "@/components/shared/NavbarCopy";
+import Navbar from "@/components/shared/Navbar";
+
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,8 +35,7 @@ export default function RootLayout({ children }) {
       <body className="bg-[#F4F9FC] dark:bg-[#071522]!">
         <ThemeProvider>
           <ProfileProvider>
-            <NavbarCopy />
-            {/* <Navbar /> */}
+            <Navbar />
             {children}
             <Footer />
           </ProfileProvider>

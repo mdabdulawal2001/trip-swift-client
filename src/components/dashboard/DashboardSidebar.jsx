@@ -261,7 +261,7 @@ export default function DashboardSidebar({
         {/* BRAND */}
         {/* ================================================== */}
 
-        <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
+        <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800 bg-white dark:!bg-slate-950">
           <Link
             href="/dashboard"
             onClick={
@@ -271,14 +271,14 @@ export default function DashboardSidebar({
             }
             className="flex items-center gap-3"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-500 font-bold text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#238FD7] font-bold text-white">
               TS
             </div>
 
             <div>
               <p className="font-bold tracking-tight text-slate-900 dark:text-white">
                 Trip
-                <span className="text-sky-500">
+                <span className="text-#238FD7">
                   Swift
                 </span>
               </p>
@@ -294,7 +294,7 @@ export default function DashboardSidebar({
         {/* NAVIGATION */}
         {/* ================================================== */}
 
-        <nav className="flex-1 overflow-y-auto px-3 py-5">
+        <nav className="bg-white dark:!bg-slate-950 flex-1 overflow-y-auto px-3 py-5">
           {menus.map((section) => (
             <div
               key={section.section}
@@ -356,7 +356,167 @@ export default function DashboardSidebar({
         {/* BOTTOM */}
         {/* ================================================== */}
 
-        <div className="border-t border-slate-200 p-3 dark:border-slate-800">
+        <div className="bg-white dark:!bg-slate-950 border-t border-slate-200 p-3 dark:border-slate-800">
+          <Link
+            href="/"
+            onClick={
+              mobile
+                ? () => setOpen(false)
+                : undefined
+            }
+            className="
+              flex
+              items-center
+              gap-3
+              rounded-xl
+              px-3
+              py-2.5
+              text-sm
+              font-medium
+              text-slate-500
+              transition
+              hover:bg-slate-100
+              hover:text-slate-900
+              dark:hover:bg-slate-800
+              dark:hover:text-white
+            "
+          >
+            <Home className="h-[18px] w-[18px]" />
+
+            Back to Home
+          </Link>
+
+          <button
+            type="button"
+            className="
+              mt-1
+              flex
+              w-full
+              items-center
+              gap-3
+              rounded-xl
+              px-3
+              py-2.5
+              text-sm
+              font-medium
+              text-slate-500
+              transition
+              hover:bg-red-50
+              hover:text-red-500
+              dark:hover:bg-red-500/10
+            "
+          >
+            <LogOut className="h-[18px] w-[18px]" />
+
+            Logout
+          </button>
+        </div>
+      </>
+    );
+  };
+  const MobileSidebarContent = ({ mobile = false }) => {
+    return (
+      <>
+        {/* ================================================== */}
+        {/* BRAND */}
+        {/* ================================================== */}
+
+        {/* <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800 bg-white dark:!bg-slate-950">
+          <Link
+            href="/dashboard"
+            onClick={
+              mobile
+                ? () => setOpen(false)
+                : undefined
+            }
+            className="flex items-center gap-3"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#238FD7] font-bold text-white">
+              TS
+            </div>
+
+            <div>
+              <p className="font-bold tracking-tight text-slate-900 dark:text-white">
+                Trip
+                <span className="text-#238FD7">
+                  Swift
+                </span>
+              </p>
+
+              <p className="text-[11px] text-slate-500">
+                {roleLabel(role)} Dashboard
+              </p>
+            </div>
+          </Link>
+        </div> */}
+
+        {/* ================================================== */}
+        {/* NAVIGATION */}
+        {/* ================================================== */}
+
+        <nav className="bg-white dark:!bg-slate-950 flex-1 overflow-y-auto px-3 py-5">
+          {menus.map((section) => (
+            <div
+              key={section.section}
+              className="mb-6"
+            >
+              <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                {section.section}
+              </p>
+
+              <div className="space-y-1">
+                {section.items.map((item) => {
+                  const Icon = item.icon;
+
+                  const isActive =
+                    item.href === "/dashboard"
+                      ? pathname === "/dashboard"
+                      : pathname.startsWith(
+                          item.href,
+                        );
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={
+                        mobile
+                          ? () =>
+                              setOpen(false)
+                          : undefined
+                      }
+                      className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+                        isActive
+                          ? "bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400"
+                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+                      }`}
+                    >
+                      <Icon
+                        className={`h-[18px] w-[18px] shrink-0 transition ${
+                          isActive
+                            ? "text-sky-500"
+                            : "text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200"
+                        }`}
+                      />
+
+                      <span>{item.label}</span>
+
+                      {isActive && (
+                        <span className="ml-auto h-1.5 w-1.5 rounded-full bg-sky-500" />
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        {/* ================================================== */}
+        {/* BOTTOM */}
+        {/* ================================================== */}
+
+        <div className="bg-white dark:!bg-slate-950 border-t border-slate-200 p-3 dark:border-slate-800">
           <Link
             href="/"
             onClick={
@@ -530,14 +690,14 @@ export default function DashboardSidebar({
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-2"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-500 font-bold text-white">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#238FD7] font-bold text-white">
                     TS
                   </div>
 
                   <div>
                     <p className="font-bold tracking-tight text-slate-900 dark:text-white">
                       Trip
-                      <span className="text-sky-500">
+                      <span className="text-[#238FD7]">
                         Swift
                       </span>
                     </p>
@@ -600,7 +760,7 @@ export default function DashboardSidebar({
                   dark:bg-slate-950
                 "
               >
-                <SidebarContent mobile />
+                <MobileSidebarContent mobile />
               </div>
             </motion.aside>
           </motion.div>

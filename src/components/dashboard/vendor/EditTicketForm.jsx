@@ -20,6 +20,14 @@ export default function EditTicketForm() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
+    useEffect(() => {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "auto",
+      });
+    }, []);
+
   const [formData, setFormData] = useState({
     title: "",
     operator: "",
@@ -39,7 +47,8 @@ export default function EditTicketForm() {
   useEffect(() => {
     const loadTicket = async () => {
       try {
-        const { data: session } = await authClient.getSession();
+        const { data: session } =
+          await authClient.getSession();
 
         const email = session?.user?.email;
 
@@ -70,7 +79,8 @@ export default function EditTicketForm() {
           quantity: ticket.quantity ?? "",
           departure: ticket.departure || "",
           date: ticket.date || "",
-          departureDateTime: ticket.departureDateTime || "",
+          departureDateTime:
+            ticket.departureDateTime || "",
           image: ticket.image || "",
           perks: Array.isArray(ticket.perks)
             ? ticket.perks.join(", ")
@@ -108,6 +118,10 @@ export default function EditTicketForm() {
     try {
       setSubmitting(true);
 
+      const departureDate = formData.departureDateTime
+        ? formData.departureDateTime.split("T")[0]
+        : "";
+
       const ticketData = {
         title: formData.title,
         operator: formData.operator,
@@ -117,8 +131,9 @@ export default function EditTicketForm() {
         price: Number(formData.price),
         quantity: Number(formData.quantity),
         departure: formData.departure,
-        date: formData.date,
-        departureDateTime: formData.departureDateTime,
+        date: departureDate,
+        departureDateTime:
+          formData.departureDateTime,
         image: formData.image,
         perks: formData.perks
           .split(",")
@@ -147,211 +162,199 @@ export default function EditTicketForm() {
   if (loading) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
-        <p>Loading ticket...</p>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-[#047BFB]" />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto w-full max-w-5xl">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold">
+        <p className="mb-2 text-sm font-semibold text-sky-500">
+          Vendor Dashboard
+        </p>
+
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
           Edit Ticket
         </h1>
 
-        <p className="mt-2 text-sm text-default-500">
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
           Update your ticket information.
         </p>
       </div>
 
       <form
         onSubmit={handleSubmit}
-        className="grid gap-6 rounded-2xl border bg-white p-6 shadow-sm dark:bg-slate-900"
+        className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-7"
       >
-        <div className="grid gap-5 md:grid-cols-2">
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Ticket Title
-            </label>
+        {/* Basic Information */}
 
-            <input
+        <div className="mb-8">
+          <h2 className="mb-4 text-lg font-bold text-slate-900 dark:text-white">
+            Basic Information
+          </h2>
+
+          <div className="grid gap-5 md:grid-cols-2">
+            <InputField
+              label="Ticket Title"
               name="title"
               value={formData.title}
               onChange={handleChange}
+              placeholder="Dhaka to Cox's Bazar Express"
               required
-              className="w-full rounded-xl border px-4 py-3 outline-none"
             />
-          </div>
 
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Operator
-            </label>
-
-            <input
+            <InputField
+              label="Operator"
               name="operator"
               value={formData.operator}
               onChange={handleChange}
+              placeholder="Green Line Express"
               required
-              className="w-full rounded-xl border px-4 py-3 outline-none"
             />
           </div>
+        </div>
 
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              From
-            </label>
+        {/* Route Information */}
 
-            <input
+        <div className="mb-8">
+          <h2 className="mb-4 text-lg font-bold text-slate-900 dark:text-white">
+            Route Information
+          </h2>
+
+          <div className="grid gap-5 md:grid-cols-2">
+            <InputField
+              label="From"
               name="from"
               value={formData.from}
               onChange={handleChange}
+              placeholder="Dhaka"
               required
-              className="w-full rounded-xl border px-4 py-3 outline-none"
             />
-          </div>
 
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              To
-            </label>
-
-            <input
+            <InputField
+              label="To"
               name="to"
               value={formData.to}
               onChange={handleChange}
+              placeholder="Cox's Bazar"
               required
-              className="w-full rounded-xl border px-4 py-3 outline-none"
             />
-          </div>
 
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Transport Type
-            </label>
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                Transport Type
+              </label>
 
-            <select
-              name="type"
-              value={formData.type}
-              onChange={handleChange}
-              required
-              className="w-full rounded-xl border px-4 py-3 outline-none"
-            >
-              <option value="">Select type</option>
-              <option value="Bus">Bus</option>
-              <option value="Train">Train</option>
-              <option value="Flight">Flight</option>
-              <option value="Car">Car</option>
-            </select>
-          </div>
+              <select
+                name="type"
+                value={formData.type}
+                onChange={handleChange}
+                required
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#047BFB] dark:border-slate-700 dark:bg-slate-950! dark:text-white"
+              >
+                <option value="">
+                  Select transport
+                </option>
+                <option value="AC Bus">AC Bus</option>
+                <option value="Train">Train</option>
+                <option value="Flight">Flight</option>
+                <option value="Car">Car</option>
+              </select>
+            </div>
 
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Price
-            </label>
-
-            <input
-              type="number"
+            <InputField
+              label="Price"
               name="price"
+              type="number"
+              min="0"
               value={formData.price}
               onChange={handleChange}
-              min="0"
+              placeholder="1450"
               required
-              className="w-full rounded-xl border px-4 py-3 outline-none"
             />
-          </div>
 
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Quantity
-            </label>
-
-            <input
-              type="number"
+            <InputField
+              label="Quantity"
               name="quantity"
+              type="number"
+              min="0"
               value={formData.quantity}
               onChange={handleChange}
-              min="0"
+              placeholder="40"
               required
-              className="w-full rounded-xl border px-4 py-3 outline-none"
             />
-          </div>
 
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Departure
-            </label>
-
-            <input
+            <InputField
+              label="Departure"
               name="departure"
               value={formData.departure}
               onChange={handleChange}
+              placeholder="Gabtoli Bus Terminal"
               required
-              className="w-full rounded-xl border px-4 py-3 outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Date
-            </label>
-
-            <input
-              type="date"
-              name="date"
-              value={formData.date}
-              onChange={handleChange}
-              required
-              className="w-full rounded-xl border px-4 py-3 outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Departure Date & Time
-            </label>
-
-            <input
-              type="datetime-local"
-              name="departureDateTime"
-              value={formData.departureDateTime}
-              onChange={handleChange}
-              required
-              className="w-full rounded-xl border px-4 py-3 outline-none"
             />
           </div>
         </div>
 
-        <div>
-          <label className="mb-2 block text-sm font-medium">
-            Image URL
-          </label>
+        {/* Schedule */}
 
-          <input
-            name="image"
-            value={formData.image}
+        <div className="mb-8">
+          <h2 className="mb-4 text-lg font-bold text-slate-900 dark:text-white">
+            Schedule
+          </h2>
+
+          <InputField
+            label="Departure Date & Time"
+            name="departureDateTime"
+            type="datetime-local"
+            value={formData.departureDateTime}
             onChange={handleChange}
             required
-            className="w-full rounded-xl border px-4 py-3 outline-none"
           />
         </div>
 
-        <div>
-          <label className="mb-2 block text-sm font-medium">
-            Perks
-          </label>
+        {/* Image */}
 
-          <input
+        <div className="mb-8">
+          <h2 className="mb-4 text-lg font-bold text-slate-900 dark:text-white">
+            Ticket Image
+          </h2>
+
+          <InputField
+            label="Image URL"
+            name="image"
+            type="url"
+            value={formData.image}
+            onChange={handleChange}
+            placeholder="https://example.com/ticket-image.jpg"
+            required
+          />
+        </div>
+
+        {/* Perks */}
+
+        <div className="mb-8">
+          <h2 className="mb-4 text-lg font-bold text-slate-900 dark:text-white">
+            Ticket Perks
+          </h2>
+
+          <InputField
+            label="Perks"
             name="perks"
             value={formData.perks}
             onChange={handleChange}
-            placeholder="AC, WiFi, Water"
-            className="w-full rounded-xl border px-4 py-3 outline-none"
+            placeholder="AC, WiFi, Water Bottle, Blanket"
           />
+
+          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+            Separate multiple perks with commas.
+          </p>
         </div>
 
-        <div>
-          <label className="mb-2 block text-sm font-medium">
+        {/* Description */}
+
+        <div className="mb-8">
+          <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
             Description
           </label>
 
@@ -359,11 +362,14 @@ export default function EditTicketForm() {
             name="description"
             value={formData.description}
             onChange={handleChange}
+            placeholder="Write details about this ticket..."
             required
-            rows={5}
-            className="w-full resize-none rounded-xl border px-4 py-3 outline-none"
+            rows={6}
+            className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition-all duration-200 hover:border-slate-300 focus:border-[#047BFB] focus:ring-4 focus:ring-[#047BFB]/10 dark:border-slate-700 dark:bg-slate-950! dark:text-white dark:hover:border-slate-600"
           />
         </div>
+
+        {/* Actions */}
 
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
           <button
@@ -371,7 +377,7 @@ export default function EditTicketForm() {
             onClick={() =>
               router.push("/dashboard/my-tickets")
             }
-            className="rounded-xl border px-6 py-3 font-medium"
+            className="rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-600 transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-100 hover:text-slate-800 dark:border-slate-700! dark:bg-slate-900! dark:text-slate-300 dark:hover:bg-slate-800! dark:hover:text-white!"
           >
             Cancel
           </button>
@@ -379,12 +385,44 @@ export default function EditTicketForm() {
           <button
             type="submit"
             disabled={submitting}
-            className="rounded-xl bg-primary px-6 py-3 font-semibold text-white disabled:opacity-60"
+            className="rounded-xl bg-[#238FD7] px-6 py-3 text-sm font-bold text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#1978B8] hover:shadow-lg hover:shadow-[#047BFB]/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {submitting ? "Updating..." : "Update Ticket"}
+            {submitting
+              ? "Updating..."
+              : "Update Ticket"}
           </button>
         </div>
       </form>
+    </div>
+  );
+}
+
+function InputField({
+  label,
+  name,
+  type = "text",
+  value,
+  onChange,
+  placeholder,
+  required = false,
+  min,
+}) {
+  return (
+    <div>
+      <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+        {label}
+      </label>
+
+      <input
+        name={name}
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        required={required}
+        min={min}
+        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition-all duration-200 hover:border-slate-300 focus:border-[#047BFB] focus:ring-4 focus:ring-[#047BFB]/10 dark:border-slate-700 dark:bg-slate-950! dark:text-white dark:hover:border-slate-600"
+      />
     </div>
   );
 }

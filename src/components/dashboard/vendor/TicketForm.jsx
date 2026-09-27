@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { addTicket } from "@/lib/api";
+import { addTicket, getVendorTickets } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 
 const initialForm = {
@@ -28,6 +28,36 @@ export default function TicketForm() {
   const [formData, setFormData] = useState(initialForm);
   const [loading, setLoading] = useState(false);
 
+  // Vendor fraud status
+
+  const [isFraud, setIsFraud] = useState(false);
+  const [checkingFraudStatus, setCheckingFraudStatus] = useState(true);
+
+  // Check vendor fraud status
+  useEffect(() => {
+    const checkVendorStatus = async () => {
+      try {
+        const { data: session } = await authClient.getSession();
+
+        const vendorEmail = session?.user?.email;
+
+        if (!vendorEmail) {
+          return;
+        }
+
+        const vendorData = await getVendorTickets(vendorEmail);
+
+        setIsFraud(vendorData?.isFraud === true);
+      } catch (error) {
+        console.error("Failed to check vendor status:", error);
+      } finally {
+        setCheckingFraudStatus(false);
+      }
+    };
+
+    checkVendorStatus();
+  }, []);
+
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -39,6 +69,13 @@ export default function TicketForm() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    // Extra protection
+    if (isFraud) {
+      toast.error("Your account has been restricted by the admin.");
+      return;
+    }
+
     const { data: session } = await authClient.getSession();
 
     const vendorEmail = session?.user?.email;
@@ -84,6 +121,9 @@ export default function TicketForm() {
         router.push("/dashboard/my-tickets");
       }
     } catch (error) {
+      if (error?.message?.toLowerCase().includes("marked as fraud")) {
+        setIsFraud(true);
+      }
       toast.error(error?.message || "Failed to add ticket");
     } finally {
       setLoading(false);
@@ -97,6 +137,7 @@ export default function TicketForm() {
       behavior: "auto",
     });
   }, []);
+
   return (
     <div className="mx-auto w-full max-w-5xl">
       <div className="mb-8">
@@ -111,7 +152,7 @@ export default function TicketForm() {
 
       <form
         onSubmit={handleSubmit}
-        className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-7"
+        className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800! dark:bg-slate-900! sm:p-7"
       >
         {/* Basic Information */}
 
@@ -177,7 +218,7 @@ export default function TicketForm() {
                 value={formData.type}
                 onChange={handleChange}
                 required
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#047BFB] dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#047BFB] dark:border-slate-700 dark:bg-slate-950! dark:text-white"
               >
                 <option value="">Select transport</option>
                 <option value="AC Bus">AC Bus</option>
@@ -310,20 +351,28 @@ export default function TicketForm() {
             placeholder="Write details about this ticket..."
             rows={6}
             required
-            className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#047BFB] dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+            className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#047BFB] dark:border-slate-700 dark:bg-slate-950! dark:text-white"
           />
         </div>
 
         {/* Submit */}
 
-        <div className="flex justify-end">
+        <div className="flex w-full">
+          {" "}
           <button
             type="submit"
-            disabled={loading}
-            className="rounded-xl bg-[#047BFB] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#035ec4] disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={loading || checkingFraudStatus || isFraud}
+            className={`w-full rounded-xl px-6 py-3 text-sm font-bold text-white transition ${isFraud ? "cursor-not-allowed bg-slate-400" : "bg-[#238FD7] hover:bg-[#1978B8]"} disabled:cursor-not-allowed disabled:opacity-60`}
           >
-            {loading ? "Submitting..." : "Submit Ticket"}
-          </button>
+            {" "}
+            {checkingFraudStatus
+              ? "Checking..."
+              : isFraud
+                ? "Restricted"
+                : loading
+                  ? "Submitting..."
+                  : "Submit Ticket"}{" "}
+          </button>{" "}
         </div>
       </form>
     </div>
@@ -354,7 +403,7 @@ function InputField({
         placeholder={placeholder}
         required={required}
         min={min}
-        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#047BFB] dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#047BFB] dark:border-slate-700 dark:bg-slate-950! dark:text-white"
       />
     </div>
   );

@@ -6,15 +6,23 @@ import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { LogOut, UserRound } from "lucide-react";
+import {
+  ChevronDown,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  UserRound,
+  X,
+} from "lucide-react";
+import toast from "react-hot-toast";
 
 import logo from "@/assets/logo.png";
 import { authClient } from "@/lib/auth-client";
+
 import NavbarSessionSpinner from "./NavbarSessionSpinner";
 import UserAvatar from "./UserAvatar";
-import toast from "react-hot-toast";
-
 import ThemeToggle from "./ThemeToggle";
+
 import { useProfile } from "@/context/ProfileContext";
 
 const navLinks = [
@@ -39,12 +47,19 @@ const navLinks = [
 const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter();
+
   const { profile } = useProfile();
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
   const profileRef = useRef(null);
   const mobileMenuRef = useRef(null);
 
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  // ============================================================
+  // HYDRATION
+  // ============================================================
 
   const mounted = useSyncExternalStore(
     () => () => {},
@@ -52,16 +67,17 @@ const Navbar = () => {
     () => false,
   );
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-
+  // ============================================================
   // AUTH
+  // ============================================================
 
   const { data: session, isPending } = authClient.useSession();
 
   const user = session?.user;
 
+  // ============================================================
   // THEME
+  // ============================================================
 
   const currentTheme = theme === "system" ? resolvedTheme : theme;
 
@@ -71,7 +87,33 @@ const Navbar = () => {
     setTheme(isDark ? "light" : "dark");
   };
 
-  //  LOGOUT
+  // ============================================================
+  // USER INFO
+  // ============================================================
+
+  const displayName = profile?.name?.trim() || user?.name?.trim() || "User";
+
+  const displayImage = profile?.image || user?.image || null;
+
+  // ============================================================
+  // NAVIGATION HELPERS
+  // ============================================================
+
+  const isActive = (href) => {
+    if (href === "/") {
+      return pathname === "/";
+    }
+
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
+
+  const isExactActive = (href) => {
+    return pathname === href;
+  };
+
+  // ============================================================
+  // LOGOUT
+  // ============================================================
 
   const handleLogout = async () => {
     try {
@@ -86,46 +128,27 @@ const Navbar = () => {
       router.refresh();
     } catch (error) {
       console.error("Logout failed:", error);
+
       toast.error("Failed to logout");
     }
   };
 
-  //  PROFILE OUTSIDE CLICK
-
-  useEffect(() => {
-    const handlePointerDownOutside = (event) => {
-      if (profileRef.current && !profileRef.current.contains(event.target)) {
-        setIsProfileOpen(false);
-      }
-    };
-
-    const handleEscape = (event) => {
-      if (event.key === "Escape") {
-        setIsProfileOpen(false);
-      }
-    };
-
-    if (isProfileOpen) {
-      document.addEventListener("pointerdown", handlePointerDownOutside);
-
-      document.addEventListener("keydown", handleEscape);
-    }
-
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDownOutside);
-
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [isProfileOpen]);
-
-  //  MOBILE MENU
+  // ============================================================
+  // CLOSE MOBILE MENU
+  // ============================================================
 
   const closeMobileMenu = () => {
     setIsMenuOpen(false);
   };
 
+  // ============================================================
+  // PROFILE OUTSIDE CLICK + ESCAPE
+  // ============================================================
+
   useEffect(() => {
-    if (!isMenuOpen) return;
+    if (!isMenuOpen) {
+      return;
+    }
 
     const handleEscape = (event) => {
       if (event.key === "Escape") {
@@ -145,7 +168,79 @@ const Navbar = () => {
     document.addEventListener("keydown", handleEscape);
     document.addEventListener("pointerdown", handlePointerDownOutside);
 
-    // Prevent background page scrolling
+    // Prevent the background page from scrolling
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+
+      document.removeEventListener("pointerdown", handlePointerDownOutside);
+
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
+    };
+  }, [isMenuOpen]);
+
+  useEffect(() => {
+    if (!isProfileOpen) {
+      return;
+    }
+
+    const handlePointerDownOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setIsProfileOpen(false);
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setIsProfileOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDownOutside);
+
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDownOutside);
+
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isProfileOpen]);
+
+  // ============================================================
+  // MOBILE MENU OUTSIDE CLICK + ESCAPE
+  // ============================================================
+
+  useEffect(() => {
+    if (!isMenuOpen) {
+      return;
+    }
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setIsMenuOpen(false);
+      }
+    };
+
+    const handlePointerDownOutside = (event) => {
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target)
+      ) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+
+    document.addEventListener("pointerdown", handlePointerDownOutside);
+
     document.body.style.overflow = "hidden";
 
     return () => {
@@ -157,74 +252,113 @@ const Navbar = () => {
     };
   }, [isMenuOpen]);
 
-  //  NAVIGATION
+  // ============================================================
+  // CLOSE MENUS AFTER ROUTE CHANGE
+  // ============================================================
 
-  const isActive = (href) => {
-    if (href === "/") {
-      return pathname === "/";
-    }
+  useEffect(() => {
+    setIsMenuOpen(false);
+    setIsProfileOpen(false);
+  }, [pathname]);
 
-    return pathname.startsWith(href);
-  };
-
-  // profile link active
-  const profileActive = isActive("/profile");
-
-  // ================= USER INFO =================
-  const userName = user?.name?.trim() || "User";
-  const profileName = profile?.name?.trim() || "User";
-  const profileImage = profile?.image || null;
+  // ============================================================
+  // RENDER
+  // ============================================================
 
   return (
     <>
+      {/* ====================================================== */}
       {/* NAVBAR */}
+      {/* ====================================================== */}
 
       <header
         className="
-          sticky top-0 z-55 mx-auto
-          border-b
-          border-slate-200/70
-          bg-linear-to-r
-          from-white/95
-          via-blue-50/70
-          to-cyan-50/70
-          shadow-sm
-          backdrop-blur-xl
+          pointer-events-none
+          sticky
+          top-0
+          z-50
+          mx-auto
+          px-3
+          pt-3
+          sm:px-5
+          sm:pt-4
 
-          dark:border-slate-800/80
-          dark:bg-linear-to-r
-          dark:from-slate-950/95
-          dark:via-blue-950/20
-          dark:to-cyan-950/15
+          lg:px-8
+          lg:pt-5
         "
       >
         <nav
           className="
-            mx-auto flex
-            min-h-19
+            pointer-events-auto
+            mx-auto
+            flex
+            min-h-16.5
+            max-w-7xl
             items-center
             justify-between
-            gap-4
-            px-4
-            sm:px-6
-            lg:px-8
-            xl:min-h-24
-            max-w-7xl
+            gap-3
+            rounded-2xl
+            border
+            border-slate-200/80
+            bg-white/85
+            px-3.5
+
+            shadow-[0_12px_40px_rgba(15,23,42,0.08)]
+            backdrop-blur-2xl
+
+            dark:border-white/10
+            dark:bg-[#0B1F2D]/90
+            dark:shadow-[0_12px_40px_rgba(0,0,0,0.28)]
+
+            sm:min-h-17.5
+            sm:px-5
+
+            lg:px-6
+
+            xl:min-h-18.5
+            xl:px-7
           "
         >
+          {/* ================================================== */}
           {/* LOGO */}
+          {/* ================================================== */}
 
           <Link
             href="/"
             onClick={closeMobileMenu}
-            className="group flex shrink-0 items-center gap-1"
+            className="
+              group
+              flex
+              shrink-0
+              items-center
+              gap-1.5
+              rounded-xl
+              outline-none
+              transition-opacity
+              duration-200
+              focus-visible:ring-2
+              focus-visible:ring-[#238FD7]/50
+            "
           >
-            <div className="relative h-12 w-12 sm:h-14 sm:w-14">
+            <div
+              className="
+                relative
+                h-11
+                w-11
+
+                sm:h-12
+                sm:w-12
+
+                xl:h-14
+                xl:w-14
+              "
+            >
               <Image
                 src={logo}
                 alt="TripSwift Logo"
                 fill
                 priority
+                sizes="56px"
                 className="
                   object-contain
                   transition-transform
@@ -234,17 +368,22 @@ const Navbar = () => {
               />
             </div>
 
-            <div className="block">
+            <div className="hidden min-[420px]:block">
               <h1
                 className="
                   bg-linear-to-r
-                  from-cyan-500
-                  to-blue-600
+                  from-[#238FD7]
+                  to-[#55A9D8]
                   bg-clip-text
-                  text-xl
+                  text-lg
                   font-extrabold
                   tracking-tight
                   text-transparent
+
+                  sm:text-xl
+
+                  dark:from-[#38BDF8]
+                  dark:to-[#7DD3FC]
                 "
               >
                 TripSwift
@@ -252,11 +391,15 @@ const Navbar = () => {
 
               <p
                 className="
-                  mt-1
-                  text-[9px]
+                  mt-0.5
+                  text-[8px]
                   font-medium
-                  tracking-[0.18em]
+                  tracking-[0.16em]
                   text-slate-500
+
+                  sm:text-[9px]
+                  sm:tracking-[0.18em]
+
                   dark:text-slate-400
                 "
               >
@@ -265,7 +408,9 @@ const Navbar = () => {
             </div>
           </Link>
 
-          {/* DESKTOP NAV */}
+          {/* ================================================== */}
+          {/* DESKTOP NAVIGATION */}
+          {/* ================================================== */}
 
           <div className="hidden items-center gap-1 xl:flex">
             {navLinks.map((link) => {
@@ -282,28 +427,32 @@ const Navbar = () => {
                     py-2.5
                     text-sm
                     font-semibold
+                    outline-none
                     transition-all
                     duration-300
+
+                    focus-visible:ring-2
+                    focus-visible:ring-[#238FD7]/40
 
                     ${
                       active
                         ? `
-                          bg-blue-100/70
-                          text-blue-600
+                          bg-[#238FD7]/10
+                          text-[#1978B8]
                           shadow-sm
-                          shadow-blue-500/5
 
-                          dark:bg-blue-950/50
-                          dark:text-cyan-400
+                          dark:bg-[#38BDF8]/10
+                          dark:text-[#38BDF8]
                         `
                         : `
                           text-slate-600
-                          hover:bg-white/70
-                          hover:text-blue-600
+
+                          hover:bg-[#238FD7]/7
+                          hover:text-[#1978B8]
 
                           dark:text-slate-300
-                          dark:hover:bg-slate-800/60
-                          dark:hover:text-cyan-400
+                          dark:hover:bg-white/5
+                          dark:hover:text-[#38BDF8]
                         `
                     }
                   `}
@@ -315,9 +464,9 @@ const Navbar = () => {
                       layoutId="navbar-active-link"
                       className="
                         absolute
-                        bottom-0
+                        bottom-0.5
                         left-1/2
-                        h-0.75
+                        h-0.5
                         w-7
                         -translate-x-1/2
                         rounded-full
@@ -337,7 +486,9 @@ const Navbar = () => {
             })}
           </div>
 
+          {/* ================================================== */}
           {/* DESKTOP RIGHT SIDE */}
+          {/* ================================================== */}
 
           <div className="hidden items-center gap-2 xl:flex">
             {/* THEME TOGGLE */}
@@ -348,39 +499,51 @@ const Navbar = () => {
               aria-label="Toggle theme"
               className="
                 flex
-                md:h-11
-                md:w-11
+                h-10
+                w-10
+                shrink-0
                 items-center
                 justify-center
                 rounded-full
+
                 border
-                border-slate-300/60
-                bg-white/35
+                border-slate-300
+                bg-white/70
+
                 text-slate-600
+
                 backdrop-blur-md
+                outline-none
                 transition-all
                 duration-300
-                hover:border-blue-300
-                hover:bg-blue-100/60
-                hover:text-blue-600
-                cursor-pointer
-                dark:border-slate-700/60
-                dark:bg-slate-900/30
+
+                hover:border-[#238FD7]/40
+                hover:bg-[#238FD7]/10
+                hover:text-[#238FD7]
+
+                focus-visible:ring-2
+                focus-visible:ring-[#238FD7]/40
+
+                dark:border-white/10
+                dark:bg-white/5
                 dark:text-slate-300
-                dark:hover:border-cyan-500/60
-                dark:hover:bg-cyan-950/40
-                dark:hover:text-cyan-400
+
+                dark:hover:border-[#38BDF8]/40
+                dark:hover:bg-[#38BDF8]/10
+                dark:hover:text-[#38BDF8]
               "
             >
               <ThemeToggle isDark={isDark} mounted={mounted} />
             </button>
 
-            {/* SESSION LOADING */}
+            {/* SESSION */}
 
             {!mounted || isPending ? (
               <NavbarSessionSpinner />
             ) : !user ? (
+              /* ---------------------------------------------- */
               /* LOGGED OUT */
+              /* ---------------------------------------------- */
 
               <div className="ml-1 flex items-center gap-2">
                 <Link
@@ -388,22 +551,31 @@ const Navbar = () => {
                   className="
                     rounded-full
                     border
-                    border-blue-500
-                    bg-white/30
+                    border-[#238FD7]/50
+                    bg-white/60
+
                     px-4
                     py-2
+
                     text-sm
                     font-semibold
-                    text-blue-600
+                    text-[#1978B8]
+
                     backdrop-blur-sm
+                    outline-none
                     transition-all
                     duration-300
-                    hover:bg-blue-50/80
 
-                    dark:border-cyan-500
-                    dark:bg-slate-900/20
-                    dark:text-cyan-400
-                    dark:hover:bg-cyan-950/30
+                    hover:border-[#238FD7]
+                    hover:bg-[#238FD7]/10
+
+                    focus-visible:ring-2
+                    focus-visible:ring-[#238FD7]/40
+
+                    dark:border-[#38BDF8]/40
+                    dark:bg-white/5
+                    dark:text-[#38BDF8]
+                    dark:hover:bg-[#38BDF8]/10
                   "
                 >
                   Login
@@ -413,57 +585,78 @@ const Navbar = () => {
                   href="/register"
                   className="
                     rounded-full
-                    bg-linear-to-r
-                    from-cyan-500
-                    to-blue-600
-                    px-4
+                    bg-[#238FD7]
+
+                    px-5
                     py-2
+
                     text-sm
                     font-semibold
                     text-white
-                    shadow-md
-                    shadow-blue-500/20
+
+                    shadow-[0_8px_25px_rgba(35,143,215,0.22)]
+
+                    outline-none
                     transition-all
                     duration-300
+
                     hover:-translate-y-0.5
+                    hover:bg-[#1978B8]
                     hover:shadow-lg
-                    hover:shadow-blue-500/30
+
+                    focus-visible:ring-2
+                    focus-visible:ring-[#238FD7]/40
+                    focus-visible:ring-offset-2
                   "
                 >
                   Register
                 </Link>
               </div>
             ) : (
-              /* LOGGED IN PROFILE */
+              /* ---------------------------------------------- */
+              /* LOGGED IN */
+              /* ---------------------------------------------- */
 
               <div ref={profileRef} className="relative ml-1">
                 <button
                   type="button"
                   onClick={() => setIsProfileOpen((previous) => !previous)}
+                  aria-haspopup="menu"
+                  aria-expanded={isProfileOpen}
                   className="
                     flex
                     items-center
                     gap-2
+
                     rounded-full
                     border
-                    bg-white/70
                     border-slate-200
-                    hover:border-[#4148E8]/40
-                    hover:bg-[#4148E8]/5
+
+                    bg-white/70
+
                     py-1.5
                     pl-1.5
                     pr-3
+
                     backdrop-blur-md
+                    cursor-pointer
+                    outline-none
                     transition-all
                     duration-300
-                    cursor-pointer
+
+                    hover:border-[#238FD7]/40
+                    hover:bg-[#238FD7]/5
+
+                    focus-visible:ring-2
+                    focus-visible:ring-[#238FD7]/40
+
                     dark:border-white/10
                     dark:bg-[#111A2E]/80
-                    dark:hover:border-[#6F9CFF]/40
+
+                    dark:hover:border-[#38BDF8]/40
+                    dark:hover:bg-[#38BDF8]/5
                   "
                 >
-                  {/* USER AVATAR */}
-
                   <UserAvatar
                     user={{
                       ...user,
@@ -475,35 +668,32 @@ const Navbar = () => {
 
                   <span
                     className="
+                      max-w-28
+                      truncate
                       text-sm
                       font-semibold
                       text-slate-700
+
                       dark:text-slate-200
                     "
                   >
-                    {profile?.name || user?.name || "User"}
+                    {displayName}
                   </span>
 
-                  <svg
+                  <ChevronDown
                     className={`
                       h-4
                       w-4
+                      shrink-0
+                      text-slate-500
                       transition-transform
                       duration-200
 
+                      dark:text-slate-400
+
                       ${isProfileOpen ? "rotate-180" : ""}
                     `}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="m19 9-7 7-7-7"
-                    />
-                  </svg>
+                  />
                 </button>
 
                 {/* PROFILE DROPDOWN */}
@@ -529,128 +719,114 @@ const Navbar = () => {
                       transition={{
                         duration: 0.18,
                       }}
+                      role="menu"
                       className="
-                        absolute
-                        right-0
-                        mt-3
-                        w-56
-                        overflow-hidden
-                        rounded-2xl
-                        border
-                        border-slate-200
-                        bg-white
-                        p-2
-                        shadow-xl
-                        backdrop-blur-xl
+        absolute
+        right-0
+        mt-3
+        w-60
+        overflow-hidden
 
-                        dark:border-slate-700
-                        dark:bg-slate-900/95
-                      "
+        rounded-2xl
+        border
+        border-slate-200
+
+        bg-white/95
+        p-2
+
+        shadow-[0_20px_50px_rgba(15,23,42,0.16)]
+        backdrop-blur-xl
+
+        dark:border-slate-700
+        dark:bg-slate-900/95
+        dark:shadow-black/30
+      "
                     >
-                      {/* Profile */}
+                      {/* PROFILE */}
 
-                      <Link
-                        href="/dashboard"
-                        onClick={() => setIsProfileOpen(false)}
-                        className={`
-                            flex
-                            items-center
-                            gap-3
-                            rounded-xl
-                            px-4
-                            py-3
-                            text-sm
-                            font-medium
-                            transition-all
-                            duration-200
-
-                            ${
-                              isActive("/dashboard/profile")
-                                ? `
-                                  bg-blue-200
-                                  text-blue-600
-
-                                  dark:bg-blue-950/50
-                                  dark:text-cyan-400
-                                `
-                                : `
-                                  text-slate-700
-                                  hover:bg-blue-200
-                                  hover:text-blue-60                        0
-
-                                  dark:text-slate-200
-                                  dark:hover:bg-slate-800
-                                  dark:hover:text-cyan-400
-                            `
-                            }
-                          `}
-                      >
-                        <UserRound className="h-4 w-4" />
-                        Dashboard
-                      </Link>
                       <Link
                         href="/dashboard/profile"
                         onClick={() => setIsProfileOpen(false)}
+                        role="menuitem"
                         className={`
-                            flex
-                            items-center
-                            gap-3
-                            rounded-xl
-                            px-4
-                            py-3
-                            text-sm
-                            font-medium
-                            transition-all
-                            duration-200
+          flex
+          items-center
+          gap-3
 
-                            ${
-                              isActive("/dashboard/profile")
-                                ? `
-                                  bg-blue-200
-                                  text-blue-600
+          rounded-xl
 
-                                  dark:bg-blue-950/50
-                                  dark:text-cyan-400
-                                `
-                                : `
-                                  text-slate-700
-                                  hover:bg-blue-200
-                                  hover:text-blue-60                        0
+          px-4
+          py-3
 
-                                  dark:text-slate-200
-                                  dark:hover:bg-slate-800
-                                  dark:hover:text-cyan-400
-                            `
-                            }
-                          `}
+          text-sm
+          font-medium
+
+          outline-none
+          transition-all
+          duration-200
+
+          ${
+            isActive("/dashboard/profile")
+              ? `
+                bg-blue-50
+                text-blue-600
+
+                dark:bg-blue-950/50
+                dark:text-cyan-400
+              `
+              : `
+                text-slate-700
+
+                hover:bg-blue-50
+                hover:text-blue-600
+
+                dark:text-slate-200
+                dark:hover:bg-slate-800
+                dark:hover:text-cyan-400
+              `
+          }
+        `}
                       >
                         <UserRound className="h-4 w-4" />
-                        My Profile
+                        Profile Management
                       </Link>
 
-                      {/* Logout */}
+                      {/* LOGOUT */}
 
                       <button
                         type="button"
                         onClick={handleLogout}
+                        role="menuitem"
                         className="
-                          flex
-                          w-full
-                          items-center
-                          gap-3
-                          rounded-xl
-                          px-4
-                          py-3
-                          text-left
-                          text-sm
-                          font-medium
-                          text-red-500
-                          transition
+          mt-1
 
-                          hover:bg-red-200
+          flex
+          w-full
+          items-center
+          gap-3
 
-                          dark:hover:bg-red-950/30
-                        "
+          rounded-xl
+
+          px-4
+          py-3
+
+          text-left
+          text-sm
+          font-medium
+          text-red-500
+
+          outline-none
+          transition-all
+          duration-200
+
+          hover:bg-red-50
+
+          focus-visible:ring-2
+          focus-visible:ring-red-300
+
+          dark:text-red-400
+          dark:hover:bg-red-950/30
+        "
                       >
                         <LogOut className="h-4 w-4" />
                         Logout
@@ -662,10 +838,12 @@ const Navbar = () => {
             )}
           </div>
 
+          {/* ================================================== */}
           {/* MOBILE CONTROLS */}
+          {/* ================================================== */}
 
           <div className="flex items-center gap-2 xl:hidden">
-            {/* Mobile Theme Toggle */}
+            {/* MOBILE THEME */}
 
             <button
               type="button"
@@ -675,24 +853,34 @@ const Navbar = () => {
                 flex
                 h-10
                 w-10
+                shrink-0
                 items-center
                 justify-center
                 rounded-full
+
                 border
-                border-slate-300/60
-                bg-white/35
+                border-slate-300/70
+
+                bg-white/50
+
                 text-slate-600
+
                 backdrop-blur-md
+                outline-none
                 transition-all
                 duration-300
 
-                hover:border-blue-300
-                hover:bg-blue-100/60
-                hover:text-blue-600
+                hover:border-[#238FD7]/40
+                hover:bg-[#238FD7]/10
+                hover:text-[#238FD7]
 
-                dark:border-slate-700/60
-                dark:bg-slate-900/30
+                focus-visible:ring-2
+                focus-visible:ring-[#238FD7]/40
+
+                dark:border-slate-700
+                dark:bg-slate-900/50
                 dark:text-slate-300
+
                 dark:hover:border-cyan-500
                 dark:hover:bg-cyan-950/40
                 dark:hover:text-cyan-400
@@ -701,464 +889,369 @@ const Navbar = () => {
               <ThemeToggle isDark={isDark} mounted={mounted} />
             </button>
 
-            {/* Mobile Menu Button */}
+            {/* MOBILE MENU BUTTON */}
 
             <button
               type="button"
-              aria-label="Toggle navigation menu"
+              aria-label={
+                isMenuOpen ? "Close navigation menu" : "Open navigation menu"
+              }
+              aria-expanded={isMenuOpen}
               onClick={() => setIsMenuOpen((previous) => !previous)}
               className="
                 flex
                 h-10
                 w-10
+                shrink-0
                 items-center
                 justify-center
                 rounded-xl
+
                 border
-                border-slate-300/60
-                bg-white/35
+                border-slate-300/70
+
+                bg-white/50
+
                 text-slate-700
+
                 backdrop-blur-md
-                transition
+                outline-none
+                transition-all
+                duration-300
 
-                hover:border-blue-300
-                hover:bg-blue-100/60
-                hover:text-blue-600
+                hover:border-[#238FD7]/40
+                hover:bg-[#238FD7]/10
+                hover:text-[#238FD7]
 
-                dark:border-slate-700/60
-                dark:bg-slate-900/30
+                focus-visible:ring-2
+                focus-visible:ring-[#238FD7]/40
+
+                dark:border-slate-700
+                dark:bg-slate-900/50
                 dark:text-slate-200
+
                 dark:hover:border-cyan-500
                 dark:hover:bg-cyan-950/40
                 dark:hover:text-cyan-400
               "
             >
               {isMenuOpen ? (
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18 18 6M6 6l12 12"
-                  />
-                </svg>
+                <X className="h-5 w-5" />
               ) : (
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
+                <Menu className="h-5 w-5" />
               )}
             </button>
           </div>
         </nav>
       </header>
 
+      {/* ====================================================== */}
       {/* MOBILE SIDEBAR + BACKDROP */}
+      {/* ====================================================== */}
 
       <AnimatePresence>
         {isMenuOpen && (
           <>
-            {/* BACKDROP */}
+            {/* ================================================== */}
+            {/* MOBILE MENU VIEWPORT LAYER */}
+            {/* ================================================== */}
 
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              onClick={closeMobileMenu}
               className="
           fixed
           inset-0
-          z-55
-          bg-slate-950/45
-          backdrop-blur-[2px]
+          z-[60]
+
+          overflow-hidden
+
           xl:hidden
         "
-            />
-
-            {/* RIGHT SIDEBAR */}
-
-            <motion.aside
-              ref={mobileMenuRef}
-              initial={{
-                x: "100%",
-              }}
-              animate={{
-                x: 0,
-              }}
-              exit={{
-                x: "100%",
-              }}
-              transition={{
-                type: "spring",
-                stiffness: 360,
-                damping: 35,
-              }}
-              className="
-                fixed
-                right-0
-                top-0
-                z-155
-
-                h-dvh
-                w-[68%]
-                max-w-[320px]
-
-                overflow-hidden
-
-                border-l
-               border-slate-200
-
-              bg-white
-
-                shadow-2xl
-                shadow-slate-900/25
-
-              dark:border-slate-800
-              dark:bg-slate-950!
-
-              xl:hidden"
             >
-              {/* SIDEBAR HEADER */}
+              {/* ================================================== */}
+              {/* BACKDROP */}
+              {/* ================================================== */}
 
               <div
+                onClick={closeMobileMenu}
                 className="
-            flex
-            h-19
-            items-center
-            justify-between
+            absolute
+            inset-0
 
-            border-b
-            border-slate-200
-
-            bg-linear-to-r
-            from-white
-            via-blue-50/80
-            to-cyan-50/70
-
-            px-4
-
-            dark:border-slate-800
-            dark:bg-linear-to-r
-            dark:from-slate-950
-            dark:via-blue-950/40
-            dark:to-slate-950
+            bg-slate-950/45
+            
+            backdrop-blur-[2px]
           "
-              >
-                <Link
-                  href="/"
-                  onClick={closeMobileMenu}
-                  className="flex items-center gap-2"
-                >
-                  <div className="relative h-10 w-10">
-                    <Image
-                      src={logo}
-                      alt="IdeaVault Logo"
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
+              />
 
-                  <span
-                    className="
-                bg-linear-to-r
-                from-cyan-500
-                to-blue-600
-                bg-clip-text
-                text-lg
-                font-extrabold
-                text-transparent
-              "
-                  >
-                    TripSwift
-                  </span>
-                </Link>
+              {/* ================================================== */}
+              {/* RIGHT SIDEBAR */}
+              {/* ================================================== */}
 
-                <button
-                  type="button"
-                  aria-label="Close navigation menu"
-                  onClick={closeMobileMenu}
-                  className="
-              flex
-              h-9
-              w-9
-              items-center
-              justify-center
-              rounded-xl
-
-              border
-              border-slate-200
-
-              bg-white
-
-              text-slate-600
-
-              shadow-sm
-              transition-all
-              duration-200
-
-              hover:border-blue-300
-              hover:bg-blue-50
-              hover:text-blue-600
-
-              dark:border-slate-700
-              dark:bg-slate-900
-              dark:text-slate-300
-
-              dark:hover:border-cyan-500
-              dark:hover:bg-slate-800
-              dark:hover:text-cyan-400
-            "
-                >
-                  <svg
-                    className="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M6 18 18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              {/* SIDEBAR CONTENT */}
-
-              <div
+              <motion.aside
+                ref={mobileMenuRef}
+                initial={{
+                  x: "100%",
+                }}
+                animate={{
+                  x: 0,
+                }}
+                exit={{
+                  x: "100%",
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 360,
+                  damping: 35,
+                }}
                 className="
-            navbar-mobile-scroll
-            h-[calc(100dvh-76px)]
-            overflow-y-auto
-            px-4
-            py-5
+            absolute
+            right-0
+            top-0
+
+            h-full
+            w-[68vw]
+            max-w-[320px]
+
+            overflow-hidden
+
+            border-l
+            border-slate-200
 
             bg-white
 
-            dark:bg-slate-950
+            shadow-2xl
+            shadow-slate-900/25
+
+            dark:border-slate-800
+            dark:bg-slate-950!
           "
               >
-                {/* MOBILE PROFILE */}
+                {/* ================================================== */}
+                {/* SIDEBAR HEADER */}
+                {/* ================================================== */}
 
-                {!mounted || isPending ? (
-                  <div className="flex justify-center py-3">
-                    <NavbarSessionSpinner />
-                  </div>
-                ) : user ? (
-                  <>
-                    {/* Profile Info */}
+                <div
+                  className="
+              flex
+              h-[76px]
+              min-h-[76px]
+              shrink-0
 
-                    <div
-                      className="
-                  mb-4
-                  flex
-                  flex-col
-                  items-center
+              items-center
+              justify-between
 
-                  rounded-2xl
+              border-b
+              border-slate-200
 
-                  border
-                  border-blue-100
+              bg-linear-to-r
+              from-white
+              via-blue-50/80
+              to-cyan-50/70
 
-                  bg-linear-to-br
-                  from-blue-50
-                  via-white
-                  to-cyan-50
+              px-4
 
-                  px-3
-                  py-4
+              dark:border-slate-800
+              dark:bg-linear-to-r
+              dark:from-slate-950
+              dark:via-blue-950/40
+              dark:to-slate-950
+            "
+                >
+                  {/* LOGO */}
 
-                  shadow-sm
-
-                  dark:border-blue-900/60
-                  dark:bg-linear-to-br
-                  dark:from-slate-900
-                  dark:via-blue-950/40
-                  dark:to-slate-900
-                "
-                    >
-                      <UserAvatar
-                        user={{
-                          ...user,
-                          name: profile?.name || user?.name,
-                          image: profile?.image || user?.image,
-                        }}
-                        size="lg"
+                  <Link
+                    href="/"
+                    onClick={closeMobileMenu}
+                    className="
+                flex
+                items-center
+                gap-2
+              "
+                  >
+                    <div className="relative h-10 w-10">
+                      <Image
+                        src={logo}
+                        alt="TripSwift Logo"
+                        fill
+                        className="object-contain"
                       />
-
-                      <p
-                        className="
-                    mt-3
-                    text-base
-                    font-bold
-                    text-slate-900
-
-                    dark:text-white
-                  "
-                      >
-                        {profile?.name || user?.name || "User"}
-                      </p>
-
-                      {user.email && (
-                        <p
-                          className="
-                      mt-0.5
-                      max-w-full
-                      truncate
-                      text-xs
-                      text-slate-500
-
-                      dark:text-slate-400
-                    "
-                        >
-                          {user.email}
-                        </p>
-                      )}
                     </div>
 
-                    {/* Profile Management */}
-
-                    <Link
-                      href="/dashboard"
-                      onClick={closeMobileMenu}
-                      className={`
-                        flex
-                        items-center
-                        gap-3
-                        rounded-xl
-                        border
-                        px-4
-                        py-3
-                        text-sm
-                        font-semibold
-                        transition-all
-                        duration-200
-
-                        ${
-                          isActive("/profile")
-                            ? `
-                              border-blue-200
-                              bg-blue-50
-                              text-blue-600
-                              shadow-sm
-                        
-                              dark:border-blue-800/70
-                              dark:bg-blue-950/60
-                              dark:text-cyan-400
-                            `
-                            : `
-                              border-transparent
-                              text-slate-700
-                        
-                              hover:border-blue-100
-                              hover:bg-blue-50
-                              hover:text-blue-600
-                        
-                              dark:text-slate-200
-                              dark:hover:border-slate-800
-                              dark:hover:bg-slate-900
-                              dark:hover:text-cyan-400
-                            `
-                        }
-                      `}
-                    >
-                      <UserRound className="h-4 w-4" />
-                      Dashboard
-                    </Link>
-                    <Link
-                      href="/dashboard/profile"
-                      onClick={closeMobileMenu}
-                      className={`
-                        flex
-                        items-center
-                        gap-3
-                        rounded-xl
-                        border
-                        px-4
-                        py-3
-                        text-sm
-                        font-semibold
-                        transition-all
-                        duration-200
-
-                        ${
-                          isActive("/profile")
-                            ? `
-                              border-blue-200
-                              bg-blue-50
-                              text-blue-600
-                              shadow-sm
-                        
-                              dark:border-blue-800/70
-                              dark:bg-blue-950/60
-                              dark:text-cyan-400
-                            `
-                            : `
-                              border-transparent
-                              text-slate-700
-                        
-                              hover:border-blue-100
-                              hover:bg-blue-50
-                              hover:text-blue-600
-                        
-                              dark:text-slate-200
-                              dark:hover:border-slate-800
-                              dark:hover:bg-slate-900
-                              dark:hover:text-cyan-400
-                            `
-                        }
-                      `}
-                    >
-                      <UserRound className="h-4 w-4" />
-                      My Profile
-                    </Link>
-
-                    <div
+                    <span
                       className="
-                  my-3
-                  h-px
-                  bg-slate-200
-
-                  dark:bg-slate-800
+                  bg-linear-to-r
+                  from-[#1978B8]
+                  to-[#38BDF8]
+                  bg-clip-text
+                  text-lg
+                  font-extrabold
+                  text-transparent
                 "
-                    />
-                  </>
-                ) : null}
+                    >
+                      TripSwift
+                    </span>
+                  </Link>
 
-                {/* MOBILE LINKS */}
+                  {/* CLOSE BUTTON */}
 
-                <div className="space-y-1.5">
-                  {navLinks.map((link) => {
-                    const active = isActive(link.href);
+                  <button
+                    type="button"
+                    aria-label="Close navigation menu"
+                    onClick={closeMobileMenu}
+                    className="
+                flex
+                h-9
+                w-9
+                shrink-0
+                items-center
+                justify-center
 
-                    return (
+                rounded-xl
+
+                border
+                border-slate-200
+
+                bg-white
+
+                text-slate-600
+
+                shadow-sm
+                transition-all
+                duration-200
+
+                hover:border-[#238FD7]/40
+                hover:bg-[#238FD7]/10
+                hover:text-[#238FD7]
+
+                dark:hover:border-[#38BDF8]/40
+                dark:hover:bg-[#38BDF8]/10
+                dark:hover:text-[#38BDF8]
+              "
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                {/* ================================================== */}
+                {/* SIDEBAR SCROLL AREA */}
+                {/* ================================================== */}
+
+                <div
+                  className="
+              navbar-mobile-scroll
+
+              h-[calc(100%-76px)]
+              min-h-0
+
+              overflow-y-auto
+              overflow-x-hidden
+
+              overscroll-contain
+
+              px-4
+              py-5
+
+              bg-white
+
+              dark:bg-slate-950
+            "
+                >
+                  {/* ================================================== */}
+                  {/* MOBILE PROFILE */}
+                  {/* ================================================== */}
+
+                  {!mounted || isPending ? (
+                    <div className="flex justify-center py-3">
+                      <NavbarSessionSpinner />
+                    </div>
+                  ) : user ? (
+                    <>
+                      {/* PROFILE INFO */}
+
+                      <div
+                        className="
+                    mb-4
+                    flex
+                    flex-col
+                    items-center
+
+                    rounded-2xl
+
+                    border
+                    border-blue-100
+
+                    bg-linear-to-br
+                    from-blue-50
+                    via-white
+                    to-cyan-50
+
+                    px-3
+                    py-4
+
+                    shadow-sm
+
+                    dark:border-blue-900/60
+                    dark:bg-linear-to-br
+                    dark:from-slate-900
+                    dark:via-blue-950/40
+                    dark:to-slate-900
+                  "
+                      >
+                        <UserAvatar
+                          user={{
+                            ...user,
+                            name: profile?.name || user?.name,
+                            image: profile?.image || user?.image,
+                          }}
+                          size="lg"
+                        />
+
+                        <p
+                          className="
+                      mt-3
+                      text-base
+                      font-bold
+                      text-slate-900
+
+                      dark:text-white
+                    "
+                        >
+                          {profile?.name || user?.name || "User"}
+                        </p>
+
+                        {user.email && (
+                          <p
+                            className="
+                        mt-0.5
+                        max-w-full
+                        truncate
+                        text-xs
+                        text-slate-500
+
+                        dark:text-slate-400
+                      "
+                          >
+                            {user.email}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* DASHBOARD */}
+
                       <Link
-                        key={link.href}
-                        href={link.href}
+                        href="/dashboard"
                         onClick={closeMobileMenu}
                         className={`
                     flex
                     items-center
-                    justify-between
+                    gap-3
 
                     rounded-xl
+                    border
 
                     px-4
                     py-3
@@ -1170,199 +1263,305 @@ const Navbar = () => {
                     duration-200
 
                     ${
-                      active
+                      isActive("/dashboard")
                         ? `
-                          border
-                          border-blue-200
-                          bg-blue-50
-                          text-blue-600
-                          shadow-sm
+                          border-[#238FD7]/30
+                        bg-[#238FD7]/10
+                        text-[#1978B8]
+                        shadow-sm
 
-                          dark:border-blue-800/70
-                          dark:bg-blue-950/60
-                          dark:text-cyan-400
+                        dark:border-[#38BDF8]/30
+                        dark:bg-[#38BDF8]/10
+                        dark:text-[#38BDF8]
                         `
                         : `
-                          border
                           border-transparent
-                          text-slate-700
-
-                          hover:border-blue-100
-                          hover:bg-blue-50
-                          hover:text-blue-600
-
-                          dark:text-slate-200
-                          dark:hover:border-slate-800
-                          dark:hover:bg-slate-900
-                          dark:hover:text-cyan-400
+                        text-slate-600
+                        hover:border-[#238FD7]/20
+                        hover:bg-[#238FD7]/7
+                        hover:text-[#1978B8]
+                        dark:text-slate-300
+                        dark:hover:border-white/10
+                        dark:hover:bg-white/5
+                        dark:hover:text-[#38BDF8]
                         `
                     }
                   `}
                       >
-                        <span>{link.name}</span>
-
-                        {active && (
-                          <span
-                            className="
-                        h-2
-                        w-2
-                        rounded-full
-                        bg-linear-to-r
-                        from-cyan-400
-                        to-blue-600
-                        shadow-sm
-                      "
-                          />
-                        )}
+                        <LayoutDashboard className="h-4 w-4" />
+                        Dashboard
                       </Link>
-                    );
-                  })}
-                </div>
 
-                <div
-                  className="
-              my-4
-              h-px
-              bg-slate-200
+                      {/* MY PROFILE */}
 
-              dark:bg-slate-800
-            "
-                />
+                      <Link
+                        href="/dashboard/profile"
+                        onClick={closeMobileMenu}
+                        className={`
+                    mt-1.5
 
-                {/* MOBILE AUTH */}
+                    flex
+                    items-center
+                    gap-3
 
-                {isPending ? (
-                  <div className="flex justify-center py-2">
-                    <NavbarSessionSpinner />
+                    rounded-xl
+                    border
+
+                    px-4
+                    py-3
+
+                    text-sm
+                    font-semibold
+
+                    transition-all
+                    duration-200
+
+                    ${
+                      isActive("/dashboard/profile")
+                        ? `
+                          border-[#238FD7]/30
+                          bg-[#238FD7]/10
+                          text-[#1978B8]
+                          shadow-sm
+                          dark:border-[#38BDF8]/30
+                          dark:bg-[#38BDF8]/10
+                          dark:text-[#38BDF8]
+                        `
+                        : `
+                          border-transparent
+                        text-slate-600
+                        hover:border-[#238FD7]/20
+                        hover:bg-[#238FD7]/7
+                        hover:text-[#1978B8]
+                        dark:text-slate-300
+                        dark:hover:border-white/10
+                        dark:hover:bg-white/5
+                        dark:hover:text-[#38BDF8]
+                        `
+                    }
+                  `}
+                      >
+                        <UserRound className="h-4 w-4" />
+                        My Profile
+                      </Link>
+
+                      {/* DIVIDER */}
+
+                      <div
+                        className="
+                    my-3
+                    h-px
+                    bg-slate-200
+
+                    dark:bg-slate-800
+                  "
+                      />
+                    </>
+                  ) : null}
+
+                  {/* ================================================== */}
+                  {/* MOBILE LINKS */}
+                  {/* ================================================== */}
+
+                  <div className="space-y-1.5">
+                    {navLinks.map((link) => {
+                      const active = isActive(link.href);
+
+                      return (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          onClick={closeMobileMenu}
+                          className={`
+                      flex
+                      items-center
+                      justify-between
+
+                      rounded-xl
+
+                      px-4
+                      py-3
+
+                      text-sm
+                      font-semibold
+
+                      transition-all
+                      duration-200
+
+                      ${
+                        active
+                          ? `
+                            border-[#238FD7]/30
+                            bg-[#238FD7]/10
+                            text-[#1978B8]
+                            shadow-sm
+                            dark:border-[#38BDF8]/30
+                            dark:bg-[#38BDF8]/10
+                            dark:text-[#38BDF8]
+                          `
+                          : `
+                            border-transparent
+                          text-slate-600
+                          hover:border-[#238FD7]/20
+                          hover:bg-[#238FD7]/7
+                          hover:text-[#1978B8]
+                          dark:text-slate-300
+                          dark:hover:border-white/10
+                          dark:hover:bg-white/5
+                          dark:hover:text-[#38BDF8]
+                          `
+                      }
+                    `}
+                        >
+                          <span>{link.name}</span>
+
+                          {active && (
+                            <span
+                              className="
+                          h-2
+                          w-2
+                          rounded-full
+
+                          bg-linear-to-r
+                          from-cyan-400
+                          to-blue-600
+
+                          shadow-sm
+                        "
+                            />
+                          )}
+                        </Link>
+                      );
+                    })}
                   </div>
-                ) : !user ? (
-                  /* LOGGED OUT */
 
-                  <div className="flex w-full flex-col gap-2">
-                    <Link
-                      href="/login"
-                      onClick={closeMobileMenu}
+                  {/* DIVIDER */}
+
+                  <div
+                    className="
+                my-4
+                h-px
+                bg-slate-200
+
+                dark:bg-slate-800
+              "
+                  />
+
+                  {/* ================================================== */}
+                  {/* MOBILE AUTH */}
+                  {/* ================================================== */}
+
+                  {isPending ? (
+                    <div className="flex justify-center py-2">
+                      <NavbarSessionSpinner />
+                    </div>
+                  ) : !user ? (
+                    <div className="flex w-full flex-col gap-2">
+                      <Link
+                        href="/login"
+                        onClick={closeMobileMenu}
+                        className="
+                    rounded-xl
+
+                    border
+                    border-[#238FD7]/50
+                    bg-white
+                    text-[#1978B8]
+                    hover:border-[#238FD7]
+                    hover:bg-[#238FD7]/10
+                    dark:border-[#38BDF8]/40
+                    dark:bg-white/5
+                    dark:text-[#38BDF8]
+                    dark:hover:bg-[#38BDF8]/10
+                  "
+                      >
+                        Login
+                      </Link>
+
+                      <Link
+                        href="/register"
+                        onClick={closeMobileMenu}
+                        className="
+                     rounded-xl
+                    bg-[#238FD7]
+                    px-4
+                    py-3
+                    text-center
+                    text-sm
+                    font-semibold
+                    text-white
+                    shadow-[0_8px_25px_rgba(35,143,215,0.22)]
+                    transition-all
+                    duration-300
+                    hover:-translate-y-0.5
+                    hover:bg-[#1978B8]
+                    hover:shadow-lg
+                  "
+                      >
+                        Register
+                      </Link>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleLogout}
                       className="
+                  group
+                  flex
+                  w-full
+                  items-center
+                  justify-center
+                  gap-2.5
+
                   rounded-xl
 
                   border
+                  border-slate-200
+
                   bg-white
 
                   px-4
                   py-3
-                border-[#4148E8]
-                text-[#4148E8]
-                hover:bg-[#4148E8]/5
-                  text-center
+
                   text-sm
                   font-semibold
+                  text-red-500
 
                   shadow-sm
 
                   transition-all
-                  duration-200
-                  hover:shadow-md
-
-                  dark:border-[#6F9CFF]
-                  dark:bg-slate-900
-                  dark:text-[#6F9CFF]
-                  dark:hover:bg-cyan-950/50
-                "
-                    >
-                      Login
-                    </Link>
-
-                    <Link
-                      href="/register"
-                      onClick={closeMobileMenu}
-                      className="
-                  rounded-xl
-
-                  bg-linear-to-r from-[#4148E8] to-[#6F9CFF]
-
-                  px-4
-                  py-3
-
-                  text-center
-                  text-sm
-                  font-semibold
-                  text-white
-
-                  shadow-md
-                  shadow-blue-500/20
-
-                  transition-all
-                  duration-200
-                  hover:shadow-lg
-                  hover:shadow-[#4148E8]/25
-                  hover:-translate-y-0.5
-                "
-                    >
-                      Register
-                    </Link>
-                  </div>
-                ) : (
-                  /* LOGGED IN */
-
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="
-                group
-                flex
-                w-full
-                items-center
-                justify-center
-                gap-2.5
-
-                rounded-xl
-
-                border
-                border-slate-200
-
-                bg-white
-
-                px-4
-                py-3
-
-                text-sm
-                font-semibold
-                text-red-500
-
-                shadow-sm
-
-                transition-all
-                duration-300
-
-                hover:border-red-200
-                hover:bg-red-50
-                hover:shadow-md
-
-                dark:border-slate-700
-                dark:bg-slate-900
-                dark:text-red-400
-
-                dark:hover:border-red-900/50
-                dark:hover:bg-red-950/30
-              "
-                  >
-                    <LogOut
-                      className="
-                  h-4
-                  w-4
-
-                  transition-transform
                   duration-300
 
-                  group-hover:-translate-x-0.5
-                "
-                    />
+                  hover:border-red-200
+                  hover:bg-red-50
+                  hover:shadow-md
 
-                    <span>Logout</span>
-                  </button>
-                )}
-              </div>
-            </motion.aside>
+                  dark:border-slate-700
+                  dark:bg-slate-900
+                  dark:text-red-400
+
+                  dark:hover:border-red-900/50
+                  dark:hover:bg-red-950/30
+                "
+                    >
+                      <LogOut
+                        className="
+                    h-4
+                    w-4
+
+                    transition-transform
+                    duration-300
+
+                    group-hover:-translate-x-0.5
+                  "
+                      />
+
+                      <span>Logout</span>
+                    </button>
+                  )}
+                </div>
+              </motion.aside>
+            </motion.div>
           </>
         )}
       </AnimatePresence>

@@ -118,7 +118,7 @@ export default function Transactions() {
       // Table
       const tableRows = payments.map((payment) => [
         payment.transactionId || "N/A",
-        payment.bookingId ? String(payment.bookingId).slice(-8) : "N/A",
+        payment.bookingId ? String(payment.bookingId) : "N/A",
         payment.ticketTitle || "Ticket",
         formatDate(payment.paymentDate),
         `BDT ${Number(payment.amount || 0).toLocaleString()}`,
@@ -370,8 +370,11 @@ function TransactionRow({ payment, formatDate }) {
           {payment.transactionId || "N/A"}
         </p>
 
-        <p className="mt-1 text-xs text-slate-400">
-          Booking: {String(payment.bookingId || "").slice(-8)}
+        <p
+          className="mt-1 max-w-55 truncate text-xs text-slate-400"
+          title={String(payment.bookingId || "")}
+        >
+          Booking ID: {payment.bookingId || "N/A"}
         </p>
       </td>
 
@@ -411,8 +414,11 @@ function TransactionCard({ payment, formatDate }) {
             {payment.transactionId || "N/A"}
           </p>
 
-          <p className="mt-1 text-xs text-slate-400">
-            Booking: {String(payment.bookingId || "").slice(-8)}
+          <p
+            className="mt-1 break-all text-xs text-slate-400"
+            title={String(payment.bookingId || "")}
+          >
+            Booking ID: {payment.bookingId || "N/A"}
           </p>
         </div>
 

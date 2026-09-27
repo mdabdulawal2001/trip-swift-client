@@ -224,9 +224,9 @@ export default function ProfilePage() {
                   <Image
                     src={profile.image}
                     alt={displayName}
-                    height={10}
-                    width={10}
-                    className="h-28 w-28 rounded-3xl border-4 border-white object-cover shadow-lg dark:border-slate-900"
+                    fill
+                    sizes="112px"
+                    className="rounded-3xl border-4 border-white object-cover shadow-lg dark:border-slate-900"
                   />
                 ) : (
                   <div className="flex h-28 w-28 items-center justify-center rounded-3xl border-4 border-white bg-sky-100 text-3xl font-bold text-sky-600 shadow-lg dark:border-slate-900 dark:bg-sky-500/15 dark:text-sky-400">
@@ -428,14 +428,37 @@ function ProfileField({
   onChange,
   placeholder,
 }) {
+  const isEditable = !disabled && editing;
+
   return (
-    <div>
-      <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+    <div
+      className={`transition-all duration-300 ${
+        isEditable ? "animate-[pulse_1.8s_ease-in-out_1]" : ""
+      }`}
+    >
+      <label
+        className={`mb-2 block text-sm font-semibold transition-colors duration-300 ${
+          isEditable
+            ? "text-sky-600 dark:text-sky-400"
+            : "text-slate-700 dark:text-slate-200"
+        }`}
+      >
         {label}
+        {isEditable && (
+          <span className="ml-2 text-xs font-medium text-sky-500">Editing</span>
+        )}
       </label>
 
-      <div className="relative">
-        <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+      <div
+        className={`relative rounded-xl transition-all duration-300 ${
+          isEditable ? "ring-2 ring-sky-100 dark:ring-sky-500/10" : ""
+        }`}
+      >
+        <div
+          className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-300 ${
+            isEditable ? "text-sky-500" : "text-slate-400"
+          }`}
+        >
           {icon}
         </div>
 
@@ -446,7 +469,11 @@ function ProfileField({
           onChange={onChange}
           disabled={disabled || !editing}
           placeholder={placeholder}
-          className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 disabled:cursor-default disabled:opacity-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-sky-500 dark:focus:ring-sky-500/10"
+          className={`w-full rounded-xl border py-3 pl-10 pr-4 text-sm outline-none transition-all duration-300 ${
+            isEditable
+              ? "border-sky-300 bg-white text-slate-800 shadow-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-sky-600 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-sky-500 dark:focus:ring-sky-500/10"
+              : "border-slate-200 bg-slate-50 text-slate-800 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+          }`}
         />
       </div>
     </div>

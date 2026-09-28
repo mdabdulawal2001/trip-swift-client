@@ -36,13 +36,13 @@ const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
 
   return (
     <>
-      <main className="min-h-screen bg-slate-50/70 dark:bg-slate-950">
+      <main className="min-h-screen bg-slate-50/70 dark:bg-slate-950!">
         {/* Breadcrumb / Back */}
-        <section className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950!">
-          <div className="flex justify-center md:justify-start mx-auto max-w-7xl px-5 py-5 sm:px-8 lg:px-8">
+        <section className="border-b border-slate-200 dark:border-slate-800 dark:!bg-slate-950 bg-white">
+          <div className="flex justify-center mx-auto max-w-7xl px-5 py-5 sm:px-8 lg:px-8">
             <Link
               href="/tickets"
-              className="group inline-flex items-center gap-2 text-sm font-semibold bg-[#238FD7] px-4 py-3 rounded-xl text-white transition hover:bg-[#1978B8] dark:text-slate-400"
+              className="w-full group inline-flex items-center justify-center gap-2 text-sm font-semibold bg-[#238FD7] px-4 py-3 rounded-xl text-white transition hover:bg-[#1978B8]"
             >
               <FaArrowLeft className="transition-transform group-hover:-translate-x-1" />
               Back to all tickets
@@ -266,7 +266,7 @@ const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
                   )}
 
                   {/* Trust / Security Info */}
-                  <div className="mt-5 flex items-start gap-3 rounded-xl border border-slate-200 p-4 dark:border-slate-800">
+                  <div className="mt-5 flex items-start gap-3 rounded-xl border border-slate-200 p-4 dark:border-slate-800!">
                     <FaShieldAlt className="mt-0.5 shrink-0 text-[#238fd8]" />
                     <div>
                       <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">

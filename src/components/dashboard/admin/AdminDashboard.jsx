@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-
+import { motion } from "framer-motion";
 import {
   Megaphone,
   Ticket,
@@ -37,9 +37,7 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error("Admin dashboard error:", error);
 
-      toast.error(
-        error.message || "Failed to load admin dashboard."
-      );
+      toast.error(error.message || "Failed to load admin dashboard.");
     } finally {
       setLoading(false);
     }
@@ -60,18 +58,12 @@ export default function AdminDashboard() {
 
     window.addEventListener("focus", handleFocus);
 
-    document.addEventListener(
-      "visibilitychange",
-      handleVisibilityChange
-    );
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       window.removeEventListener("focus", handleFocus);
 
-      document.removeEventListener(
-        "visibilitychange",
-        handleVisibilityChange
-      );
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [loadDashboardData]);
 
@@ -158,11 +150,7 @@ export default function AdminDashboard() {
         <StatCard
           icon={<WalletCards />}
           label="Total Revenue"
-          value={
-            loading
-              ? "..."
-              : formatCurrency(stats.totalRevenue)
-          }
+          value={loading ? "..." : formatCurrency(stats.totalRevenue)}
           change="From successful payments"
         />
 
@@ -177,7 +165,17 @@ export default function AdminDashboard() {
       {/* Approval + Activity */}
       <div className="mt-6 grid gap-6 xl:grid-cols-2">
         {/* Ticket Approval */}
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+        <motion.div
+          whileHover={{
+            y: -4,
+            boxShadow: "0 12px 30px rgba(15, 23, 42, 0.08)",
+          }}
+          transition={{
+            duration: 0.2,
+            ease: "easeOut",
+          }}
+          className="rounded-3xl border border-slate-200 bg-white p-6 transition-colors duration-200 dark:border-slate-800 dark:bg-slate-900"
+        >
           <SectionTitle
             title="Ticket Approval"
             action="Manage tickets"
@@ -203,10 +201,20 @@ export default function AdminDashboard() {
               progress={approvalStats.rejected || 0}
             />
           </div>
-        </div>
+        </motion.div>
 
         {/* Platform Activity */}
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+        <motion.div
+          whileHover={{
+            y: -4,
+            boxShadow: "0 12px 30px rgba(15, 23, 42, 0.08)",
+          }}
+          transition={{
+            duration: 0.2,
+            ease: "easeOut",
+          }}
+          className="rounded-3xl border border-slate-200 bg-white p-6 transition-colors duration-200 dark:border-slate-800 dark:bg-slate-900"
+        >
           <SectionTitle
             title="Platform Activity"
             action="Manage users"
@@ -238,7 +246,7 @@ export default function AdminDashboard() {
               ))
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Quick Actions */}
@@ -282,12 +290,7 @@ function ActivitySkeleton() {
   );
 }
 
-function AdminAction({
-  href,
-  icon,
-  title,
-  description,
-}) {
+function AdminAction({ href, icon, title, description }) {
   return (
     <Link
       href={href}
@@ -299,13 +302,9 @@ function AdminAction({
         </div>
 
         <div>
-          <h3 className="font-bold text-slate-900 dark:text-white">
-            {title}
-          </h3>
+          <h3 className="font-bold text-slate-900 dark:text-white">{title}</h3>
 
-          <p className="mt-1 text-xs text-slate-500">
-            {description}
-          </p>
+          <p className="mt-1 text-xs text-slate-500">{description}</p>
         </div>
 
         <span className="ml-auto">

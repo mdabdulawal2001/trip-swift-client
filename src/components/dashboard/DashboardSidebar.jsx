@@ -261,7 +261,7 @@ export default function DashboardSidebar({
         {/* BRAND */}
         {/* ================================================== */}
 
-        <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800 bg-white dark:!bg-slate-950">
+        <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800! bg-white dark:!bg-slate-950">
           <Link
             href="/dashboard"
             onClick={
@@ -356,7 +356,7 @@ export default function DashboardSidebar({
         {/* BOTTOM */}
         {/* ================================================== */}
 
-        <div className="bg-white dark:!bg-slate-950 border-t border-slate-200 p-3 dark:border-slate-800">
+        <div className="bg-white dark:!bg-slate-950 border-t border-slate-200 p-3 dark:border-slate-800!">
           <Link
             href="/"
             onClick={
@@ -516,7 +516,7 @@ export default function DashboardSidebar({
         {/* BOTTOM */}
         {/* ================================================== */}
 
-        <div className="bg-white dark:!bg-slate-950 border-t border-slate-200 p-3 dark:border-slate-800">
+        <div className="bg-white dark:!bg-slate-950 border-t border-slate-200 p-3 dark:border-slate-800!">
           <Link
             href="/"
             onClick={
@@ -654,7 +654,7 @@ export default function DashboardSidebar({
                 shadow-2xl
                 shadow-slate-900/25
                 dark:border-slate-800
-                dark:bg-slate-950!
+                dark:bg-slate-950
               "
             >
               {/* ================================================== */}
@@ -671,16 +671,10 @@ export default function DashboardSidebar({
                   justify-between
                   border-b
                   border-slate-200
-                  bg-linear-to-r
-                  from-white
-                  via-blue-50/80
-                  to-cyan-50/70
+                  bg-white
                   px-4
-                  dark:border-slate-800
-                  dark:bg-linear-to-r
-                  dark:from-slate-950
-                  dark:via-blue-950/40
-                  dark:to-slate-950
+                  dark:border-slate-800!
+                  dark:bg-slate-950!
                 "
               >
                 {/* BRAND */}
@@ -757,7 +751,7 @@ export default function DashboardSidebar({
                   overflow-x-hidden
                   overscroll-contain
                   bg-white
-                  dark:bg-slate-950
+                  dark:bg-slate-950!
                 "
               >
                 <MobileSidebarContent mobile />

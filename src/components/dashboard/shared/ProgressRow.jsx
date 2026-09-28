@@ -1,3 +1,5 @@
+import { motion } from "framer-motion";
+
 export default function ProgressRow({
   label,
   value,
@@ -16,11 +18,17 @@ export default function ProgressRow({
       </div>
 
       <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-        <div
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${progress}%` }}
+          transition={{
+            duration: 0.8,
+            ease: "easeOut",
+          }}
           className="h-full rounded-full bg-sky-500"
-          style={{ width: `${progress}%` }}
         />
       </div>
     </div>
   );
 }
+

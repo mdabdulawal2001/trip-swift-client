@@ -4,10 +4,7 @@ import { useEffect, useState } from "react";
 import { Check, Eye, Loader2, X } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import {
-  getAdminTickets,
-  updateTicketStatus,
-} from "@/lib/api";
+import { getAdminTickets, updateTicketStatus } from "@/lib/api";
 
 export default function ManageTickets() {
   const [tickets, setTickets] = useState([]);
@@ -26,9 +23,7 @@ export default function ManageTickets() {
     } catch (error) {
       console.error("Manage tickets error:", error);
 
-      toast.error(
-        error.message || "Failed to load tickets."
-      );
+      toast.error(error.message || "Failed to load tickets.");
     } finally {
       setLoading(false);
     }
@@ -52,22 +47,20 @@ export default function ManageTickets() {
                   ...ticket,
                   status,
                 }
-              : ticket
-          )
+              : ticket,
+          ),
         );
 
         toast.success(
           status === "approved"
             ? "Ticket approved successfully."
-            : "Ticket rejected successfully."
+            : "Ticket rejected successfully.",
         );
       }
     } catch (error) {
       console.error("Status update error:", error);
 
-      toast.error(
-        error.message || "Failed to update ticket."
-      );
+      toast.error(error.message || "Failed to update ticket.");
     } finally {
       setUpdatingId(null);
     }
@@ -115,7 +108,7 @@ export default function ManageTickets() {
         <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[950px] text-left">
-              <thead className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950">
+              <thead className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950!">
                 <tr>
                   <th className="px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
                     Ticket
@@ -160,41 +153,52 @@ export default function ManageTickets() {
                         </p>
                       </div>
                     </td>
-
                     <td className="px-5 py-5">
                       <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
                         {ticket.from} → {ticket.to}
                       </p>
                     </td>
-
                     <td className="px-5 py-5">
                       <p className="max-w-[220px] truncate text-sm text-slate-600 dark:text-slate-400">
                         {ticket.vendorEmail || "Unknown vendor"}
                       </p>
                     </td>
-
                     <td className="px-5 py-5">
                       <p className="font-bold text-slate-900 dark:text-white">
                         ৳{ticket.price}
                       </p>
                     </td>
-
                     <td className="px-5 py-5">
                       <StatusBadge status={ticket.status} />
                     </td>
-
                     <td className="px-5 py-5">
                       <div className="flex justify-end gap-2">
                         {/* View */}
-                        <Link
-                          href={`/dashboard/manage-tickets/${ticket._id}`}
-                        >
+                        <Link href={`/dashboard/manage-tickets/${ticket._id}`}>
                           <button
                             type="button"
-                            className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800"
-                            title="View"
+                            className="
+          flex h-9 items-center gap-1.5 rounded-lg
+          border border-slate-200
+          bg-white px-3
+          text-xs font-semibold text-slate-600
+          shadow-sm
+          transition-all duration-200
+          hover:border-sky-200
+          hover:bg-sky-50
+          hover:text-sky-600
+          active:scale-95
+          dark:border-slate-700
+          dark:bg-slate-900!
+          dark:text-slate-300
+          dark:hover:border-sky-500/30
+          dark:hover:bg-sky-500/10
+          dark:hover:text-sky-400
+        "
+                            title="View ticket"
                           >
                             <Eye className="h-4 w-4" />
+                            <span>View</span>
                           </button>
                         </Link>
 
@@ -205,39 +209,63 @@ export default function ManageTickets() {
                               type="button"
                               disabled={updatingId === ticket._id}
                               onClick={() =>
-                                handleStatusChange(
-                                  ticket._id,
-                                  "approved"
-                                )
+                                handleStatusChange(ticket._id, "approved")
                               }
-                              className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 transition hover:bg-emerald-100 disabled:opacity-50 dark:bg-emerald-500/10 dark:text-emerald-400"
-                              title="Approve"
+                              className="
+            flex h-9 items-center gap-1.5 rounded-lg
+            bg-emerald-50 px-3
+            text-xs font-semibold text-emerald-600
+            transition-all duration-200
+            hover:bg-emerald-100
+            hover:shadow-sm
+            active:scale-95
+            disabled:cursor-not-allowed
+            disabled:opacity-50
+            dark:bg-emerald-500/10
+            dark:text-emerald-400
+            dark:hover:bg-emerald-500/20
+          "
+                              title="Approve ticket"
                             >
                               {updatingId === ticket._id ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
                               ) : (
                                 <Check className="h-4 w-4" />
                               )}
+
+                              <span>Approve</span>
                             </button>
 
                             <button
                               type="button"
                               disabled={updatingId === ticket._id}
                               onClick={() =>
-                                handleStatusChange(
-                                  ticket._id,
-                                  "rejected"
-                                )
+                                handleStatusChange(ticket._id, "rejected")
                               }
-                              className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50 text-red-500 transition hover:bg-red-100 disabled:opacity-50 dark:bg-red-500/10 dark:text-red-400"
-                              title="Reject"
+                              className="
+            flex h-9 items-center gap-1.5 rounded-lg
+            bg-red-50 px-3
+            text-xs font-semibold text-red-500
+            transition-all duration-200
+            hover:bg-red-100
+            hover:shadow-sm
+            active:scale-95
+            disabled:cursor-not-allowed
+            disabled:opacity-50
+            dark:bg-red-500/10
+            dark:text-red-400
+            dark:hover:bg-red-500/20
+          "
+                              title="Reject ticket"
                             >
                               <X className="h-4 w-4" />
+                              <span>Reject</span>
                             </button>
                           </>
                         )}
                       </div>
                     </td>
+                    
                   </tr>
                 ))}
               </tbody>
@@ -265,13 +293,11 @@ function StatusBadge({ status }) {
 
     rejected: {
       label: "Rejected",
-      className:
-        "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400",
+      className: "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400",
     },
   };
 
-  const config =
-    statusConfig[status] || statusConfig.pending;
+  const config = statusConfig[status] || statusConfig.pending;
 
   return (
     <span

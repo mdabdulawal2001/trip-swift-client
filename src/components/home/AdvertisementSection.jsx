@@ -259,7 +259,7 @@ const AdvertisementSection = () => {
                               )}
                           </div>
 
-                          <div className="mt-5 flex items-end justify-between border-t border-slate-100 pt-4 dark:border-slate-800">
+                          <div className="mt-5 flex items-end justify-between border-t border-slate-100 pt-4 dark:border-slate-800!">
                             <div>
                               <p className="text-xs text-slate-400">
                                 Starting from

@@ -471,8 +471,8 @@ function ProfileField({
           placeholder={placeholder}
           className={`w-full rounded-xl border py-3 pl-10 pr-4 text-sm outline-none transition-all duration-300 ${
             isEditable
-              ? "border-sky-300 bg-white text-slate-800 shadow-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-sky-600 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-sky-500 dark:focus:ring-sky-500/10"
-              : "border-slate-200 bg-slate-50 text-slate-800 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              ? "border-sky-300 bg-white text-slate-800 shadow-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-sky-600 dark:bg-slate-900! dark:text-slate-100 dark:focus:border-sky-500 dark:focus:ring-sky-500/10"
+              : "border-slate-200 bg-slate-50 text-slate-800 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800! dark:text-slate-100"
           }`}
         />
       </div>

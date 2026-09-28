@@ -213,13 +213,13 @@ export default function ProfilePage() {
     <div className="space-y-6">
       {/* Profile Header */}
       <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 sm:pb-5">
-        <div className="h-32 bg-linear-to-r from-sky-500 via-cyan-500 to-blue-600 sm:h-28" />
+        <div className="h-32 bg-linear-to-r from-sky-500 via-[#1b8ed7] to-blue-500 sm:h-28" />
 
         <div className="px-5 pb-6 sm:px-8">
           <div className="-mt-10 flex flex-col gap-5 sm:-mt-12 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-end">
               {/* Avatar */}
-              <div className="relative h-28 w-28 rounded-[1.75rem] border-4 border-white object-cover shadow-xl dark:border-slate-900!">
+              <div className="relative h-28 w-28 rounded-[1.75rem] border-white object-cover shadow-xl dark:border-slate-900!">
                 {profile.image ? (
                   <Image
                     src={profile.image}
@@ -229,7 +229,7 @@ export default function ProfilePage() {
                     className="rounded-3xl border-4 border-white object-cover shadow-lg dark:border-slate-900"
                   />
                 ) : (
-                  <div className="flex h-28 w-28 items-center justify-center rounded-3xl border-4 border-white bg-sky-100 text-3xl font-bold text-sky-600 shadow-lg dark:border-slate-900 dark:bg-sky-500/15 dark:text-sky-400">
+                  <div className="flex h-28 w-28 items-center justify-center rounded-3xl border-7 border-white bg-sky-100 text-3xl font-bold text-sky-600 shadow-lg dark:border-slate-900 dark:bg-[#1b8ed7] dark:text-white">
                     {initials || "U"}
                   </div>
                 )}

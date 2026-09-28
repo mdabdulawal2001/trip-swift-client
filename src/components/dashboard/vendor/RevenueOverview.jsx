@@ -24,8 +24,7 @@ export default function RevenueOverview() {
     try {
       setLoading(true);
 
-      const { data: session } =
-        await authClient.getSession();
+      const { data: session } = await authClient.getSession();
 
       const email = session?.user?.email;
 
@@ -38,15 +37,9 @@ export default function RevenueOverview() {
 
       setPayments(data?.payments || []);
     } catch (error) {
-      console.error(
-        "Revenue loading error:",
-        error
-      );
+      console.error("Revenue loading error:", error);
 
-      toast.error(
-        error?.message ||
-          "Failed to load revenue data."
-      );
+      toast.error(error?.message || "Failed to load revenue data.");
     } finally {
       setLoading(false);
     }
@@ -59,24 +52,17 @@ export default function RevenueOverview() {
       loadPayments();
     };
 
-    window.addEventListener(
-      "focus",
-      handleFocus
-    );
+    window.addEventListener("focus", handleFocus);
 
     return () => {
-      window.removeEventListener(
-        "focus",
-        handleFocus
-      );
+      window.removeEventListener("focus", handleFocus);
     };
   }, [loadPayments]);
 
   const totalRevenue = useMemo(() => {
     return payments.reduce(
-      (total, payment) =>
-        total + Number(payment.amount || 0),
-      0
+      (total, payment) => total + Number(payment.amount || 0),
+      0,
     );
   }, [payments]);
 
@@ -92,18 +78,13 @@ export default function RevenueOverview() {
           date.getMonth() === now.getMonth()
         );
       })
-      .reduce(
-        (total, payment) =>
-          total + Number(payment.amount || 0),
-        0
-      );
+      .reduce((total, payment) => total + Number(payment.amount || 0), 0);
   }, [payments]);
 
   const ticketsSold = useMemo(() => {
     return payments.reduce(
-      (total, payment) =>
-        total + Number(payment.quantity || 0),
-      0
+      (total, payment) => total + Number(payment.quantity || 0),
+      0,
     );
   }, [payments]);
 
@@ -121,7 +102,7 @@ export default function RevenueOverview() {
       const date = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() - i,
-        1
+        1,
       );
 
       months.push({
@@ -135,9 +116,7 @@ export default function RevenueOverview() {
     }
 
     payments.forEach((payment) => {
-      const paymentDate = new Date(
-        payment.paymentDate
-      );
+      const paymentDate = new Date(payment.paymentDate);
 
       if (Number.isNaN(paymentDate.getTime())) {
         return;
@@ -146,34 +125,26 @@ export default function RevenueOverview() {
       const matchedMonth = months.find(
         (item) =>
           item.year === paymentDate.getFullYear() &&
-          item.monthIndex === paymentDate.getMonth()
+          item.monthIndex === paymentDate.getMonth(),
       );
 
       if (matchedMonth) {
-        matchedMonth.revenue += Number(
-          payment.amount || 0
-        );
+        matchedMonth.revenue += Number(payment.amount || 0);
       }
     });
 
     return months;
   }, [payments]);
 
-  const maxRevenue = Math.max(
-    ...monthlyRevenue.map(
-      (item) => item.revenue
-    ),
-    1
-  );
+  const maxRevenue = Math.max(...monthlyRevenue.map((item) => item.revenue), 1);
 
   const bestRoute = useMemo(() => {
     const routeMap = {};
 
     payments.forEach((payment) => {
-      const route = payment.route ||
-        `${payment.from || "Unknown"} → ${
-          payment.to || "Unknown"
-        }`;
+      const route =
+        payment.route ||
+        `${payment.from || "Unknown"} → ${payment.to || "Unknown"}`;
 
       if (!routeMap[route]) {
         routeMap[route] = {
@@ -183,19 +154,13 @@ export default function RevenueOverview() {
         };
       }
 
-      routeMap[route].revenue += Number(
-        payment.amount || 0
-      );
+      routeMap[route].revenue += Number(payment.amount || 0);
 
-      routeMap[route].tickets += Number(
-        payment.quantity || 0
-      );
+      routeMap[route].tickets += Number(payment.quantity || 0);
     });
 
     return (
-      Object.values(routeMap).sort(
-        (a, b) => b.revenue - a.revenue
-      )[0] || null
+      Object.values(routeMap).sort((a, b) => b.revenue - a.revenue)[0] || null
     );
   }, [payments]);
 
@@ -212,8 +177,7 @@ export default function RevenueOverview() {
         </h1>
 
         <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-          Track your ticket sales, earnings and
-          business performance.
+          Track your ticket sales, earnings and business performance.
         </p>
       </div>
 
@@ -222,42 +186,26 @@ export default function RevenueOverview() {
         <RevenueStat
           icon={<Wallet className="h-5 w-5" />}
           label="Total Revenue"
-          value={
-            loading
-              ? "..."
-              : `৳${totalRevenue.toLocaleString()}`
-          }
+          value={loading ? "..." : `৳${totalRevenue.toLocaleString()}`}
         />
 
         <RevenueStat
           icon={<DollarSign className="h-5 w-5" />}
           label="This Month"
-          value={
-            loading
-              ? "..."
-              : `৳${currentMonthRevenue.toLocaleString()}`
-          }
+          value={loading ? "..." : `৳${currentMonthRevenue.toLocaleString()}`}
         />
 
         <RevenueStat
           icon={<Ticket className="h-5 w-5" />}
           label="Tickets Sold"
-          value={
-            loading
-              ? "..."
-              : ticketsSold.toLocaleString()
-          }
+          value={loading ? "..." : ticketsSold.toLocaleString()}
         />
 
         <RevenueStat
           icon={<TrendingUp className="h-5 w-5" />}
           label="Avg. Booking"
           value={
-            loading
-              ? "..."
-              : `৳${Math.round(
-                  averageBooking
-                ).toLocaleString()}`
+            loading ? "..." : `৳${Math.round(averageBooking).toLocaleString()}`
           }
         />
       </div>
@@ -285,17 +233,28 @@ export default function RevenueOverview() {
             const height =
               item.revenue === 0
                 ? 3
-                : Math.max(
-                    (item.revenue / maxRevenue) *
-                      100,
-                    8
-                  );
+                : Math.max((item.revenue / maxRevenue) * 100, 8);
 
             return (
               <div
                 key={`${item.year}-${item.monthIndex}`}
-                className="flex h-full flex-1 flex-col justify-end"
+                className="group relative flex h-full flex-1 flex-col justify-end"
               >
+                {/* Tooltip */}
+                <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-3 -translate-x-1/2 translate-y-1 rounded-xl bg-slate-900 px-3 py-2 text-center text-xs font-medium text-white opacity-0 shadow-lg transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100 dark:bg-white dark:text-slate-900">
+                  <p className="whitespace-nowrap font-semibold">
+                    {item.month} {item.year}
+                  </p>
+
+                  <p className="mt-0.5 whitespace-nowrap text-slate-300 dark:text-slate-500">
+                    ৳{item.revenue.toLocaleString()}
+                  </p>
+
+                  {/* Tooltip Arrow */}
+                  <span className="absolute left-1/2 top-full h-2 w-2 -translate-x-1/2 -translate-y-1 rotate-45 bg-slate-900 dark:bg-white" />
+                </div>
+
+                {/* Bar */}
                 <div className="flex h-full items-end justify-center">
                   <motion.div
                     initial={{ height: 0 }}
@@ -307,13 +266,8 @@ export default function RevenueOverview() {
                       delay: index * 0.08,
                       ease: "easeOut",
                     }}
-                    className="group relative w-full max-w-14 rounded-t-2xl bg-sky-500 transition hover:bg-sky-600"
-                  >
-                    <div className="absolute -top-10 left-1/2 hidden -translate-x-1/2 rounded-lg bg-slate-900 px-2 py-1 text-xs font-semibold text-white group-hover:block">
-                      ৳
-                      {item.revenue.toLocaleString()}
-                    </div>
-                  </motion.div>
+                    className="w-full max-w-14 rounded-t-2xl bg-sky-500 transition hover:bg-sky-600"
+                  />
                 </div>
 
                 <p className="mt-3 text-center text-xs font-medium text-slate-500">
@@ -346,8 +300,7 @@ export default function RevenueOverview() {
 
               <div className="text-right">
                 <p className="font-bold text-sky-500">
-                  ৳
-                  {bestRoute.revenue.toLocaleString()}
+                  ৳{bestRoute.revenue.toLocaleString()}
                 </p>
               </div>
             </div>
@@ -374,8 +327,7 @@ export default function RevenueOverview() {
               </p>
 
               <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
-                Revenue is calculated only from
-                successfully completed payments.
+                Revenue is calculated only from successfully completed payments.
               </p>
             </div>
           </div>
@@ -385,20 +337,14 @@ export default function RevenueOverview() {
   );
 }
 
-function RevenueStat({
-  icon,
-  label,
-  value,
-}) {
+function RevenueStat({ icon, label, value }) {
   return (
     <div className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
       <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400">
         {icon}
       </div>
 
-      <p className="mt-5 text-sm text-slate-500">
-        {label}
-      </p>
+      <p className="mt-5 text-sm text-slate-500">{label}</p>
 
       <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
         {value}

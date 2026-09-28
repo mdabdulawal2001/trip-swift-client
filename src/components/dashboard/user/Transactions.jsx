@@ -80,42 +80,100 @@ export default function Transactions() {
     (payment) => payment.status === "paid",
   ).length;
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (!payments.length) {
       toast.error("No transactions available to export.");
       return;
     }
 
     try {
-      const doc = new jsPDF();
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4",
+      });
+
+      // --------------------------------
+      // Load Unicode Fonts
+      // --------------------------------
+      const loadFontAsBase64 = async (url) => {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(`Failed to load font: ${url}`);
+        }
+
+        const buffer = await response.arrayBuffer();
+
+        let binary = "";
+
+        const bytes = new Uint8Array(buffer);
+
+        const chunkSize = 0x8000;
+
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+          const chunk = bytes.subarray(i, i + chunkSize);
+
+          binary += String.fromCharCode(...chunk);
+        }
+
+        return btoa(binary);
+      };
+
+      const regularFont = await loadFontAsBase64("/fonts/NotoSans-Regular.ttf");
+
+      const boldFont = await loadFontAsBase64("/fonts/NotoSans-Bold.ttf");
+
+      doc.addFileToVFS("NotoSans-Regular.ttf", regularFont);
+      doc.addFont("NotoSans-Regular.ttf", "NotoSans", "normal", "Identity-H");
+
+      doc.addFileToVFS("NotoSans-Bold.ttf", boldFont);
+      doc.addFont("NotoSans-Bold.ttf", "NotoSans", "bold", "Identity-H");
+
+      // Use Unicode font everywhere
+      doc.setFont("NotoSans", "normal");
 
       const pageWidth = doc.internal.pageSize.getWidth();
 
+      // --------------------------------
       // Header
+      // --------------------------------
+      doc.setFont("NotoSans", "bold");
       doc.setFontSize(22);
-      doc.setFont("helvetica", "bold");
-      doc.text("TripSwift", 14, 20);
+      doc.setTextColor(27, 142, 217);
 
+      doc.text("TripSwift", 25, 18);
+      
+
+      doc.setFont("NotoSans", "normal");
       doc.setFontSize(12);
-      doc.setFont("helvetica", "normal");
-      doc.text("Transaction History", 14, 28);
+      doc.setTextColor(80, 90, 105);
 
-      // Export date
+      doc.text("Transaction History", 25, 26);
+
+      // --------------------------------
+      // Export Date
+      // --------------------------------
       doc.setFontSize(9);
-      doc.setTextColor(100);
-      doc.text(`Generated: ${formatDate(new Date())}`, pageWidth - 14, 20, {
+      doc.setTextColor(100, 110, 120);
+
+      doc.text(`Generated: ${formatDate(new Date())}`, pageWidth - 25, 18, {
         align: "right",
       });
 
+      // --------------------------------
       // Summary
-      doc.setTextColor(40);
+      // --------------------------------
       doc.setFontSize(10);
+      doc.setTextColor(40, 50, 60);
 
-      doc.text(`Total Paid: BDT ${totalPaid.toLocaleString()}`, 14, 40);
+      doc.text(`Total Paid: BDT ${totalPaid.toLocaleString()}`, 25, 38);
 
-      doc.text(`Successful Transactions: ${successfulPayments}`, 14, 47);
-
-      // Table
+      doc.text(`Successful Transactions: ${successfulPayments}`, 25, 45);
+  
+      // --------------------------------
+      // Table Data
+      // --------------------------------
       const tableRows = payments.map((payment) => [
         payment.transactionId || "N/A",
         payment.bookingId ? String(payment.bookingId) : "N/A",
@@ -126,8 +184,11 @@ export default function Transactions() {
         payment.status || "N/A",
       ]);
 
+      // --------------------------------
+      // Transaction Table
+      // --------------------------------
       autoTable(doc, {
-        startY: 56,
+        startY: 54,
 
         head: [
           [
@@ -145,40 +206,88 @@ export default function Transactions() {
 
         theme: "grid",
 
+        tableWidth: "auto",
+
+        margin: {
+          left: 25,
+          right: 25,
+        },
+
         styles: {
+          font: "NotoSans",
+          fontStyle: "normal",
           fontSize: 8,
-          cellPadding: 3,
+          cellPadding: 2.5,
           valign: "middle",
+          overflow: "linebreak",
+          textColor: [40, 45, 50],
         },
 
         headStyles: {
+          font: "NotoSans",
           fontStyle: "bold",
-          textColor: 255,
+          fontSize: 8,
+          fillColor: [27, 142, 217],
+          textColor: [255, 255, 255],
+          halign: "left",
         },
 
         columnStyles: {
-          0: { cellWidth: 30 },
-          1: { cellWidth: 24 },
-          2: { cellWidth: 35 },
-          3: { cellWidth: 27 },
-          4: { cellWidth: 25 },
-          5: { cellWidth: 20 },
-          6: { cellWidth: 22 },
+          // Transaction ID
+          0: {
+            cellWidth: 40,
+          },
+
+          // Booking ID
+          1: {
+            cellWidth: 40,
+          },
+
+          // Ticket
+          2: {
+            cellWidth: 55,
+          },
+
+          // Payment Date
+          3: {
+            cellWidth: 32,
+          },
+
+          // Amount
+          4: {
+            cellWidth: 30,
+          },
+
+          // Method
+          5: {
+            cellWidth: 25,
+          },
+
+          // Status
+          6: {
+            cellWidth: 25,
+          },
         },
 
         didParseCell: (data) => {
-          if (data.section === "body" && data.column.index === 6) {
+          // Keep everything Unicode-compatible
+          data.cell.styles.font = "NotoSans";
+
+          if (data.section === "head") {
             data.cell.styles.fontStyle = "bold";
           }
-        },
 
-        margin: {
-          left: 14,
-          right: 14,
+          // Status column
+          if (data.section === "body" && data.column.index === 6) {
+            data.cell.styles.fontStyle = "bold";
+            data.cell.styles.halign = "center";
+          }
         },
       });
 
+      // --------------------------------
       // Footer
+      // --------------------------------
       const pageCount = doc.internal.getNumberOfPages();
 
       for (let page = 1; page <= pageCount; page++) {
@@ -186,28 +295,32 @@ export default function Transactions() {
 
         const pageHeight = doc.internal.pageSize.getHeight();
 
+        doc.setFont("NotoSans", "normal");
         doc.setFontSize(8);
-        doc.setTextColor(120);
+        doc.setTextColor(120, 125, 130);
 
         doc.text(
           `TripSwift • Transaction History • Page ${page} of ${pageCount}`,
           pageWidth / 2,
-          pageHeight - 10,
+          pageHeight - 8,
           {
             align: "center",
           },
         );
       }
 
+      // --------------------------------
+      // Save PDF
+      // --------------------------------
       const fileDate = new Date().toISOString().slice(0, 10);
 
       doc.save(`tripswift-transactions-${fileDate}.pdf`);
 
       toast.success("Transaction PDF downloaded successfully.");
     } catch (error) {
-      toast.error("Transaction PDF export error:", error);
+      console.error("Transaction PDF export error:", error);
 
-      toast.error("Failed to generate transaction PDF.");
+      toast.error(error?.message || "Failed to generate transaction PDF.");
     }
   };
 
@@ -280,7 +393,7 @@ export default function Transactions() {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[900px]">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-left dark:border-slate-800 dark:bg-slate-950">
+              <tr className="border-b border-slate-200 bg-slate-50 text-left dark:border-slate-800 dark:bg-slate-950!">
                 <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">
                   Transaction
                 </th>

@@ -22,7 +22,7 @@ import { FaX, FaXTwitter } from "react-icons/fa6";
 
 const Footer = () => {
   return (
-    <footer className="border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
+    <footer className="border-t border-slate-200 bg-white dark:border-slate-800! dark:bg-slate-950">
       <div className="mx-auto max-w-7xl px-5 pb-8 pt-16 sm:px-8 lg:px-8">
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
@@ -34,7 +34,7 @@ const Footer = () => {
           >
             <Link
             href="/"
-            className="group flex shrink-0 items-center gap-1"
+            className="group flex justify-center md:justify-start shrink-0 items-center gap-1"
           >
             <div className="relative h-12 w-12 sm:h-14 sm:w-14">
               <Image
@@ -82,12 +82,12 @@ const Footer = () => {
             </div>
           </Link>
 
-            <p className="mt-5 max-w-xs text-sm leading-7 text-slate-600 dark:text-slate-400">
+            <p className="text-center md:text-left mt-5 md:max-w-xs text-sm leading-7 text-slate-600 dark:text-slate-400">
               TripSwift makes ticket booking simple, reliable and convenient
               so you can spend less time planning and more time travelling.
             </p>
 
-            <div className="mt-6 flex items-center gap-3">
+            <div className="mt-6 flex items-center justify-center md:justify-start gap-3">
               {[
                 {
                   icon: FaFacebookF,
@@ -119,12 +119,12 @@ const Footer = () => {
           </motion.div>
 
           {/* Quick Links */}
-          <div>
+          <div className="text-center md:text-left">
             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">
               Quick Links
             </h3>
 
-            <ul className="mt-5 space-y-3">
+            <ul className="flex flex-col items-center md:items-start mt-5 space-y-3">
               {[
                 ["Home", "/"],
                 ["All Tickets", "/tickets"],
@@ -144,12 +144,12 @@ const Footer = () => {
           </div>
 
           {/* Contact */}
-          <div>
+          <div className="text-center md:text-left">
             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">
               Contact
             </h3>
 
-            <div className="mt-5 space-y-4">
+            <div className="flex flex-col items-center md:items-start mt-5 space-y-4">
               <div className="flex gap-3">
                 <FaMapMarkerAlt className="mt-1 shrink-0 text-[#238FD7]" />
 
@@ -177,7 +177,7 @@ const Footer = () => {
           </div>
 
           {/* Payment */}
-          <div>
+          <div className="flex flex-col justify-center items-center md:items-start text-center md:text-left">
             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">
               Secure Payments
             </h3>

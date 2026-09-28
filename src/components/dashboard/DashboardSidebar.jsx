@@ -278,7 +278,7 @@ export default function DashboardSidebar({
             <div>
               <p className="font-bold tracking-tight text-slate-900 dark:text-white">
                 Trip
-                <span className="text-#238FD7">
+                <span className="text-[#238FD7]">
                   Swift
                 </span>
               </p>

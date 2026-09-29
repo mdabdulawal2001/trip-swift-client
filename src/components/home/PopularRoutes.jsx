@@ -133,13 +133,41 @@ const PopularRoutes = () => {
               <div
                 key={item}
                 className="
-                  h-80
-                  animate-pulse
-                  rounded-2xl
-                  bg-slate-200
-                  dark:bg-slate-800
-                "
-              />
+          relative
+          h-80
+          overflow-hidden
+          rounded-2xl
+          bg-slate-200
+          dark:bg-slate-800!
+          animate-pulse
+        "
+              >
+                {/* Image skeleton */}
+                <div className="absolute inset-0 bg-slate-300 dark:bg-slate-700!" />
+
+                {/* Bottom content skeleton */}
+                <div className="absolute inset-x-0 bottom-0 p-5">
+                  {/* Small label */}
+                  <div className="h-3 w-28 rounded bg-slate-400/70 dark:bg-slate-600!" />
+
+                  {/* Route */}
+                  <div className="mt-3 h-6 w-4/5 rounded bg-slate-400/70 dark:bg-slate-600" />
+
+                  {/* Bottom row */}
+                  <div className="mt-4 flex items-end justify-between">
+                    <div>
+                      {/* Trips */}
+                      <div className="h-3 w-24 rounded bg-slate-400/70 dark:bg-slate-600!" />
+
+                      {/* Price */}
+                      <div className="mt-2 h-4 w-20 rounded bg-slate-400/70 dark:bg-slate-600!" />
+                    </div>
+
+                    {/* Arrow button */}
+                    <div className="h-10 w-10 rounded-full bg-slate-400/70 dark:bg-slate-600" />
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         ) : popularRoutes.length > 0 ? (

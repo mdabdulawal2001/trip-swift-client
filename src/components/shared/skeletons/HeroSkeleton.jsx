@@ -12,7 +12,7 @@ const HeroSkeleton = () => {
             overflow-hidden
             rounded-[28px]
             bg-slate-100
-            dark:bg-slate-900
+            dark:!bg-slate-900
             sm:rounded-[36px]
           "
         >
@@ -91,31 +91,31 @@ const HeroSkeleton = () => {
               {/* Small label */}
 
               <div className="mb-5 flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-slate-300 dark:bg-slate-700" />
+                <div className="h-2 w-2 rounded-full bg-slate-300 dark:bg-slate-700!" />
 
-                <div className="h-3 w-20 animate-pulse rounded-full bg-slate-300 dark:bg-slate-700" />
+                <div className="h-3 w-20 animate-pulse rounded-full bg-slate-300 dark:bg-slate-700!" />
               </div>
 
               {/* Title */}
 
               <div className="space-y-3">
-                <div className="h-12 w-full max-w-xl animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+                <div className="h-12 w-full max-w-xl animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800!" />
 
-                <div className="h-12 w-4/5 max-w-lg animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+                <div className="h-12 w-4/5 max-w-lg animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800!" />
               </div>
 
               {/* Accent line */}
 
-              <div className="mt-6 h-1 w-16 rounded-full bg-slate-300 dark:bg-slate-700" />
+              <div className="mt-6 h-1 w-16 rounded-full bg-slate-300 dark:bg-slate-700!" />
 
               {/* Description */}
 
               <div className="mt-6 max-w-lg space-y-2">
-                <div className="h-3 w-full animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
+                <div className="h-3 w-full animate-pulse rounded-full bg-slate-200 dark:bg-slate-800!" />
 
-                <div className="h-3 w-11/12 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
+                <div className="h-3 w-11/12 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800!" />
 
-                <div className="h-3 w-3/4 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
+                <div className="h-3 w-3/4 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800!" />
               </div>
 
               {/* Route information */}
@@ -159,19 +159,19 @@ const HeroSkeleton = () => {
               {/* Buttons */}
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <div className="h-12 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800 sm:w-44" />
+                <div className="h-12 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800! sm:w-44" />
 
-                <div className="h-12 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800 sm:w-48" />
+                <div className="h-12 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800! sm:w-48" />
               </div>
 
               {/* Trust */}
 
               <div className="mt-7 flex flex-wrap gap-x-5 gap-y-3">
-                <div className="h-3 w-28 rounded-full bg-slate-200 dark:bg-slate-800" />
+                <div className="h-3 w-28 rounded-full bg-slate-200 dark:bg-slate-800!" />
 
                 <div className="hidden h-3 w-24 rounded-full bg-slate-200 dark:bg-slate-800 sm:block" />
 
-                <div className="h-3 w-32 rounded-full bg-slate-200 dark:bg-slate-800" />
+                <div className="h-3 w-32 rounded-full bg-slate-200 dark:bg-slate-800!" />
               </div>
             </div>
           </div>
@@ -203,8 +203,8 @@ const HeroSkeleton = () => {
             bg-white
             p-4
             shadow-lg
-            dark:border-slate-800
-            dark:bg-slate-900
+            dark:border-slate-800!
+            dark:bg-slate-900!
             sm:p-6
             lg:p-7
           "
@@ -218,7 +218,7 @@ const HeroSkeleton = () => {
               <div className="hidden h-3 w-72 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800 sm:block" />
             </div>
 
-            <div className="hidden h-7 w-24 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800 sm:block" />
+            <div className="hidden h-7 w-24 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800! sm:block" />
           </div>
 
           {/* Search fields */}
@@ -244,23 +244,23 @@ const HeroSkeleton = () => {
                   border-slate-200
                   bg-slate-50
                   px-3.5
-                  dark:border-slate-800
-                  dark:bg-slate-800/70
+                  dark:!border-slate-800
+                  dark:bg-slate-800/70!
                 "
               >
-                <div className="h-10 w-10 shrink-0 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-700" />
+                <div className="h-10 w-10 shrink-0 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-700!" />
 
                 <div className="min-w-0 flex-1 space-y-2">
-                  <div className="h-2 w-12 rounded-full bg-slate-200 dark:bg-slate-700" />
+                  <div className="h-2 w-12 rounded-full bg-slate-200 dark:bg-slate-700!" />
 
-                  <div className="h-4 w-28 rounded-full bg-slate-200 dark:bg-slate-700" />
+                  <div className="h-4 w-28 rounded-full bg-slate-200 dark:bg-slate-700!" />
                 </div>
               </div>
             ))}
 
             {/* Search button */}
 
-            <div className="h-15.5 min-h-15.5 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+            <div className="h-15.5 min-h-15.5 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800!" />
           </div>
         </div>
       </div>

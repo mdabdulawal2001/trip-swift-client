@@ -2,9 +2,26 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { FaArrowRight, FaCompass } from "react-icons/fa";
+import CTASkeleton from "../shared/skeletons/CTASkeleton";
 
 const CTASection = () => {
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return <CTASkeleton />;
+  }
+
   return (
     <section className="px-5 py-20 sm:px-8 sm:py-24 lg:px-8">
       <motion.div

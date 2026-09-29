@@ -18,6 +18,7 @@ import {
   getAdvertisedTickets,
 } from "@/lib/api";
 import toast from "react-hot-toast";
+import TicketCardSkeleton from "../shared/skeletons/TicketCardSkeleton";
 
 const transportIcons = {
   "AC Bus": FaBus,
@@ -59,6 +60,33 @@ const AdvertisementSection = () => {
 
   return (
     <section className="py-20 sm:py-24">
+
+      {/* loading */}
+      {loading && (
+          <section className="py-20 sm:py-24">
+                  <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-8">
+                    {/* Heading */}
+          
+                    <div className="mb-10">
+                      <div className="mb-3 h-3 w-32 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
+          
+                      <div className="h-10 w-64 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+          
+                      <div className="mt-4 h-4 w-full max-w-2xl animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
+                    </div>
+          
+                    {/* Cards */}
+          
+                    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                      {Array.from({ length: 6 }).map((_, index) => (
+                        <TicketCardSkeleton key={index} />
+                      ))}
+                    </div>
+                  </div>
+                </section>
+          
+        )}
+
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-8">
         {/* Header */}
         <motion.div
@@ -112,20 +140,7 @@ const AdvertisementSection = () => {
           </div>
         </motion.div>
 
-        {/* Loading */}
-        {loading && (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({
-              length: 6,
-            }).map((_, index) => (
-              <div
-                key={index}
-                className="h-96 animate-pulse rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
-              />
-            ))}
-          </div>
-        )}
-
+        
         {/* Empty */}
         {!loading &&
           tickets.length === 0 && (

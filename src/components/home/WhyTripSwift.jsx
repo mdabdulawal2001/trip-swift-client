@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import {
   FaHeadset,
   FaLock,
@@ -9,6 +10,7 @@ import {
   FaTicketAlt,
   FaWallet,
 } from "react-icons/fa";
+import WhyTripSwiftSkeleton from "../shared/skeletons/WhyTripSwiftSkeleton";
 
 const features = [
   {
@@ -56,6 +58,19 @@ const features = [
 ];
 
 const WhyTripSwift = () => {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return <WhyTripSwiftSkeleton />;
+  }
   return (
     <section className="relative overflow-hidden bg-[#F7FBFF] py-20 text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white sm:py-24">
       {/* Background decoration */}

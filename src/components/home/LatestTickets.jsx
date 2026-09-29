@@ -17,6 +17,7 @@ import {
 import Image from "next/image";
 
 import { getTickets } from "@/lib/api";
+import TicketCardSkeleton from "../shared/skeletons/TicketCardSkeleton";
 
 const transportIcons = {
   "AC Bus": FaBus,
@@ -42,10 +43,7 @@ const LatestTickets = () => {
 
         setTickets(data?.tickets || []);
       } catch (error) {
-        console.error(
-          "Latest tickets error:",
-          error
-        );
+        console.error("Latest tickets error:", error);
 
         setTickets([]);
       } finally {
@@ -57,9 +55,34 @@ const LatestTickets = () => {
   }, []);
 
   return (
-    <section className="border-y border-slate-200 bg-slate-50/70 py-20 dark:border-slate-800 dark:bg-slate-950/50 sm:py-24">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-8">
+    <section className="border-y border-slate-200 dark:border-slate-950 bg-slate-50/70 py-20  dark:bg-slate-950/50 sm:py-24">
+      {/* Loading */}
 
+      {loading && (
+        <section className="bg-slate-50/70 py-20 dark:bg-slate-950/50! sm:py-24">
+          <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-8">
+            {/* Heading */}
+
+            <div className="mb-10">
+              <div className="mb-3 h-3 w-28 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800!" />
+
+              <div className="h-10 w-60 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800!" />
+
+              <div className="mt-4 h-4 w-full max-w-2xl animate-pulse rounded-full bg-slate-200 dark:bg-slate-800!" />
+            </div>
+
+            {/* Cards */}
+
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <TicketCardSkeleton key={index} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-8">
         {/* Heading */}
 
         <motion.div
@@ -80,10 +103,7 @@ const LatestTickets = () => {
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
               <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl lg:text-[42px]">
-                Latest{" "}
-                <span className="text-[#238FD7]">
-                  Tickets
-                </span>
+                Latest <span className="text-[#238FD7]">Tickets</span>
               </h2>
 
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-400 sm:text-base">
@@ -97,24 +117,10 @@ const LatestTickets = () => {
               className="group flex w-fit items-center gap-2 text-sm font-semibold text-[#047BFB]"
             >
               Explore all
-
               <FaArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
           </div>
         </motion.div>
-
-        {/* Loading */}
-
-        {loading && (
-          <div className="grid gap-4 md:grid-cols-2">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <div
-                key={index}
-                className="h-60 animate-pulse rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
-              />
-            ))}
-          </div>
-        )}
 
         {/* Empty */}
 
@@ -132,151 +138,115 @@ const LatestTickets = () => {
 
         {/* Ticket list */}
 
-        {!loading &&
-          tickets.length > 0 && (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {tickets.map(
-                (ticket, index) => {
-                  const TransportIcon =
-                    transportIcons[
-                      ticket.type
-                    ] || FaBus;
+        {!loading && tickets.length > 0 && (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {tickets.map((ticket, index) => {
+              const TransportIcon = transportIcons[ticket.type] || FaBus;
 
-                  return (
-                    <Link
-                      key={ticket._id}
-                      href={`/tickets/${ticket._id}`}
-                      className="group block"
-                    >
-                      <motion.article
-                        initial={{
-                          opacity: 0,
-                          y: 25,
-                        }}
-                        whileInView={{
-                          opacity: 1,
-                          y: 0,
-                        }}
-                        viewport={{
-                          once: true,
-                          amount: 0.15,
-                        }}
-                        transition={{
-                          duration: 0.5,
-                          delay:
-                            index * 0.05,
-                        }}
-                        whileHover={{
-                          y: -5,
-                        }}
-                        className="h-full overflow-hidden rounded-3xl shadow-sm bg-white transition-all duration-300 hover:border-[#38BDF8]/60 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
-                      >
-                        <div className="relative h-52 overflow-hidden">
-                          <Image
-                            src={ticket.image}
-                            alt={
-                              ticket.title
-                            }
-                            fill
-                            className="object-cover transition duration-500 group-hover:scale-105"
-                          />
+              return (
+                <Link
+                  key={ticket._id}
+                  href={`/tickets/${ticket._id}`}
+                  className="group block"
+                >
+                  <motion.article
+                    initial={{
+                      opacity: 0,
+                      y: 25,
+                    }}
+                    whileInView={{
+                      opacity: 1,
+                      y: 0,
+                    }}
+                    viewport={{
+                      once: true,
+                      amount: 0.15,
+                    }}
+                    transition={{
+                      duration: 0.5,
+                      delay: index * 0.05,
+                    }}
+                    whileHover={{
+                      y: -5,
+                    }}
+                    className="h-full overflow-hidden rounded-3xl shadow-sm bg-white transition-all duration-300 hover:border-[#38BDF8]/60 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
+                  >
+                    <div className="relative h-52 overflow-hidden">
+                      <Image
+                        src={ticket.image}
+                        alt={ticket.title}
+                        fill
+                        className="object-cover transition duration-500 group-hover:scale-105"
+                      />
 
-                          <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-800 backdrop-blur dark:bg-slate-900/90 dark:text-white">
-                            <TransportIcon className="text-[#238FD7]" />
+                      <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-800 backdrop-blur dark:bg-slate-900/90 dark:text-white">
+                        <TransportIcon className="text-[#238FD7]" />
 
-                            {ticket.type}
-                          </div>
+                        {ticket.type}
+                      </div>
+                    </div>
+
+                    <div className="p-5">
+                      <p className="text-xs font-medium text-slate-500">
+                        {ticket.operator}
+                      </p>
+
+                      <h3 className="mt-1 text-xl font-bold text-slate-900 dark:text-white">
+                        {ticket.title}
+                      </h3>
+
+                      <div className="mt-4 flex items-center justify-between text-sm">
+                        <div>
+                          <p className="text-xs text-slate-400">Departure</p>
+
+                          <p className="mt-1 font-semibold text-slate-700 dark:text-slate-300">
+                            {ticket.departure}
+                          </p>
                         </div>
 
-                        <div className="p-5">
-                          <p className="text-xs font-medium text-slate-500">
-                            {ticket.operator}
+                        <div className="text-right">
+                          <p className="text-xs text-slate-400">Date</p>
+
+                          <p className="mt-1 font-semibold text-slate-700 dark:text-slate-300">
+                            {ticket.date}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-5 flex flex-wrap gap-1.5">
+                        {(ticket.perks || []).slice(0, 3).map((perk) => (
+                          <span
+                            key={perk}
+                            className="rounded-md bg-slate-100 px-2 py-1 text-[10px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                          >
+                            {perk}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="mt-5 flex items-end justify-between border-t border-slate-100 pt-4 dark:border-slate-800!">
+                        <div>
+                          <p className="text-xs text-slate-400">
+                            Starting from
                           </p>
 
-                          <h3 className="mt-1 text-xl font-bold text-slate-900 dark:text-white">
-                            {ticket.title}
-                          </h3>
-
-                          <div className="mt-4 flex items-center justify-between text-sm">
-                            <div>
-                              <p className="text-xs text-slate-400">
-                                Departure
-                              </p>
-
-                              <p className="mt-1 font-semibold text-slate-700 dark:text-slate-300">
-                                {
-                                  ticket.departure
-                                }
-                              </p>
-                            </div>
-
-                            <div className="text-right">
-                              <p className="text-xs text-slate-400">
-                                Date
-                              </p>
-
-                              <p className="mt-1 font-semibold text-slate-700 dark:text-slate-300">
-                                {ticket.date}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="mt-5 flex flex-wrap gap-1.5">
-                            {(
-                              ticket.perks ||
-                              []
-                            )
-                              .slice(
-                                0,
-                                3
-                              )
-                              .map(
-                                (
-                                  perk
-                                ) => (
-                                  <span
-                                    key={
-                                      perk
-                                    }
-                                    className="rounded-md bg-slate-100 px-2 py-1 text-[10px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-                                  >
-                                    {
-                                      perk
-                                    }
-                                  </span>
-                                )
-                              )}
-                          </div>
-
-                          <div className="mt-5 flex items-end justify-between border-t border-slate-100 pt-4 dark:border-slate-800!">
-                            <div>
-                              <p className="text-xs text-slate-400">
-                                Starting from
-                              </p>
-
-                              <p className="mt-1 text-xl font-bold text-slate-900 dark:text-white">
-                                ৳
-                                {Number(
-                                  ticket.price ||
-                                    0
-                                ).toLocaleString()}
-                              </p>
-                            </div>
-
-                            <span className="flex items-center gap-1 text-xs font-bold bg-[#238FD7] text-white py-3 px-4 rounded-lg hover:bg-[#1A73AD] transition-all duration-300 ease-in-out shadow-sm hover:shadow-md hover:-translate-y-0.5">
-                              View details
-
-                              <FaArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
-                            </span>
-                          </div>
+                          <p className="mt-1 text-xl font-bold text-slate-900 dark:text-white">
+                            ৳{Number(ticket.price || 0).toLocaleString()}
+                          </p>
                         </div>
-                      </motion.article>
-                    </Link>
-                  );
-                }
-              )}
-            </div>
-          )}
+
+                        <span className="flex items-center gap-1 text-xs font-bold bg-[#238FD7] text-white py-3 px-4 rounded-lg hover:bg-[#1A73AD] transition-all duration-300 ease-in-out shadow-sm hover:shadow-md hover:-translate-y-0.5">
+                          View details
+                          <FaArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
+                        </span>
+                      </div>
+                    </div>
+                  </motion.article>
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
     </section>
   );

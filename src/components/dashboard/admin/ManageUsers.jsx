@@ -228,6 +228,203 @@ export default function ManageUsers() {
 
   return (
     <div className="mx-auto max-w-7xl">
+      {/* Loading */}
+      {loading && (
+        <div className="space-y-6">
+          {/* ================= HEADER SKELETON ================= */}
+          <div className="mb-8">
+            {/* Admin Dashboard */}
+            <div className="mb-3 h-4 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+
+            {/* Manage Users */}
+            <div className="h-9 w-52 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800 sm:h-10 sm:w-64" />
+
+            {/* Description */}
+            <div className="mt-3 h-4 w-full max-w-xl animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+          </div>
+
+          {/* ================= STATS SKELETON ================= */}
+          <div className="mb-6 grid gap-4 sm:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div
+                key={index}
+                className="
+            rounded-3xl
+            border border-slate-200
+            bg-white p-5
+            shadow-sm
+            dark:border-slate-800
+            dark:bg-slate-900
+          "
+              >
+                {/* Icon */}
+                <div className="h-10 w-10 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+
+                {/* Label */}
+                <div className="mt-4 h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+
+                {/* Number */}
+                <div className="mt-2 h-8 w-16 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800" />
+              </div>
+            ))}
+          </div>
+
+          {/* ================= SEARCH SKELETON ================= */}
+          <div
+            className="
+        mb-6
+        rounded-3xl
+        border border-slate-200
+        bg-white p-4
+        shadow-sm
+        dark:border-slate-800
+        dark:bg-slate-900
+      "
+          >
+            <div className="relative max-w-md">
+              {/* Search icon placeholder */}
+              <div className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
+
+              {/* Search input */}
+              <div
+                className="
+            h-11 w-full
+            animate-pulse
+            rounded-xl
+            bg-slate-100
+            dark:bg-slate-800
+          "
+              />
+            </div>
+          </div>
+
+          {/* ================= USERS TABLE SKELETON ================= */}
+          <div
+            className="
+        overflow-hidden
+        rounded-3xl
+        border border-slate-200
+        bg-white
+        shadow-sm
+        dark:border-slate-800
+        dark:bg-slate-900
+      "
+          >
+            {/* Desktop Header */}
+            <div
+              className="
+          hidden
+          border-b border-slate-200
+          bg-slate-50/80
+          px-5 py-4
+          dark:border-slate-800
+          dark:bg-slate-950/60
+          lg:grid
+          lg:grid-cols-[minmax(300px,1fr)_190px_430px]
+          lg:items-center
+          lg:gap-4
+        "
+            >
+              <div className="mx-auto h-3 w-16 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+
+              <div className="h-3 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+
+              <div className="mx-auto h-3 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+            </div>
+
+            {/* Rows */}
+            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="px-4 py-5 sm:px-5">
+                  {/* ================= DESKTOP ROW ================= */}
+                  <div
+                    className="
+                hidden
+                lg:grid
+                lg:grid-cols-[minmax(300px,1fr)_190px_430px]
+                lg:items-center
+                lg:gap-4
+              "
+                  >
+                    {/* User */}
+                    <div className="flex items-center gap-3">
+                      {/* Serial */}
+                      <div className="h-9 w-9 shrink-0 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+
+                      {/* Avatar */}
+                      <div className="h-11 w-11 shrink-0 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-800" />
+
+                      {/* Name + Email */}
+                      <div className="min-w-0 flex-1 space-y-2">
+                        <div className="h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+
+                        <div className="h-3 w-48 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                      </div>
+                    </div>
+
+                    {/* Role + Status */}
+                    <div className="flex items-center gap-2">
+                      <div className="h-7 w-16 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
+
+                      <div className="h-7 w-20 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex justify-center gap-2">
+                      <div className="h-9 w-24 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+
+                      <div className="h-9 w-24 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+
+                      <div className="h-9 w-20 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+
+                      <div className="h-9 w-24 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+                    </div>
+                  </div>
+
+                  {/* ================= MOBILE / TABLET ROW ================= */}
+                  <div className="lg:hidden">
+                    {/* User */}
+                    <div className="flex flex-col items-center gap-3">
+                      {/* Serial */}
+                      <div className="h-8 w-8 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800" />
+
+                      {/* Avatar */}
+                      <div className="h-10 w-10 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+
+                      {/* Name + Email */}
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+
+                        <div className="h-3 w-48 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                      </div>
+                    </div>
+
+                    {/* Role + Status + Joined */}
+                    <div className="mt-4 flex flex-wrap justify-center gap-2">
+                      <div className="h-7 w-16 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
+
+                      <div className="h-7 w-20 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
+
+                      <div className="h-7 w-24 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800" />
+                    </div>
+
+                    {/* Actions */}
+                    <div className="mt-4 flex flex-wrap justify-center gap-2">
+                      <div className="h-9 w-24 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+
+                      <div className="h-9 w-24 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+
+                      <div className="h-9 w-20 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+
+                      <div className="h-9 w-24 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="mb-8">
         <p className="mb-2 text-sm font-semibold text-sky-500">
@@ -289,31 +486,6 @@ export default function ManageUsers() {
           />
         </div>
       </div>
-
-      {/* Loading */}
-      {loading && (
-        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900!">
-          <div className="hidden border-b border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-800! dark:bg-slate-950! lg:grid lg:grid-cols-[1.4fr_1.5fr_0.7fr_0.8fr_1.1fr_2.8fr] lg:gap-4">
-            {["User", "Email", "Role", "Status", "Joined", "Actions"].map(
-              (item) => (
-                <div
-                  key={item}
-                  className="h-3 animate-pulse rounded bg-slate-200 dark:bg-slate-800"
-                />
-              ),
-            )}
-          </div>
-
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <div
-                key={index}
-                className="h-28 animate-pulse bg-white dark:bg-slate-900"
-              />
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Empty */}
       {!loading && filteredUsers.length === 0 && (

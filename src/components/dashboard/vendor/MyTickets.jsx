@@ -29,6 +29,7 @@ import toast from "react-hot-toast";
 import { getVendorTickets, deleteTicket } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import ConfirmModal from "@/components/shared/ConfirmModal";
+import MyTicketsSkeleton from "./vendorSkeletons/MyTicketsSkeleton";
 
 export default function MyTickets() {
   const [tickets, setTickets] = useState([]);
@@ -36,13 +37,13 @@ export default function MyTickets() {
   const [deletingId, setDeletingId] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-    useEffect(() => {
-      window.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: "auto",
-      });
-    }, []);
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto",
+    });
+  }, []);
 
   const loadTickets = async () => {
     try {
@@ -64,9 +65,7 @@ export default function MyTickets() {
     } catch (error) {
       console.error("My tickets error:", error);
 
-      toast.error(
-        error.message || "Failed to load your tickets."
-      );
+      toast.error(error.message || "Failed to load your tickets.");
     } finally {
       setLoading(false);
     }
@@ -84,18 +83,14 @@ export default function MyTickets() {
 
       await deleteTicket(deletingId);
 
-      setTickets((prev) =>
-        prev.filter((ticket) => ticket._id !== deletingId)
-      );
+      setTickets((prev) => prev.filter((ticket) => ticket._id !== deletingId));
 
       toast.success("Ticket deleted successfully");
       setDeletingId(null);
     } catch (error) {
       console.error(error);
 
-      toast.error(
-        error.message || "Failed to delete ticket"
-      );
+      toast.error(error.message || "Failed to delete ticket");
     } finally {
       setDeleteLoading(false);
     }
@@ -103,6 +98,8 @@ export default function MyTickets() {
 
   return (
     <div className="mx-auto max-w-7xl">
+      {/* Loading */}
+      {loading && <MyTicketsSkeleton />}
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -127,13 +124,6 @@ export default function MyTickets() {
         </Link>
       </div>
 
-      {/* Loading */}
-      {loading && (
-        <div className="flex min-h-60 items-center justify-center rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-sky-500" />
-        </div>
-      )}
-
       {/* Empty State */}
       {!loading && tickets.length === 0 && (
         <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900">
@@ -146,8 +136,8 @@ export default function MyTickets() {
           </h2>
 
           <p className="mx-auto mt-2 max-w-md text-sm text-slate-500 dark:text-slate-400">
-            You have not added any tickets yet. Create your
-            first ticket and submit it for admin approval.
+            You have not added any tickets yet. Create your first ticket and
+            submit it for admin approval.
           </p>
 
           <Link href="/dashboard/add-ticket">
@@ -164,7 +154,7 @@ export default function MyTickets() {
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {tickets.map((ticket) => {
             const normalizedStatus = String(
-              ticket.status || "pending"
+              ticket.status || "pending",
             ).toLowerCase();
 
             const isRejected = normalizedStatus === "rejected";
@@ -292,25 +282,15 @@ export default function MyTickets() {
                   {/* Meta */}
                   <div className="mt-4 grid grid-cols-2 gap-3">
                     <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                      <CalendarDays
-                        size={15}
-                        className="text-[#047BFB]"
-                      />
+                      <CalendarDays size={15} className="text-[#047BFB]" />
 
-                      <span className="truncate">
-                        {ticket.date}
-                      </span>
+                      <span className="truncate">{ticket.date}</span>
                     </div>
 
                     <div className="flex items-center justify-end gap-2 text-sm text-slate-500 dark:text-slate-400">
-                      <Clock3
-                        size={15}
-                        className="text-[#047BFB]"
-                      />
+                      <Clock3 size={15} className="text-[#047BFB]" />
 
-                      <span className="truncate">
-                        {ticket.departure}
-                      </span>
+                      <span className="truncate">{ticket.departure}</span>
                     </div>
                   </div>
 
@@ -331,8 +311,8 @@ export default function MyTickets() {
                   {isRejected && (
                     <div className="mt-4 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 dark:border-red-900/40 dark:bg-red-500/10">
                       <p className="text-xs font-medium leading-relaxed text-red-600 dark:text-red-400">
-                        This ticket was rejected by the admin.
-                        Update and delete actions are disabled.
+                        This ticket was rejected by the admin. Update and delete
+                        actions are disabled.
                       </p>
                     </div>
                   )}
@@ -440,19 +420,14 @@ function TransportIcon({ type }) {
 
 /* Status Badge */
 function StatusBadge({ status }) {
-  const normalizedStatus = String(
-    status || "pending"
-  ).toLowerCase();
+  const normalizedStatus = String(status || "pending").toLowerCase();
 
   const statusStyles = {
-    approved:
-      "bg-emerald-500/90 text-white border-emerald-300/30",
+    approved: "bg-emerald-500/90 text-white border-emerald-300/30",
 
-    pending:
-      "bg-amber-500/90 text-white border-amber-300/30",
+    pending: "bg-amber-500/90 text-white border-amber-300/30",
 
-    rejected:
-      "bg-red-500/90 text-white border-red-300/30",
+    rejected: "bg-red-500/90 text-white border-red-300/30",
   };
 
   const statusLabels = {
@@ -464,8 +439,7 @@ function StatusBadge({ status }) {
   return (
     <div
       className={`absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold shadow-sm backdrop-blur-md ${
-        statusStyles[normalizedStatus] ||
-        statusStyles.pending
+        statusStyles[normalizedStatus] || statusStyles.pending
       }`}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-current" />
@@ -474,4 +448,3 @@ function StatusBadge({ status }) {
     </div>
   );
 }
-

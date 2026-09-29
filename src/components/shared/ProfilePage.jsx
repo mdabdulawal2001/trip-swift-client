@@ -19,10 +19,10 @@ import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
 import { useProfile } from "@/context/ProfileContext";
 import Image from "next/image";
+import ProfileSkeleton from "./skeletons/ProfileSkeleton";
 
 export default function ProfilePage() {
   const { profile, setProfile, isProfileLoading } = useProfile();
-
   const [isEditing, setIsEditing] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -518,28 +518,3 @@ function formatMemberSince(dateValue) {
   });
 }
 
-function ProfileSkeleton() {
-  return (
-    <div className="space-y-6">
-      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-        <div className="h-32 animate-pulse bg-slate-200 dark:bg-slate-800 sm:h-40" />
-
-        <div className="px-5 pb-7 sm:px-8 sm:pb-8">
-          <div className="-mt-10 flex items-end gap-4 sm:-mt-12">
-            <div className="h-28 w-28 animate-pulse rounded-3xl border-4 border-white bg-slate-200 dark:border-slate-900 dark:bg-slate-800" />
-
-            <div className="mb-2 space-y-2">
-              <div className="h-6 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-              <div className="h-4 w-52 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
-        <div className="h-80 animate-pulse rounded-3xl bg-slate-200 dark:bg-slate-800" />
-        <div className="h-80 animate-pulse rounded-3xl bg-slate-200 dark:bg-slate-800" />
-      </div>
-    </div>
-  );
-}

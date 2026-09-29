@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { getVendorBookings, updateBookingStatus } from "@/lib/api";
 
 import { authClient } from "@/lib/auth-client";
+import RequestedBookingsSkeleton from "./vendorSkeletons/RequestedBookingsSkeleton";
 
 export default function RequestedBookings() {
   const [requests, setRequests] = useState([]);
@@ -75,9 +76,7 @@ export default function RequestedBookings() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <p className="text-sm text-slate-500">Loading booking requests...</p>
-      </div>
+      <RequestedBookingsSkeleton />
     );
   }
 

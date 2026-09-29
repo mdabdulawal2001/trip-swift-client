@@ -68,6 +68,8 @@ export default function ManageTickets() {
 
   return (
     <div className="mx-auto max-w-7xl">
+            {/* Loading */}
+      {loading && <ManageTicketsSkeleton />}
       {/* Header */}
       <div className="mb-8">
         <p className="mb-2 text-sm font-semibold text-sky-500">
@@ -83,12 +85,6 @@ export default function ManageTickets() {
         </p>
       </div>
 
-      {/* Loading */}
-      {loading && (
-        <div className="flex min-h-60 items-center justify-center rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-          <Loader2 className="h-8 w-8 animate-spin text-sky-500" />
-        </div>
-      )}
 
       {/* Empty */}
       {!loading && tickets.length === 0 && (
@@ -305,5 +301,92 @@ function StatusBadge({ status }) {
     >
       {config.label}
     </span>
+  );
+}
+
+function ManageTicketsSkeleton() {
+  return (
+    <div className="mx-auto max-w-7xl">
+      {/* Header Skeleton */}
+      <div className="mb-8 space-y-3">
+        <div className="h-4 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+
+        <div className="h-9 w-56 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800" />
+
+        <div className="h-4 w-96 max-w-full animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+      </div>
+
+      {/* Table Skeleton */}
+      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-800! dark:bg-slate-900">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[950px] text-left">
+            {/* Header */}
+            <thead className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950!">
+              <tr>
+                {[
+                  "Ticket",
+                  "Route",
+                  "Vendor",
+                  "Price",
+                  "Status",
+                  "Actions",
+                ].map((item) => (
+                  <th key={item} className="px-5 py-4">
+                    <div className="h-3 w-16 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                  </th>
+                ))}
+              </tr>
+            </thead>
+
+            {/* Rows */}
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+              {Array.from({ length: 7 }).map((_, index) => (
+                <tr key={index}>
+                  {/* Ticket */}
+                  <td className="px-5 py-5">
+                    <div className="space-y-2">
+                      <div className="h-4 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+
+                      <div className="h-3 w-20 animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
+                    </div>
+                  </td>
+
+                  {/* Route */}
+                  <td className="px-5 py-5">
+                    <div className="h-4 w-36 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                  </td>
+
+                  {/* Vendor */}
+                  <td className="px-5 py-5">
+                    <div className="h-4 w-44 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                  </td>
+
+                  {/* Price */}
+                  <td className="px-5 py-5">
+                    <div className="h-4 w-16 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                  </td>
+
+                  {/* Status */}
+                  <td className="px-5 py-5">
+                    <div className="h-6 w-20 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
+                  </td>
+
+                  {/* Actions */}
+                  <td className="px-5 py-5">
+                    <div className="flex justify-end gap-2">
+                      <div className="h-9 w-16 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />
+
+                      <div className="h-9 w-24 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />
+
+                      <div className="h-9 w-20 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   );
 }

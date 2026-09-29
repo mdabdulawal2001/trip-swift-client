@@ -15,6 +15,7 @@ import toast from "react-hot-toast";
 
 import { getVendorPayments } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
+import RevenueSkeleton from "./vendorSkeletons/RevenueSkeleton";
 
 export default function RevenueOverview() {
   const [payments, setPayments] = useState([]);
@@ -166,6 +167,7 @@ export default function RevenueOverview() {
 
   return (
     <div className="mx-auto max-w-7xl">
+      {loading && <RevenueSkeleton /> }
       {/* Header */}
       <div className="mb-8">
         <p className="mb-2 text-sm font-semibold text-sky-500">

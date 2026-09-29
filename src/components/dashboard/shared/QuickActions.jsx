@@ -13,7 +13,7 @@ export default function QuickActions({ items }) {
           <Link
             key={item.href}
             href={item.href}
-            className="group flex items-center gap-3 rounded-2xl border border-slate-100 p-3 transition hover:border-sky-200 hover:bg-sky-50 dark:border-slate-800 dark:hover:border-sky-900 dark:hover:bg-sky-500/10"
+            className="group flex items-center gap-3 rounded-2xl border border-slate-100 p-3 transition hover:border-sky-200 hover:bg-sky-50 dark:border-slate-800! dark:hover:border-sky-900 dark:hover:bg-sky-500/10"
           >
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition group-hover:bg-sky-500 group-hover:text-white dark:bg-slate-800">
               {item.icon}

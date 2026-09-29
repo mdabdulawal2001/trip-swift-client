@@ -8,6 +8,7 @@ import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import { DashboardRoleProvider } from "@/context/DashboardRoleContext";
 
 import { authClient } from "@/lib/auth-client";
+import { ProfileProvider } from "@/context/ProfileContext";
 
 export default function DashboardLayout({
   children,
@@ -46,6 +47,7 @@ export default function DashboardLayout({
   };
 
   return (
+    
     <DashboardRoleProvider role={role}>
       <div className="rounded-lg mt-10 mb-10 max-w-7xl min-h-screen mx-auto bg-slate-50 dark:bg-slate-950">
         <div className="flex min-h-screen">
@@ -73,5 +75,6 @@ export default function DashboardLayout({
         </div>
       </div>
     </DashboardRoleProvider>
+ 
   );
 }

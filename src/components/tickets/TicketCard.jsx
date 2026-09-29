@@ -225,6 +225,7 @@ export default function TicketCard({ ticket }) {
 
           <Link
             href={`/tickets/${ticket._id}`}
+            prefetch={false}
             className="
               flex min-h-12 w-full items-center justify-center gap-2
               rounded-xl bg-[#238FD7] px-5

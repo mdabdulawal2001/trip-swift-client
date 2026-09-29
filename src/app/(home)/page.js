@@ -5,6 +5,7 @@ import HeroSection from "@/components/home/HeroSection";
 import LatestTickets from "@/components/home/LatestTickets";
 import PopularRoutes from "@/components/home/PopularRoutes";
 import WhyTripSwift from "@/components/home/WhyTripSwift";
+import TicketBrowserSkeleton from "@/components/tickets/ticketSkeletons/TicketBrowserSkeleton";
 
 
 export default function Home() {

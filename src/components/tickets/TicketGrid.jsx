@@ -3,8 +3,15 @@
 import { motion } from "framer-motion";
 import { SearchX } from "lucide-react";
 import TicketCard from "./TicketCard";
+import TicketGridSkeleton from "./ticketSkeletons/TicketGridSkeleton";
 
-export default function TicketGrid({ tickets }) {
+export default function TicketGrid({ tickets, loading = false }) {
+  // Loading state
+  if (loading) {
+    return <TicketGridSkeleton count={6} />;
+  }
+
+  // Empty state
   if (!tickets.length) {
     return (
       <motion.div
@@ -39,7 +46,9 @@ export default function TicketGrid({ tickets }) {
     );
   }
 
+  // Tickets
   return (
+    <>
     <motion.div
       layout
       className="
@@ -55,5 +64,6 @@ export default function TicketGrid({ tickets }) {
         />
       ))}
     </motion.div>
+    </>
   );
 }

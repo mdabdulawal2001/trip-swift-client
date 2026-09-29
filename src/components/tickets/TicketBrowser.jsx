@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import TicketSearch from "./TicketSearch";
@@ -17,10 +17,12 @@ export default function TicketBrowser({
   itemsPerPage,
   filters,
 }) {
+  const [isGridLoading, setIsGridLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
 
   const updateQuery = (updates, mode = "replace") => {
+    setIsGridLoading(true);
     const params = new URLSearchParams();
 
     const nextValues = {
@@ -95,6 +97,7 @@ export default function TicketBrowser({
 
   // Reset
   const handleReset = () => {
+    setIsGridLoading(true);
     router.replace(pathname, {
       scroll: false,
     });
@@ -112,6 +115,7 @@ export default function TicketBrowser({
 
   // Scroll to ticket list after query/page change
   useEffect(() => {
+    setIsGridLoading(false);
     const element = document.getElementById("tickets-list");
 
     if (!element) return;
@@ -184,34 +188,14 @@ export default function TicketBrowser({
           </p>
         </div>
 
-        {tickets.length > 0 ? (
-          <>
-            <TicketGrid tickets={tickets} />
+        <TicketGrid tickets={tickets} loading={isGridLoading} />
 
-            <TicketPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
-          </>
-        ) : (
-          <div className="rounded-3xl border border-dashed border-slate-300 py-20 text-center dark:border-slate-700">
-            <h2 className="text-xl font-bold text-slate-800 dark:text-white">
-              No tickets found
-            </h2>
-
-            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-              Try changing your search or filter.
-            </p>
-
-            <button
-              type="button"
-              onClick={handleReset}
-              className="mt-5 rounded-xl bg-[#047BFB] px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#035ec4] hover:shadow-lg hover:shadow-[#047BFB]/20 active:translate-y-0"
-            >
-              Clear Search
-            </button>
-          </div>
+        {!isGridLoading && tickets.length > 0 && (
+          <TicketPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         )}
       </div>
     </section>

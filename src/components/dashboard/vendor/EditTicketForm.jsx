@@ -328,7 +328,7 @@ export default function EditTicketForm() {
           ${
             formData.perks.includes(perk)
               ? "border-[#047BFB] bg-[#047BFB]/5 text-[#047BFB]"
-              : "border-slate-200 bg-white text-slate-700 hover:border-[#047BFB]/40 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
+              : "border-slate-200 bg-white text-slate-700 hover:border-[#047BFB]/40 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950! dark:text-slate-300 dark:hover:bg-slate-900"
           }
         `}
               >

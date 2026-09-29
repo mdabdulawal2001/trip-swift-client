@@ -108,7 +108,7 @@ export default function ManageTickets() {
         <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[950px] text-left">
-              <thead className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950!">
+              <thead className="border-b border-slate-200 bg-slate-50 dark:border-slate-800! dark:bg-slate-950!">
                 <tr>
                   <th className="px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
                     Ticket

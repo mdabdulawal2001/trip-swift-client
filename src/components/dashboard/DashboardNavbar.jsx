@@ -26,7 +26,6 @@ export default function DashboardNavbar({ role, onMenuClick, setSidebarOpen }) {
 
   const roleLabel = userRole.charAt(0).toUpperCase() + userRole.slice(1);
 
-
   return (
     <header className="sticky top-0 z-40 rounded-lg border-b border-slate-200/80 bg-white/90 backdrop-blur-xl dark:border-slate-800! dark:bg-slate-950/90!">
       <div className="flex h-18 items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -164,33 +163,56 @@ export default function DashboardNavbar({ role, onMenuClick, setSidebarOpen }) {
     gap-2
     rounded-xl
     p-1
-    md:p-2.5
     transition
     hover:bg-slate-100
     dark:hover:bg-slate-800
+    md:p-2.5
   "
           >
-            {profile?.image ? (
-              <img
-                src={profile.image}
-                alt={displayName}
-                className="h-9 w-9 rounded-full object-cover"
-              />
+            {isProfileLoading ? (
+              <>
+                <div
+                  className="
+          h-9
+          w-9
+          animate-pulse
+          rounded-full
+          bg-slate-200
+          dark:bg-slate-700
+        "
+                />
+
+                <div className="hidden space-y-2 md:block">
+                  <div className="h-3 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+
+                  <div className="h-2.5 w-16 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                </div>
+              </>
             ) : (
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-sky-100 text-sm font-bold text-sky-600 dark:bg-sky-500/15 dark:text-sky-400">
-                {initials || "U"}
-              </div>
+              <>
+                {profile?.image ? (
+                  <img
+                    src={profile.image}
+                    alt={displayName}
+                    className="h-9 w-9 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-sky-100 text-sm font-bold text-sky-600 dark:bg-sky-500/15 dark:text-sky-400">
+                    {initials || "U"}
+                  </div>
+                )}
+
+                <div className="hidden text-left md:block">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                    {displayName}
+                  </p>
+
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {roleLabel} Account
+                  </p>
+                </div>
+              </>
             )}
-
-            <div className="hidden text-left md:block">
-              <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                {isProfileLoading ? "Loading..." : displayName}
-              </p>
-
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                {isProfileLoading ? "..." : `${roleLabel} Account`}
-              </p>
-            </div>
           </Link>
         </div>
       </div>

@@ -19,6 +19,7 @@ import QuickActions from "@/components/dashboard/shared/QuickActions";
 
 import { getUserBookings, getUserPayments } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
+import { DashboardPanelSkeleton, DashboardStatsSkeleton, QuickActionsSkeleton } from "../shared/DashboardSkeleton";
 
 export default function UserDashboard() {
   const [bookings, setBookings] = useState([]);
@@ -148,6 +149,20 @@ export default function UserDashboard() {
       title="Your Travel Overview"
       description="Manage your bookings, upcoming journeys and account activity."
     >
+      {loading ? (
+      <div className="space-y-6">
+        {/* Stats */}
+        <DashboardStatsSkeleton />
+
+        {/* Upcoming Journey + Quick Actions */}
+        <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
+          <DashboardPanelSkeleton height="h-52" />
+
+          <QuickActionsSkeleton />
+        </div>
+      </div>
+    ) : (
+      <>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           icon={<Ticket />}
@@ -267,6 +282,8 @@ export default function UserDashboard() {
           ]}
         />
       </div>
+      </>
+    )}
     </DashboardContainer>
   );
 }

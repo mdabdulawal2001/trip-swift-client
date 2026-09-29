@@ -19,7 +19,13 @@ import StatCard from "@/components/dashboard/shared/StatCard";
 import SectionTitle from "@/components/dashboard/shared/SectionTitle";
 import QuickActions from "@/components/dashboard/shared/QuickActions";
 import RecentBookingRequests from "@/components/dashboard/vendor/RecentBookingRequests";
-
+import {
+  DashboardHeaderSkeleton,
+  DashboardStatsSkeleton,
+  DashboardPanelSkeleton,
+  QuickActionsSkeleton,
+  ActivityListSkeleton,
+} from "@/components/dashboard/shared/DashboardSkeleton";
 import {
   getVendorTickets,
   getVendorBookings,
@@ -158,6 +164,20 @@ export default function VendorDashboard() {
       title="Business Overview"
       description="Track your tickets, booking requests and revenue performance."
     >
+       {loading ? (
+      <div className="space-y-6">
+        <DashboardStatsSkeleton />
+
+        <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
+          <DashboardPanelSkeleton height="h-64" />
+
+          <QuickActionsSkeleton />
+        </div>
+
+        <DashboardPanelSkeleton height="h-72" />
+      </div>
+    ) : (
+      <>
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
@@ -282,6 +302,8 @@ export default function VendorDashboard() {
       </div>
       {/* Recent Booking Requests */}
       <RecentBookingRequests />
+      </>
+    )}
     </DashboardContainer>
   );
 }

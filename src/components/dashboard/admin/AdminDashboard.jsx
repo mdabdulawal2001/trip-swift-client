@@ -22,6 +22,7 @@ import Activity from "@/components/dashboard/shared/Activity";
 import { getAdminDashboardStats } from "@/lib/api";
 
 import Link from "next/link";
+import { ActivityListSkeleton, DashboardPanelSkeleton, DashboardStatsSkeleton } from "../shared/DashboardSkeleton";
 
 export default function AdminDashboard() {
   const [data, setData] = useState(null);
@@ -131,6 +132,71 @@ export default function AdminDashboard() {
       title="Platform Overview"
       description="Monitor users, tickets, bookings and platform activity."
     >
+
+      {loading ? (
+      <div className="space-y-6">
+        {/* Stats */}
+        <DashboardStatsSkeleton />
+
+        {/* Approval + Activity */}
+        <div className="grid gap-6 xl:grid-cols-2">
+          <DashboardPanelSkeleton height="h-64" />
+
+          <div
+            className="
+              rounded-3xl
+              border
+              border-slate-200
+              bg-white
+              p-6
+              dark:border-slate-800
+              dark:bg-slate-900
+            "
+          >
+            <div className="flex items-center justify-between">
+              <div className="h-5 w-36 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+
+              <div className="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+            </div>
+
+            <div className="mt-6">
+              <ActivityListSkeleton count={3} />
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid gap-4 sm:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div
+              key={index}
+              className="
+                rounded-3xl
+                border
+                border-slate-200
+                bg-white
+                p-5
+                dark:border-slate-800!
+                dark:bg-slate-900
+              "
+            >
+              <div className="flex items-center gap-4">
+                <div className="h-11 w-11 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-700" />
+
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+
+                  <div className="h-3 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                </div>
+
+                <div className="h-4 w-4 animate-pulse rounded-full bg-slate-200 dark:bg-slate-700" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ) : (
+      <>
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
@@ -272,6 +338,8 @@ export default function AdminDashboard() {
           description="Feature up to 6"
         />
       </div>
+      </>
+    )}
     </DashboardContainer>
   );
 }

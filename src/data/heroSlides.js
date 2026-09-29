@@ -24,11 +24,11 @@ export const heroSlides = [
 
   {
     id: 2,
-    type: "AC Bus",
+    type: "Bus",
     badge: "Comfortable Bus Journey",
     title: "Travel in Comfort",
     description:
-      "Find premium AC bus tickets, flexible routes and comfortable journeys for your next trip.",
+      "Find premium bus tickets, flexible routes and comfortable journeys for your next trip.",
     from: "Dhaka",
     to: "Chattogram",
     icon: FaBus,

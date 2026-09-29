@@ -20,7 +20,7 @@ import { getTickets } from "@/lib/api";
 import TicketCardSkeleton from "../shared/skeletons/TicketCardSkeleton";
 
 const transportIcons = {
-  "AC Bus": FaBus,
+  "Bus": FaBus,
   Bus: FaBus,
   Train: FaTrain,
   Flight: FaPlane,

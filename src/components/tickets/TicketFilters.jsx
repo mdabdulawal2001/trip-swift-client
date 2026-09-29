@@ -16,7 +16,7 @@ export default function TicketFilters({
         className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-semibold text-slate-800 outline-none transition-all duration-300 focus:border-[#047BFB] focus:ring-2 focus:ring-[#047BFB]/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
       >
         <option value="">All Transport</option>
-        <option value="AC Bus">AC Bus</option>
+        <option value="Bus">Bus</option>
         <option value="Train">Train</option>
         <option value="Flight">Flight</option>
         <option value="Car">Car</option>

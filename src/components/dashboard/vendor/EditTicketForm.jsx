@@ -4,10 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
-import {
-  getVendorTicketById,
-  updateTicket,
-} from "@/lib/api";
+import { getVendorTicketById, updateTicket } from "@/lib/api";
 
 import { authClient } from "@/lib/auth-client";
 
@@ -20,13 +17,13 @@ export default function EditTicketForm() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-    useEffect(() => {
-      window.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: "auto",
-      });
-    }, []);
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto",
+    });
+  }, []);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -40,15 +37,14 @@ export default function EditTicketForm() {
     date: "",
     departureDateTime: "",
     image: "",
-    perks: "",
+    perks: [],
     description: "",
   });
 
   useEffect(() => {
     const loadTicket = async () => {
       try {
-        const { data: session } =
-          await authClient.getSession();
+        const { data: session } = await authClient.getSession();
 
         const email = session?.user?.email;
 
@@ -58,10 +54,7 @@ export default function EditTicketForm() {
           return;
         }
 
-        const data = await getVendorTicketById(
-          ticketId,
-          email
-        );
+        const data = await getVendorTicketById(ticketId, email);
 
         const ticket = data?.ticket;
 
@@ -79,20 +72,15 @@ export default function EditTicketForm() {
           quantity: ticket.quantity ?? "",
           departure: ticket.departure || "",
           date: ticket.date || "",
-          departureDateTime:
-            ticket.departureDateTime || "",
+          departureDateTime: ticket.departureDateTime || "",
           image: ticket.image || "",
-          perks: Array.isArray(ticket.perks)
-            ? ticket.perks.join(", ")
-            : "",
+          perks: Array.isArray(ticket.perks) ? ticket.perks : [],
           description: ticket.description || "",
         });
       } catch (error) {
         console.error(error);
 
-        toast.error(
-          error.message || "Failed to load ticket"
-        );
+        toast.error(error.message || "Failed to load ticket");
       } finally {
         setLoading(false);
       }
@@ -132,13 +120,9 @@ export default function EditTicketForm() {
         quantity: Number(formData.quantity),
         departure: formData.departure,
         date: departureDate,
-        departureDateTime:
-          formData.departureDateTime,
+        departureDateTime: formData.departureDateTime,
         image: formData.image,
-        perks: formData.perks
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean),
+        perks: formData.perks,
         description: formData.description,
       };
 
@@ -151,9 +135,7 @@ export default function EditTicketForm() {
     } catch (error) {
       console.error(error);
 
-      toast.error(
-        error.message || "Failed to update ticket"
-      );
+      toast.error(error.message || "Failed to update ticket");
     } finally {
       setSubmitting(false);
     }
@@ -253,10 +235,8 @@ export default function EditTicketForm() {
                 required
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#047BFB] dark:border-slate-700 dark:bg-slate-950! dark:text-white"
               >
-                <option value="">
-                  Select transport
-                </option>
-                <option value="AC Bus">AC Bus</option>
+                <option value="">Select transport</option>
+                <option value="Bus">Bus</option>
                 <option value="Train">Train</option>
                 <option value="Flight">Flight</option>
                 <option value="Car">Car</option>
@@ -338,16 +318,41 @@ export default function EditTicketForm() {
             Ticket Perks
           </h2>
 
-          <InputField
-            label="Perks"
-            name="perks"
-            value={formData.perks}
-            onChange={handleChange}
-            placeholder="AC, WiFi, Water Bottle, Blanket"
-          />
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {getPerksByTransport(formData.type).map((perk) => (
+              <label
+                key={perk}
+                className={`
+          flex cursor-pointer items-center gap-3 rounded-xl
+          border px-4 py-3 transition-all duration-200
+          ${
+            formData.perks.includes(perk)
+              ? "border-[#047BFB] bg-[#047BFB]/5 text-[#047BFB]"
+              : "border-slate-200 bg-white text-slate-700 hover:border-[#047BFB]/40 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
+          }
+        `}
+              >
+                <input
+                  type="checkbox"
+                  checked={formData.perks.includes(perk)}
+                  onChange={(event) => {
+                    setFormData((previous) => ({
+                      ...previous,
+                      perks: event.target.checked
+                        ? [...previous.perks, perk]
+                        : previous.perks.filter((item) => item !== perk),
+                    }));
+                  }}
+                  className="h-4 w-4 cursor-pointer accent-[#047BFB]"
+                />
 
-          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-            Separate multiple perks with commas.
+                <span className="text-sm font-medium">{perk}</span>
+              </label>
+            ))}
+          </div>
+
+          <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+            Select the facilities available with this ticket.
           </p>
         </div>
 
@@ -374,9 +379,7 @@ export default function EditTicketForm() {
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
           <button
             type="button"
-            onClick={() =>
-              router.push("/dashboard/my-tickets")
-            }
+            onClick={() => router.push("/dashboard/my-tickets")}
             className="rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-600 transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-100 hover:text-slate-800 dark:border-slate-700! dark:bg-slate-900! dark:text-slate-300 dark:hover:bg-slate-800! dark:hover:text-white!"
           >
             Cancel
@@ -387,14 +390,63 @@ export default function EditTicketForm() {
             disabled={submitting}
             className="rounded-xl bg-[#238FD7] px-6 py-3 text-sm font-bold text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#1978B8] hover:shadow-lg hover:shadow-[#047BFB]/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {submitting
-              ? "Updating..."
-              : "Update Ticket"}
+            {submitting ? "Updating..." : "Update Ticket"}
           </button>
         </div>
       </form>
     </div>
   );
+}
+
+function getPerksByTransport(type) {
+  const commonPerks = [
+    "AC",
+    "WiFi",
+    "Charging Point",
+    "Water Bottle",
+    "Comfortable Seat",
+  ];
+
+  const perksByType = {
+    Bus: [
+      ...commonPerks,
+      "Reclining Seat",
+      "Blanket",
+      "Toilet",
+      "Entertainment",
+    ],
+
+    Train: [
+      ...commonPerks,
+      "Meal / Food",
+      "Toilet",
+      "Extra Luggage",
+      "Entertainment",
+      "Sleeping Berth",
+    ],
+
+    Flight: [
+      "AC",
+      "WiFi",
+      "Meal / Food",
+      "Charging Point",
+      "Extra Luggage",
+      "Entertainment",
+      "Comfortable Seat",
+    ],
+
+    Car: [
+      "AC",
+      "WiFi",
+      "Charging Point",
+      "Water Bottle",
+      "Comfortable Seat",
+      "Extra Luggage",
+      "Entertainment",
+    ],
+  };
+
+  return perksByType[type] || commonPerks;
 }
 
 function InputField({

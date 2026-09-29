@@ -1126,8 +1126,8 @@ const HeroSection = () => {
                     All types
                   </option>
 
-                  <option value="AC Bus">
-                    AC Bus
+                  <option value="Bus">
+                    Bus
                   </option>
 
                   <option value="Train">

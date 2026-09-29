@@ -18,7 +18,7 @@ const initialForm = {
   date: "",
   departureDateTime: "",
   image: "",
-  perks: "",
+  perks: [],
   description: "",
 };
 
@@ -103,10 +103,7 @@ export default function TicketForm() {
         date: departureDate,
         departureDateTime: formData.departureDateTime,
         image: formData.image.trim(),
-        perks: formData.perks
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean),
+        perks: formData.perks,
         description: formData.description.trim(),
         vendorEmail,
       };
@@ -221,7 +218,7 @@ export default function TicketForm() {
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#047BFB] dark:border-slate-700 dark:bg-slate-950! dark:text-white"
               >
                 <option value="">Select transport</option>
-                <option value="AC Bus">AC Bus</option>
+                <option value="Bus">Bus</option>
                 <option value="Train">Train</option>
                 <option value="Flight">Flight</option>
                 <option value="Car">Car</option>
@@ -324,16 +321,41 @@ export default function TicketForm() {
             Ticket Perks
           </h2>
 
-          <InputField
-            label="Perks"
-            name="perks"
-            value={formData.perks}
-            onChange={handleChange}
-            placeholder="AC, WiFi, Water Bottle, Blanket"
-          />
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {getPerksByTransport(formData.type).map((perk) => (
+              <label
+                key={perk}
+                className={`
+          flex cursor-pointer items-center gap-3 rounded-xl
+          border px-4 py-3 transition-all duration-200
+          ${
+            formData.perks.includes(perk)
+              ? "border-[#047BFB] bg-[#047BFB]/5 text-[#047BFB]"
+              : "border-slate-200 bg-white text-slate-700 hover:border-[#047BFB]/40 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
+          }
+        `}
+              >
+                <input
+                  type="checkbox"
+                  checked={formData.perks.includes(perk)}
+                  onChange={(event) => {
+                    setFormData((previous) => ({
+                      ...previous,
+                      perks: event.target.checked
+                        ? [...previous.perks, perk]
+                        : previous.perks.filter((item) => item !== perk),
+                    }));
+                  }}
+                  className="h-4 w-4 cursor-pointer accent-[#047BFB]"
+                />
 
-          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-            Separate multiple perks with commas.
+                <span className="text-sm font-medium">{perk}</span>
+              </label>
+            ))}
+          </div>
+
+          <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+            Select the facilities available with this ticket.
           </p>
         </div>
 
@@ -377,6 +399,57 @@ export default function TicketForm() {
       </form>
     </div>
   );
+}
+
+function getPerksByTransport(type) {
+  const commonPerks = [
+    "AC",
+    "WiFi",
+    "Charging Point",
+    "Water Bottle",
+    "Comfortable Seat",
+  ];
+
+  const perksByType = {
+    "Bus": [
+      ...commonPerks,
+      "Reclining Seat",
+      "Blanket",
+      "Toilet",
+      "Entertainment",
+    ],
+
+    Train: [
+      ...commonPerks,
+      "Meal / Food",
+      "Toilet",
+      "Extra Luggage",
+      "Entertainment",
+      "Sleeping Berth",
+    ],
+
+    Flight: [
+      "AC",
+      "WiFi",
+      "Meal / Food",
+      "Charging Point",
+      "Extra Luggage",
+      "Entertainment",
+      "Comfortable Seat",
+    ],
+
+    Car: [
+      "AC",
+      "WiFi",
+      "Charging Point",
+      "Water Bottle",
+      "Comfortable Seat",
+      "Extra Luggage",
+      "Entertainment",
+    ],
+  };
+
+  return perksByType[type] || commonPerks;
 }
 
 function InputField({

@@ -976,7 +976,7 @@ const HeroSection2 = () => {
             "
                 >
                   <option value="">All types</option>
-                  <option value="AC Bus">AC Bus</option>
+                  <option value="Bus">Bus</option>
                   <option value="Train">Train</option>
                   <option value="Flight">Flight</option>
                   <option value="Car">Car</option>

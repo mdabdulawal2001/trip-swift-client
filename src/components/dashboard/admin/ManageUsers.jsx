@@ -306,7 +306,7 @@ export default function ManageUsers() {
         border border-slate-200
         bg-white
         shadow-sm
-        dark:border-slate-800
+        dark:!border-slate-800
         dark:bg-slate-900
       "
           >
@@ -317,7 +317,7 @@ export default function ManageUsers() {
           border-b border-slate-200
           bg-slate-50/80
           px-5 py-4
-          dark:border-slate-800
+          dark:border-slate-800!
           dark:bg-slate-950/60
           lg:grid
           lg:grid-cols-[minmax(300px,1fr)_190px_430px]
@@ -333,7 +333,7 @@ export default function ManageUsers() {
             </div>
 
             {/* Rows */}
-            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+            <div className="divide-y divide-slate-100 dark:divide-slate-800!">
               {Array.from({ length: 6 }).map((_, index) => (
                 <div key={index} className="px-4 py-5 sm:px-5">
                   {/* ================= DESKTOP ROW ================= */}

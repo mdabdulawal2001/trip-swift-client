@@ -385,6 +385,20 @@ export default function MyTickets() {
       )}
 
       {/* Confirm Modal */}
+      {/* old */}
+      {/* <ConfirmModal
+        isOpen={Boolean(deletingId)}
+        onClose={() => {
+          if (!deleteLoading) {
+            setDeletingId(null);
+          }
+        }}
+        onConfirm={handleDelete}
+        loading={deleteLoading}
+        title="Delete Ticket?"
+        message="This ticket will be permanently deleted. This action cannot be undone."
+      /> */}
+
       <ConfirmModal
         isOpen={Boolean(deletingId)}
         onClose={() => {
@@ -396,6 +410,9 @@ export default function MyTickets() {
         loading={deleteLoading}
         title="Delete Ticket?"
         message="This ticket will be permanently deleted. This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmColor="danger"
       />
     </div>
   );

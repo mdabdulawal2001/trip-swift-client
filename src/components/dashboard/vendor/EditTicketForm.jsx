@@ -7,6 +7,7 @@ import { toast } from "react-hot-toast";
 import { getVendorTicketById, updateTicket } from "@/lib/api";
 
 import { authClient } from "@/lib/auth-client";
+import TicketFormSkeleton from "./vendorSkeletons/TicketFormSkeleton";
 
 export default function EditTicketForm() {
   const router = useRouter();
@@ -143,9 +144,7 @@ export default function EditTicketForm() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-[#047BFB]" />
-      </div>
+      <TicketFormSkeleton />
     );
   }
 

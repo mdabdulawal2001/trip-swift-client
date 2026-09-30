@@ -24,6 +24,7 @@ import UserAvatar from "./UserAvatar";
 import ThemeToggle from "./ThemeToggle";
 
 import { useProfile } from "@/context/ProfileContext";
+import ConfirmModal from "./ConfirmModal";
 
 const navLinks = [
   {
@@ -56,6 +57,8 @@ const Navbar = () => {
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
 
   // ============================================================
   // HYDRATION
@@ -114,11 +117,34 @@ const Navbar = () => {
   // ============================================================
   // LOGOUT
   // ============================================================
+  // old
+  // const handleLogout = async () => {
+  //   try {
+  //     await authClient.signOut();
+
+  //     setIsProfileOpen(false);
+  //     setIsMenuOpen(false);
+
+  //     toast.success("Logged out successfully");
+
+  //     router.replace("/");
+  //     router.refresh();
+  //   } catch (error) {
+  //     console.error("Logout failed:", error);
+
+  //     toast.error("Failed to logout");
+  //   }
+  // };
 
   const handleLogout = async () => {
+    if (logoutLoading) return;
+
     try {
+      setLogoutLoading(true);
+
       await authClient.signOut();
 
+      setIsLogoutModalOpen(false);
       setIsProfileOpen(false);
       setIsMenuOpen(false);
 
@@ -129,7 +155,9 @@ const Navbar = () => {
     } catch (error) {
       console.error("Logout failed:", error);
 
-      toast.error("Failed to logout");
+      toast.error(error?.message || "Failed to logout");
+    } finally {
+      setLogoutLoading(false);
     }
   };
 
@@ -795,7 +823,10 @@ const Navbar = () => {
 
                       <button
                         type="button"
-                        onClick={handleLogout}
+                        onClick={() => {
+                          setIsProfileOpen(false);
+                          setIsLogoutModalOpen(true);
+                        }}
                         role="menuitem"
                         className="
           mt-1
@@ -1504,7 +1535,10 @@ const Navbar = () => {
                   ) : (
                     <button
                       type="button"
-                      onClick={handleLogout}
+                      onClick={() => {
+                        setIsProfileOpen(false);
+                        setIsLogoutModalOpen(true);
+                      }}
                       className="
                   group
                   flex
@@ -1565,6 +1599,21 @@ const Navbar = () => {
           </>
         )}
       </AnimatePresence>
+      <ConfirmModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => {
+          if (!logoutLoading) {
+            setIsLogoutModalOpen(false);
+          }
+        }}
+        onConfirm={handleLogout}
+        loading={logoutLoading}
+        title="Logout?"
+        message="Are you sure you want to logout from your TripSwift account?"
+        confirmText="Logout"
+        cancelText="Cancel"
+        confirmColor="logout"
+      />
     </>
   );
 };

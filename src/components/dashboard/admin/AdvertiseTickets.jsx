@@ -269,7 +269,7 @@ export default function AdvertiseTickets() {
                 mt-5 rounded-2xl
                 border border-slate-100
                 bg-slate-100 p-4
-                dark:border-slate-800
+                dark:!border-slate-800
                 dark:bg-slate-950/70
               "
                   >
@@ -480,7 +480,7 @@ function AdvertiseTicketsSkeleton() {
               <div className="h-6 w-3/4 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800" />
 
               {/* Route */}
-              <div className="mt-5 rounded-2xl bg-slate-100 p-4 dark:bg-slate-950">
+              <div className="mt-5 rounded-2xl bg-slate-100 p-4 dark:bg-slate-950!">
                 <div className="flex items-center gap-3">
                   <div className="flex flex-col items-center gap-2">
                     <div className="h-2.5 w-2.5 animate-pulse rounded-full bg-slate-300 dark:bg-slate-700" />

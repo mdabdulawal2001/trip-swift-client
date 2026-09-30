@@ -19,6 +19,7 @@ import {
   WalletCards,
   X,
 } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 
 const sidebarMenus = {
   user: [
@@ -418,39 +419,6 @@ export default function DashboardSidebar({
     return (
       <>
         {/* ================================================== */}
-        {/* BRAND */}
-        {/* ================================================== */}
-
-        {/* <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800 bg-white dark:!bg-slate-950">
-          <Link
-            href="/dashboard"
-            onClick={
-              mobile
-                ? () => setOpen(false)
-                : undefined
-            }
-            className="flex items-center gap-3"
-          >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#238FD7] font-bold text-white">
-              TS
-            </div>
-
-            <div>
-              <p className="font-bold tracking-tight text-slate-900 dark:text-white">
-                Trip
-                <span className="text-#238FD7">
-                  Swift
-                </span>
-              </p>
-
-              <p className="text-[11px] text-slate-500">
-                {roleLabel(role)} Dashboard
-              </p>
-            </div>
-          </Link>
-        </div> */}
-
-        {/* ================================================== */}
         {/* NAVIGATION */}
         {/* ================================================== */}
 
@@ -574,6 +542,7 @@ export default function DashboardSidebar({
       </>
     );
   };
+
 
   return (
     <>

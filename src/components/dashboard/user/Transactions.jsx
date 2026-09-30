@@ -346,6 +346,7 @@ export default function Transactions() {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-8"
     >
+
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -377,19 +378,21 @@ export default function Transactions() {
           icon={CreditCard}
           label="Total Paid"
           value={loading ? "..." : `৳${totalPaid.toLocaleString()}`}
+          loading={loading}
         />
 
         <StatCard
           icon={CheckCircle2}
           label="Successful"
           value={loading ? "..." : String(successfulPayments).padStart(2, "0")}
+          loading={loading}
         />
 
-        <StatCard icon={XCircle} label="Failed" value="00" />
+        <StatCard icon={XCircle} label="Failed" value="00" loading={loading} />
       </div>
 
       {/* Desktop Table */}
-      <section className="hidden overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 md:block">
+      <section className="hidden overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800! dark:bg-slate-900 md:block">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[900px]">
             <thead>
@@ -459,7 +462,7 @@ export default function Transactions() {
   );
 }
 
-function StatCard({ icon: Icon, label, value }) {
+function StatCard({ icon: Icon, label, value, loading }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400">
@@ -468,9 +471,13 @@ function StatCard({ icon: Icon, label, value }) {
 
       <p className="mt-4 text-xs text-slate-400">{label}</p>
 
-      <p className="mt-1 text-xl font-bold text-slate-900 dark:text-white">
-        {value}
-      </p>
+      {loading ? (
+        <div className="mt-2 h-7 w-24 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-700" />
+      ) : (
+        <p className="mt-1 text-xl font-bold text-slate-900 dark:text-white">
+          {value}
+        </p>
+      )}
     </div>
   );
 }

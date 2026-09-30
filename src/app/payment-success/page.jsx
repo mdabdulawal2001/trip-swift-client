@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -14,11 +14,10 @@ import {
 
 import toast from "react-hot-toast";
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
   const searchParams = useSearchParams();
 
-  const sessionId =
-    searchParams.get("session_id");
+  const sessionId = searchParams.get("session_id");
 
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
@@ -34,51 +33,37 @@ export default function PaymentSuccessPage() {
 
     const verifyPayment = async () => {
       try {
-        const response = await fetch(
-          "/api/verify_payment",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              sessionId,
-            }),
-          }
-        );
+        const response = await fetch("/api/verify_payment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            sessionId,
+          }),
+        });
 
         const data = await response.json();
 
-        if (
-          !response.ok ||
-          !data?.success
-        ) {
+        if (!response.ok || !data?.success) {
           throw new Error(
-            data?.message ||
-              "Payment verification failed"
+            data?.message || "Payment verification failed"
           );
         }
 
         setSuccess(true);
         setPayment(data?.payment || null);
 
-        toast.success(
-          "Payment completed successfully!"
-        );
+        toast.success("Payment completed successfully!");
       } catch (error) {
-        console.error(
-          "Payment verification error:",
-          error
-        );
+        console.error("Payment verification error:", error);
 
         setError(
-          error?.message ||
-            "Payment verification failed."
+          error?.message || "Payment verification failed."
         );
 
         toast.error(
-          error?.message ||
-            "Payment verification failed."
+          error?.message || "Payment verification failed."
         );
       } finally {
         setLoading(false);
@@ -99,8 +84,7 @@ export default function PaymentSuccessPage() {
           </h1>
 
           <p className="mt-2 text-sm text-slate-500">
-            Please wait while we confirm your
-            payment.
+            Please wait while we confirm your payment.
           </p>
         </div>
       </div>
@@ -174,9 +158,7 @@ export default function PaymentSuccessPage() {
 
               <span className="text-lg font-bold text-emerald-500">
                 ৳
-                {Number(
-                  payment.amount || 0
-                ).toLocaleString()}
+                {Number(payment.amount || 0).toLocaleString()}
               </span>
             </div>
           </div>
@@ -200,5 +182,19 @@ export default function PaymentSuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[70vh] items-center justify-center px-4">
+          <Loader2 className="h-12 w-12 animate-spin text-sky-500" />
+        </div>
+      }
+    >
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }

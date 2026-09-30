@@ -15,12 +15,20 @@ import {
 import toast from "react-hot-toast";
 
 import { authClient } from "@/lib/auth-client";
+import ConfirmModal from "../../shared/ConfirmModal";
 
 export default function ManageUsers() {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [updatingUserId, setUpdatingUserId] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    user: null,
+    type: null, // "ROLE_CHANGE" | "TOGGLE_BLOCK" | "TOGGLE_FRAUD"
+    targetRole: null, // just Role Change
+    loading: false,
+  });
 
   const { data: session } = authClient.useSession();
 
@@ -226,6 +234,72 @@ export default function ManageUsers() {
   const totalVendors = users.filter((user) => user.role === "vendor").length;
   const totalBlocked = users.filter((user) => user.banned).length;
 
+  // modal close
+  const closeConfirmModal = () => {
+    if (confirmModal.loading) return;
+    setConfirmModal((previous) => ({
+      ...previous,
+      isOpen: false,
+      loading: false,
+    }));
+  };
+
+  // ১. Role Change
+  const triggerRoleChangeModal = (user, newRole) => {
+    setConfirmModal({
+      isOpen: true,
+      user,
+      type: "ROLE_CHANGE",
+      targetRole: newRole,
+      loading: false,
+    });
+  };
+
+  // ২. Block / Unblock
+  const triggerBlockModal = (user) => {
+    setConfirmModal({
+      isOpen: true,
+      user,
+      type: "TOGGLE_BLOCK",
+      targetRole: null,
+      loading: false,
+    });
+  };
+
+  // ৩. Fraud / Un-fraud
+  const triggerFraudModal = (user) => {
+    setConfirmModal({
+      isOpen: true,
+      user,
+      type: "TOGGLE_FRAUD",
+      targetRole: null,
+      loading: false,
+    });
+  };
+
+  // confirm and api call
+  const handleModalConfirm = async () => {
+    const { user, type, targetRole } = confirmModal;
+    if (!user || !type) return;
+
+    try {
+      setConfirmModal((prev) => ({ ...prev, loading: true }));
+
+      if (type === "ROLE_CHANGE" && targetRole) {
+        await handleRoleChange(user, targetRole);
+      } else if (type === "TOGGLE_BLOCK") {
+        await handleStatusChange(user);
+      } else if (type === "TOGGLE_FRAUD") {
+        await handleFraudChange(user);
+      }
+
+      closeConfirmModal();
+    } catch (error) {
+      console.error("Action execution failed:", error);
+      setConfirmModal((prev) => ({ ...prev, loading: false }));
+    }
+  };
+
   return (
     <div className="mx-auto max-w-7xl">
       {/* Loading */}
@@ -249,6 +323,8 @@ export default function ManageUsers() {
               <div
                 key={index}
                 className="
+              flex flex-col items-center text-center
+              sm:items-start sm:text-left
             rounded-3xl
             border border-slate-200
             bg-white p-5
@@ -636,7 +712,6 @@ export default function ManageUsers() {
                     </div>
 
                     {/* ================= ACTIONS ================= */}
-                    {/* Actions */}
                     <div className="flex min-w-0 justify-center">
                       {isCurrentUser ? (
                         <span className="inline-flex h-9 shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs font-semibold whitespace-nowrap text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
@@ -652,7 +727,7 @@ export default function ManageUsers() {
                               user.role === "user" ? "Make Vendor" : "Make User"
                             }
                             onClick={() =>
-                              handleRoleChange(
+                              triggerRoleChangeModal(
                                 user,
                                 user.role === "user" ? "vendor" : "user",
                               )
@@ -670,7 +745,7 @@ export default function ManageUsers() {
                                 : "Make Admin"
                             }
                             onClick={() =>
-                              handleRoleChange(
+                              triggerRoleChangeModal(
                                 user,
                                 user.role === "admin" ? "vendor" : "admin",
                               )
@@ -683,7 +758,7 @@ export default function ManageUsers() {
                           <button
                             type="button"
                             disabled={isUpdating}
-                            onClick={() => handleStatusChange(user)}
+                            onClick={() => triggerBlockModal(user)}
                             className={`
           inline-flex h-9 shrink-0 items-center justify-center gap-1
           rounded-xl border px-2 text-[10px] font-bold whitespace-nowrap
@@ -691,14 +766,8 @@ export default function ManageUsers() {
           disabled:cursor-not-allowed disabled:opacity-50
           ${
             user.banned
-              ? `
-                border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100
-                dark:border-emerald-900/40 dark:bg-emerald-500/10 dark:text-emerald-400
-              `
-              : `
-                border-red-200 bg-white text-red-500 hover:bg-red-50
-                dark:border-red-900/40 dark:bg-slate-900! dark:text-red-400
-              `
+              ? `border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:border-emerald-900/40 dark:bg-emerald-500/10 dark:text-emerald-400`
+              : `border-red-200 bg-white text-red-500 hover:bg-red-50 dark:border-red-900/40 dark:bg-slate-900! dark:text-red-400`
           }
         `}
                           >
@@ -720,7 +789,7 @@ export default function ManageUsers() {
                             <button
                               type="button"
                               disabled={isUpdating}
-                              onClick={() => handleFraudChange(user)}
+                              onClick={() => triggerFraudModal(user)}
                               className={`
             inline-flex h-9 shrink-0 items-center justify-center gap-1
             rounded-xl border px-2 text-[10px] font-bold whitespace-nowrap
@@ -728,14 +797,8 @@ export default function ManageUsers() {
             disabled:cursor-not-allowed disabled:opacity-50
             ${
               user.isFraud
-                ? `
-                  border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100
-                  dark:border-emerald-900/40 dark:bg-emerald-500/10 dark:text-emerald-400
-                `
-                : `
-                  border-orange-200 bg-orange-50 text-orange-600 hover:bg-orange-100
-                  dark:border-orange-900/40 dark:bg-orange-500/10 dark:text-orange-400
-                `
+                ? `border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:border-emerald-900/40 dark:bg-emerald-500/10 dark:text-emerald-400`
+                : `border-orange-200 bg-orange-50 text-orange-600 hover:bg-orange-100 dark:border-orange-900/40 dark:bg-orange-500/10 dark:text-orange-400`
             }
           `}
                             >
@@ -892,7 +955,7 @@ export default function ManageUsers() {
                               user.role === "user" ? "Make Vendor" : "Make User"
                             }
                             onClick={() =>
-                              handleRoleChange(
+                              triggerRoleChangeModal(
                                 user,
                                 user.role === "user" ? "vendor" : "user",
                               )
@@ -910,7 +973,7 @@ export default function ManageUsers() {
                                 : "Make Admin"
                             }
                             onClick={() =>
-                              handleRoleChange(
+                              triggerRoleChangeModal(
                                 user,
                                 user.role === "admin" ? "vendor" : "admin",
                               )
@@ -923,7 +986,7 @@ export default function ManageUsers() {
                           <button
                             type="button"
                             disabled={isUpdating}
-                            onClick={() => handleStatusChange(user)}
+                            onClick={() => triggerBlockModal(user)}
                             className={`
                         inline-flex h-9.5
                         w-auto
@@ -979,7 +1042,7 @@ export default function ManageUsers() {
                             <button
                               type="button"
                               disabled={isUpdating}
-                              onClick={() => handleFraudChange(user)}
+                              onClick={() => triggerFraudModal(user)}
                               className={`
                           inline-flex h-9
                           w-auto
@@ -1040,6 +1103,51 @@ export default function ManageUsers() {
           </div>
         </div>
       )}
+      {/* Dynamic Reusable Confirm Modal */}
+      {(() => {
+        const { user, type, targetRole } = confirmModal;
+
+        // modal process
+        let title = "Confirm Action";
+        let message = "Are you sure you want to perform this action?";
+        let confirmColor = "primary";
+        let confirmText = "Confirm";
+
+        if (type === "ROLE_CHANGE") {
+          title = `Change Role to ${targetRole?.toUpperCase()}`;
+          message = `Are you sure you want to change ${user?.name || "this user"}'s role to "${targetRole}"?`;
+          confirmColor = targetRole === "admin" ? "warning" : "primary";
+          confirmText = "Change Role";
+        } else if (type === "TOGGLE_BLOCK") {
+          title = user?.banned ? "Unblock User" : "Block User";
+          message = user?.banned
+            ? `Are you sure you want to unblock ${user?.name || "this user"}? They will regain access.`
+            : `Are you sure you want to block ${user?.name || "this user"}? They will be restricted from logging in.`;
+          confirmColor = user?.banned ? "success" : "danger";
+          confirmText = user?.banned ? "Yes, Unblock" : "Yes, Block";
+        } else if (type === "TOGGLE_FRAUD") {
+          title = user?.isFraud ? "Remove Fraud Flag" : "Mark as Fraud";
+          message = user?.isFraud
+            ? `Are you sure you want to mark ${user?.name || "this vendor"} as non-fraud?`
+            : `Are you sure you want to mark ${user?.name || "this vendor"} as FRAUD? This will impact their account credibility.`;
+          confirmColor = user?.isFraud ? "success" : "warning";
+          confirmText = user?.isFraud ? "Remove Fraud Status" : "Mark Fraud";
+        }
+
+        return (
+          <ConfirmModal
+            isOpen={confirmModal.isOpen}
+            onClose={closeConfirmModal}
+            onConfirm={handleModalConfirm}
+            loading={confirmModal.loading}
+            title={title}
+            message={message}
+            confirmColor={confirmColor}
+            confirmText={confirmText}
+            cancelText="Cancel"
+          />
+        );
+      })()}
     </div>
   );
 }
@@ -1129,6 +1237,8 @@ function MiniStat({ icon, label, value }) {
   return (
     <div
       className="
+        flex flex-col items-center text-center
+        sm:items-start sm:text-left
         group rounded-3xl
         border border-slate-200
         bg-white p-5

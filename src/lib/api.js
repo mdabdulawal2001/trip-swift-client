@@ -43,7 +43,7 @@ const getToken = async () => {
 
     return token || null;
   } catch (error) {
-    console.error("JWT Error:", error);
+    error.message("JWT Error:", error);
 
     throw error;
   }

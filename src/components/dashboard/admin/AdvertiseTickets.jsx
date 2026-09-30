@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 
 import { getAdminTickets, updateTicketAdvertisement } from "@/lib/api";
+import ConfirmModal from "../../shared/ConfirmModal";
 
 export default function AdvertiseTickets() {
   const [tickets, setTickets] = useState([]);
@@ -15,6 +16,12 @@ export default function AdvertiseTickets() {
   const [loading, setLoading] = useState(true);
 
   const [updatingId, setUpdatingId] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    ticket: null,
+    actionType: null, // "advertise" or "remove_advertise"
+    loading: false,
+  });
 
   const loadTickets = async () => {
     try {
@@ -85,10 +92,48 @@ export default function AdvertiseTickets() {
     (ticket) => ticket.status === "approved",
   );
 
+  // modal open
+  const openAdConfirmModal = (ticket) => {
+    setConfirmModal({
+      isOpen: true,
+      ticket,
+      actionType: ticket.advertised ? "remove_advertise" : "advertise",
+      loading: false,
+    });
+  };
+
+  // modal close
+  const closeConfirmModal = () => {
+    if (confirmModal.loading) return;
+    setConfirmModal((previous) => ({
+      ...previous,
+      isOpen: false,
+      loading: false,
+    }));
+  };
+
+  // confirm and api call
+  const handleModalConfirm = async () => {
+    const { ticket } = confirmModal;
+    if (!ticket) return;
+
+    try {
+      setConfirmModal((prev) => ({ ...prev, loading: true }));
+
+      // toggleAdvertisement
+      await toggleAdvertisement(ticket);
+
+      closeConfirmModal();
+    } catch (error) {
+      console.error("Failed to toggle advertisement:", error);
+      setConfirmModal((prev) => ({ ...prev, loading: false }));
+    }
+  };
+
   return (
     <div className="mx-auto max-w-7xl">
       {/* Header */}
-            {/* Loading */}
+      {/* Loading */}
       {loading && <AdvertiseTicketsSkeleton />}
       <div className="mb-8">
         <p className="mb-2 text-sm font-semibold text-sky-500">
@@ -369,7 +414,8 @@ export default function AdvertiseTickets() {
                     </div>
 
                     {/* Advertisement Button */}
-                    <button
+                    {/* old btn */}
+                    {/* <button
                       disabled={isUpdating}
                       onClick={() => toggleAdvertisement(ticket)}
                       className={`
@@ -414,6 +460,59 @@ export default function AdvertiseTickets() {
                           Advertise Ticket
                         </>
                       )}
+                    </button> */}
+
+                    {/* Advertisement Button */}
+                    <button
+                      type="button"
+                      disabled={
+                        isUpdating ||
+                        (confirmModal.loading &&
+                          confirmModal.ticket?._id === ticket._id)
+                      }
+                      onClick={() => openAdConfirmModal(ticket)}
+                      className={`
+    flex min-h-12 w-full items-center justify-center
+    gap-2 rounded-xl px-5
+    text-sm font-bold
+    transition-all duration-300
+    disabled:cursor-not-allowed
+    disabled:opacity-50
+    ${
+      ticket.advertised
+        ? `
+          border border-slate-200
+          bg-white text-slate-600
+          hover:-translate-y-0.5
+          hover:bg-slate-100
+          hover:shadow-md
+          dark:border-slate-700
+          dark:bg-slate-900!
+          dark:text-slate-300
+          dark:hover:bg-slate-800
+        `
+        : `
+          bg-[#238FD7] text-white
+          shadow-lg shadow-[#047BFB]/20
+          hover:-translate-y-0.5
+          hover:bg-[#1978B8]
+          hover:shadow-xl
+          hover:shadow-[#047BFB]/25
+        `
+    }
+  `}
+                    >
+                      {ticket.advertised ? (
+                        <>
+                          <Check className="h-4 w-4" />
+                          Remove Advertisement
+                        </>
+                      ) : (
+                        <>
+                          <Megaphone className="h-4 w-4" />
+                          Advertise Ticket
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -422,6 +521,32 @@ export default function AdvertiseTickets() {
           })}
         </div>
       )}
+      {/* Reusable Confirm Modal for Advertisement */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={closeConfirmModal}
+        onConfirm={handleModalConfirm}
+        loading={confirmModal.loading}
+        confirmColor={
+          confirmModal.actionType === "advertise" ? "primary" : "danger"
+        }
+        title={
+          confirmModal.actionType === "advertise"
+            ? "Advertise Ticket"
+            : "Remove Advertisement"
+        }
+        message={
+          confirmModal.actionType === "advertise"
+            ? "Are you sure you want to highlight and promote this ticket on the advertisement banner?"
+            : "Are you sure you want to remove this ticket from advertisement? It will no longer be highlighted."
+        }
+        confirmText={
+          confirmModal.actionType === "advertise"
+            ? "Yes, Advertise"
+            : "Yes, Remove"
+        }
+        cancelText="Cancel"
+      />
     </div>
   );
 }

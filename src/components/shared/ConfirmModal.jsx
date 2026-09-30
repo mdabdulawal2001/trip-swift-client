@@ -2,39 +2,72 @@
 
 import { Button, Modal } from "@heroui/react";
 import { motion } from "framer-motion";
-import { AlertTriangle, CheckCircle2, LogOut, Trash2 } from "lucide-react";
+
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Info,
+  LogOut,
+  Trash2,
+} from "lucide-react";
 
 const ICONS = {
   danger: Trash2,
   warning: AlertTriangle,
   success: CheckCircle2,
-  logout: LogOut,
+  primary: Info,
+  info: Info,
+  black: LogOut,
+  neutral: AlertTriangle,
 };
 
-const COLOR_CLASSES = {
+const COLOR_STYLES = {
   danger: {
     icon: "bg-red-50 text-red-500 dark:bg-red-500/10 dark:text-red-400",
-    button: "danger",
+    button:
+      "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 dark:bg-red-500 dark:hover:bg-red-600",
   },
 
   warning: {
-    icon: "bg-amber-50 text-amber-500 dark:bg-amber-500/10 dark:text-amber-400",
-    button: "warning",
+    icon:
+      "bg-amber-50 text-amber-500 dark:bg-amber-500/10 dark:text-amber-400",
+    button:
+      "bg-amber-500 text-white hover:bg-amber-600 active:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-600",
   },
 
   success: {
-    icon: "bg-emerald-50 text-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-400",
-    button: "success",
+    icon:
+      "bg-emerald-50 text-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-400",
+    button:
+      "bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800 dark:bg-emerald-500 dark:hover:bg-emerald-600",
   },
 
   primary: {
-    icon: "bg-sky-50 text-sky-500 dark:bg-sky-500/10 dark:text-sky-400",
-    button: "primary",
+    icon:
+      "bg-blue-50 text-blue-500 dark:bg-blue-500/10 dark:text-blue-400",
+    button:
+      "bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 dark:bg-blue-500 dark:hover:bg-blue-600",
   },
 
-  logout: {
-    icon: "bg-red-50 text-red-500 dark:bg-red-500/10 dark:text-red-400",
-    button: "danger",
+  info: {
+    icon:
+      "bg-sky-50 text-sky-500 dark:bg-sky-500/10 dark:text-sky-400",
+    button:
+      "bg-sky-600 text-white hover:bg-sky-700 active:bg-sky-800 dark:bg-sky-500 dark:hover:bg-sky-600",
+  },
+
+  black: {
+    icon:
+      "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200",
+    button:
+      "bg-slate-900 text-white hover:bg-black active:bg-slate-950 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100",
+  },
+
+  neutral: {
+    icon:
+      "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
+    button:
+      "bg-slate-700 text-white hover:bg-slate-800 active:bg-slate-900 dark:bg-slate-600 dark:hover:bg-slate-500",
   },
 };
 
@@ -42,25 +75,23 @@ export default function ConfirmModal({
   isOpen,
   onClose,
   onConfirm,
-
   title = "Confirm Action",
   message = "Are you sure you want to continue?",
-
   confirmText = "Confirm",
   cancelText = "Cancel",
-
   confirmColor = "danger",
-
   loading = false,
-
-  icon,
+  icon: CustomIcon,
+  size = "sm",
 }) {
-  const safeColor = COLOR_CLASSES[confirmColor]
+  const safeColor = COLOR_STYLES[confirmColor]
     ? confirmColor
     : "danger";
 
+  const styles = COLOR_STYLES[safeColor];
+
   const Icon =
-    icon || ICONS[safeColor] || AlertTriangle;
+    CustomIcon || ICONS[safeColor] || AlertTriangle;
 
   const handleClose = () => {
     if (loading) return;
@@ -82,25 +113,59 @@ export default function ConfirmModal({
           onClose?.();
         }
       }}
+      size={size}
+      placement="center"
+      className="z-[100]"
     >
       <Modal.Backdrop
         className="
+          fixed
+          inset-0
+          z-[100]
+
+          flex
+          items-center
+          justify-center
+
           bg-slate-950/50
           backdrop-blur-sm
-          dark:bg-black/60
+
+          dark:bg-black/70
         "
       >
-        <Modal.Container>
+        <Modal.Container
+          className="
+            relative
+            flex
+            mx-5
+            md:mx-0
+            md:w-[calc(100vw-24px)]
+            md:max-w-[420px]
+            max-h-[calc(100dvh-24px)]
+
+            items-center
+            justify-center
+
+            p-0
+
+            sm:w-[420px]
+          "
+        >
           <motion.div
             initial={{
               opacity: 0,
-              scale: 0.95,
+              scale: 0.96,
               y: 12,
             }}
             animate={{
               opacity: 1,
               scale: 1,
               y: 0,
+            }}
+            exit={{
+              opacity: 0,
+              scale: 0.96,
+              y: 8,
             }}
             transition={{
               duration: 0.2,
@@ -111,10 +176,7 @@ export default function ConfirmModal({
             <Modal.Dialog
               className="
                 w-full
-                sm:max-w-[420px]
-
                 overflow-hidden
-
                 rounded-2xl
 
                 border
@@ -122,20 +184,19 @@ export default function ConfirmModal({
 
                 bg-white
 
-                shadow-[0_25px_70px_rgba(15,23,42,0.18)]
+                shadow-[0_25px_80px_rgba(15,23,42,0.20)]
 
                 dark:border-slate-800
                 dark:bg-slate-900
-                dark:shadow-black/40
+                dark:shadow-black/50
               "
             >
-              {/* CLOSE BUTTON */}
-
               {!loading && (
                 <Modal.CloseTrigger
                   onClick={handleClose}
                   className="
                     text-slate-400
+
                     hover:bg-slate-100
                     hover:text-slate-700
 
@@ -150,14 +211,18 @@ export default function ConfirmModal({
               <Modal.Header
                 className="
                   flex
-                  items-start
-                  gap-4
-                  px-6
-                  pt-6
+                  items-center
+                  gap-3
+
+                  px-5
+                  pt-5
                   pb-3
+
+                  sm:px-6
+                  sm:pt-6
                 "
               >
-                <div
+                <Modal.Icon
                   className={`
                     flex
                     h-11
@@ -167,30 +232,41 @@ export default function ConfirmModal({
                     justify-center
                     rounded-xl
 
-                    ${COLOR_CLASSES[safeColor].icon}
+                    ${styles.icon}
                   `}
                 >
                   <Icon className="h-5 w-5" />
-                </div>
+                </Modal.Icon>
 
-                <div className="min-w-0 pr-6">
-                  <Modal.Heading
-                    className="
-                      text-lg
-                      font-bold
-                      text-slate-900
+                <Modal.Heading
+                  className="
+                    min-w-0
+                    pr-6
 
-                      dark:text-white
-                    "
-                  >
-                    {title}
-                  </Modal.Heading>
-                </div>
+                    text-base
+                    font-bold
+                    leading-6
+                    text-slate-900
+
+                    sm:text-lg
+
+                    dark:text-white
+                  "
+                >
+                  {title}
+                </Modal.Heading>
               </Modal.Header>
 
               {/* BODY */}
 
-              <Modal.Body className="px-6 py-3">
+              <Modal.Body
+                className="
+                  px-5
+                  py-3
+
+                  sm:px-6
+                "
+              >
                 <p
                   className="
                     text-sm
@@ -209,46 +285,49 @@ export default function ConfirmModal({
               <Modal.Footer
                 className="
                   flex
+                  flex-col-reverse
                   gap-2
-                  px-6
-                  pb-6
+
+                  px-5
+                  pb-5
                   pt-4
+
+                  sm:flex-row
+                  sm:px-6
+                  sm:pb-6
                 "
               >
                 <Button
-                  variant="flat"
+                  variant="secondary"
                   onPress={handleClose}
                   isDisabled={loading}
                   className="
                     min-h-10
-                    flex-1
+                    w-full
                     rounded-xl
-
-                    bg-slate-100
                     font-semibold
-                    text-slate-700
 
-                    hover:bg-slate-200
-
-                    dark:bg-slate-800
-                    dark:text-slate-200
-                    dark:hover:bg-slate-700
+                    sm:flex-1
                   "
                 >
                   {cancelText}
                 </Button>
 
                 <Button
-                  color={COLOR_CLASSES[safeColor].button}
                   onPress={handleConfirm}
                   isLoading={loading}
                   isDisabled={loading}
-                  className="
+                  className={`
                     min-h-10
-                    flex-1
+                    w-full
                     rounded-xl
                     font-semibold
-                  "
+                    transition-colors
+
+                    sm:flex-1
+
+                    ${styles.button}
+                  `}
                 >
                   {confirmText}
                 </Button>

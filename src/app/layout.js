@@ -32,7 +32,7 @@ export default function RootLayout({ children }) {
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="bg-[#F4F9FC] dark:bg-[#071522]!">
+      <body className="mx-auto bg-[#F4F9FC] dark:bg-[#071522]!">
         <ThemeProvider>
           <ProfileProvider>
             <Navbar />

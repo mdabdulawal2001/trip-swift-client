@@ -288,7 +288,6 @@ const HeroSection = () => {
                           from-transparent
                           via-transparent
                           to-[#F4F9FC]/80
-
                           dark:to-[#071522]/90
                         "
                       />

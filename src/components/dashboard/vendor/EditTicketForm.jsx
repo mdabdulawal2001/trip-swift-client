@@ -8,6 +8,7 @@ import { getVendorTicketById, updateTicket } from "@/lib/api";
 
 import { authClient } from "@/lib/auth-client";
 import TicketFormSkeleton from "./vendorSkeletons/TicketFormSkeleton";
+import ConfirmModal from "../../shared/ConfirmModal";
 
 export default function EditTicketForm() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function EditTicketForm() {
   const ticketId = params.id;
 
   const [loading, setLoading] = useState(true);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -101,9 +103,12 @@ export default function EditTicketForm() {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
+    setIsConfirmModalOpen(true);
+  };
 
+  const executeTicketUpdate = async (e) => {
     try {
       setSubmitting(true);
 
@@ -130,6 +135,7 @@ export default function EditTicketForm() {
       await updateTicket(ticketId, ticketData);
 
       toast.success("Ticket updated successfully");
+      setIsConfirmModalOpen(false);
 
       router.push("/dashboard/my-tickets");
       router.refresh();
@@ -143,9 +149,7 @@ export default function EditTicketForm() {
   };
 
   if (loading) {
-    return (
-      <TicketFormSkeleton />
-    );
+    return <TicketFormSkeleton />;
   }
 
   return (
@@ -393,6 +397,18 @@ export default function EditTicketForm() {
           </button>
         </div>
       </form>
+      {/* Ticket Update Confirm Modal */}
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={executeTicketUpdate}
+        loading={submitting}
+        title="Update Ticket Details"
+        message="Are you sure you want to save these changes to the ticket?"
+        confirmText="Yes, Update"
+        cancelText="Keep Editing"
+        confirmColor="primary"
+      />
     </div>
   );
 }

@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import {toast} from "react-hot-toast"
 
 import {
   BarChart3,
@@ -20,6 +21,7 @@ import {
   X,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import ConfirmModal from "../shared/ConfirmModal";
 
 const sidebarMenus = {
   user: [
@@ -158,15 +160,13 @@ const sidebarMenus = {
   ],
 };
 
-export default function DashboardSidebar({
-  role = "user",
-  open,
-  setOpen,
-}) {
+export default function DashboardSidebar({ role = "user", open, setOpen }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
 
-  const menus =
-    sidebarMenus[role] || sidebarMenus.user;
+  const menus = sidebarMenus[role] || sidebarMenus.user;
 
   const mobileSidebarRef = useRef(null);
 
@@ -174,6 +174,30 @@ export default function DashboardSidebar({
   // MOBILE SIDEBAR
   // OUTSIDE CLICK + ESCAPE + SCROLL LOCK
   // ============================================================
+  const handleLogout = async () => {
+    if (logoutLoading) return;
+
+    try {
+      setLogoutLoading(true);
+
+      await authClient.signOut();
+
+      setIsLogoutModalOpen(false);
+      setOpen(false);
+      setOpen(false);
+
+      toast.success("Logged out successfully");
+
+      router.replace("/");
+      router.refresh();
+    } catch (error) {
+      console.error("Logout failed:", error);
+
+      toast.error(error?.message || "Failed to logout");
+    } finally {
+      setLogoutLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!open) {
@@ -189,55 +213,36 @@ export default function DashboardSidebar({
     const handlePointerDownOutside = (event) => {
       if (
         mobileSidebarRef.current &&
-        !mobileSidebarRef.current.contains(
-          event.target,
-        )
+        !mobileSidebarRef.current.contains(event.target)
       ) {
         setOpen(false);
       }
     };
 
-    document.addEventListener(
-      "keydown",
-      handleEscape,
-    );
+    document.addEventListener("keydown", handleEscape);
 
-    document.addEventListener(
-      "pointerdown",
-      handlePointerDownOutside,
-    );
+    document.addEventListener("pointerdown", handlePointerDownOutside);
 
     // ========================================================
     // PREVENT BACKGROUND SCROLL
     // ========================================================
 
-    const originalBodyOverflow =
-      document.body.style.overflow;
+    const originalBodyOverflow = document.body.style.overflow;
 
-    const originalHtmlOverflow =
-      document.documentElement.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
 
     document.body.style.overflow = "hidden";
 
-    document.documentElement.style.overflow =
-      "hidden";
+    document.documentElement.style.overflow = "hidden";
 
     return () => {
-      document.removeEventListener(
-        "keydown",
-        handleEscape,
-      );
+      document.removeEventListener("keydown", handleEscape);
 
-      document.removeEventListener(
-        "pointerdown",
-        handlePointerDownOutside,
-      );
+      document.removeEventListener("pointerdown", handlePointerDownOutside);
 
-      document.body.style.overflow =
-        originalBodyOverflow;
+      document.body.style.overflow = originalBodyOverflow;
 
-      document.documentElement.style.overflow =
-        originalHtmlOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
     };
   }, [open, setOpen]);
 
@@ -265,11 +270,7 @@ export default function DashboardSidebar({
         <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800! bg-white dark:!bg-slate-950">
           <Link
             href="/dashboard"
-            onClick={
-              mobile
-                ? () => setOpen(false)
-                : undefined
-            }
+            onClick={mobile ? () => setOpen(false) : undefined}
             className="flex items-center gap-3"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#238FD7] font-bold text-white">
@@ -279,9 +280,7 @@ export default function DashboardSidebar({
             <div>
               <p className="font-bold tracking-tight text-slate-900 dark:text-white">
                 Trip
-                <span className="text-[#238FD7]">
-                  Swift
-                </span>
+                <span className="text-[#238FD7]">Swift</span>
               </p>
 
               <p className="text-[11px] text-slate-500">
@@ -297,10 +296,7 @@ export default function DashboardSidebar({
 
         <nav className="bg-white dark:!bg-slate-950 flex-1 overflow-y-auto px-3 py-5">
           {menus.map((section) => (
-            <div
-              key={section.section}
-              className="mb-6"
-            >
+            <div key={section.section} className="mb-6">
               <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
                 {section.section}
               </p>
@@ -312,20 +308,13 @@ export default function DashboardSidebar({
                   const isActive =
                     item.href === "/dashboard"
                       ? pathname === "/dashboard"
-                      : pathname.startsWith(
-                          item.href,
-                        );
+                      : pathname.startsWith(item.href);
 
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
-                      onClick={
-                        mobile
-                          ? () =>
-                              setOpen(false)
-                          : undefined
-                      }
+                      onClick={mobile ? () => setOpen(false) : undefined}
                       className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
                         isActive
                           ? "bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400"
@@ -360,11 +349,7 @@ export default function DashboardSidebar({
         <div className="bg-white dark:!bg-slate-950 border-t border-slate-200 p-3 dark:border-slate-800!">
           <Link
             href="/"
-            onClick={
-              mobile
-                ? () => setOpen(false)
-                : undefined
-            }
+            onClick={mobile ? () => setOpen(false) : undefined}
             className="
               flex
               items-center
@@ -383,12 +368,17 @@ export default function DashboardSidebar({
             "
           >
             <Home className="h-[18px] w-[18px]" />
-
             Back to Home
           </Link>
 
           <button
             type="button"
+            onClick={() => {
+              if (logoutLoading) return;
+
+              setOpen(false);
+              setIsLogoutModalOpen(true);
+            }}
             className="
               mt-1
               flex
@@ -408,7 +398,6 @@ export default function DashboardSidebar({
             "
           >
             <LogOut className="h-[18px] w-[18px]" />
-
             Logout
           </button>
         </div>
@@ -424,10 +413,7 @@ export default function DashboardSidebar({
 
         <nav className="bg-white dark:!bg-slate-950 flex-1 overflow-y-auto px-3 py-5">
           {menus.map((section) => (
-            <div
-              key={section.section}
-              className="mb-6"
-            >
+            <div key={section.section} className="mb-6">
               <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
                 {section.section}
               </p>
@@ -439,20 +425,13 @@ export default function DashboardSidebar({
                   const isActive =
                     item.href === "/dashboard"
                       ? pathname === "/dashboard"
-                      : pathname.startsWith(
-                          item.href,
-                        );
+                      : pathname.startsWith(item.href);
 
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
-                      onClick={
-                        mobile
-                          ? () =>
-                              setOpen(false)
-                          : undefined
-                      }
+                      onClick={mobile ? () => setOpen(false) : undefined}
                       className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
                         isActive
                           ? "bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400"
@@ -487,11 +466,7 @@ export default function DashboardSidebar({
         <div className="bg-white dark:!bg-slate-950 border-t border-slate-200 p-3 dark:border-slate-800!">
           <Link
             href="/"
-            onClick={
-              mobile
-                ? () => setOpen(false)
-                : undefined
-            }
+            onClick={mobile ? () => setOpen(false) : undefined}
             className="
               flex
               items-center
@@ -510,12 +485,16 @@ export default function DashboardSidebar({
             "
           >
             <Home className="h-[18px] w-[18px]" />
-
             Back to Home
           </Link>
 
           <button
             type="button"
+            onClick={() => {
+              if (logoutLoading) return;
+              setOpen(false);
+              setIsLogoutModalOpen(true);
+            }}
             className="
               mt-1
               flex
@@ -535,14 +514,12 @@ export default function DashboardSidebar({
             "
           >
             <LogOut className="h-[18px] w-[18px]" />
-
             Logout
           </button>
         </div>
       </>
     );
   };
-
 
   return (
     <>
@@ -660,9 +637,7 @@ export default function DashboardSidebar({
                   <div>
                     <p className="font-bold tracking-tight text-slate-900 dark:text-white">
                       Trip
-                      <span className="text-[#238FD7]">
-                        Swift
-                      </span>
+                      <span className="text-[#238FD7]">Swift</span>
                     </p>
 
                     <p className="text-[10px] text-slate-500">
@@ -729,6 +704,21 @@ export default function DashboardSidebar({
           </motion.div>
         )}
       </AnimatePresence>
+      <ConfirmModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => {
+          if (!logoutLoading) {
+            setIsLogoutModalOpen(false);
+          }
+        }}
+        onConfirm={handleLogout}
+        loading={logoutLoading}
+        title="Logout?"
+        message="Are you sure you want to logout from your TripSwift account?"
+        confirmText="Logout"
+        cancelText="Cancel"
+        confirmColor="danger"
+      />
     </>
   );
 }

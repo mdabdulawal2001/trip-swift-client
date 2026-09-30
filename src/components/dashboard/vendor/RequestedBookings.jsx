@@ -8,11 +8,17 @@ import { getVendorBookings, updateBookingStatus } from "@/lib/api";
 
 import { authClient } from "@/lib/auth-client";
 import RequestedBookingsSkeleton from "./vendorSkeletons/RequestedBookingsSkeleton";
+import ConfirmModal from "../../shared/ConfirmModal";
 
 export default function RequestedBookings() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionId, setActionId] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    request: null,
+    status: null, // "accepted" | "rejected"
+  });
 
   const loadRequests = async () => {
     try {
@@ -28,7 +34,7 @@ export default function RequestedBookings() {
       const data = await getVendorBookings(email);
 
       setRequests(data?.bookings || []);
-      console.log(data)
+      console.log(data);
     } catch (error) {
       console.error(error);
 
@@ -75,10 +81,34 @@ export default function RequestedBookings() {
   };
 
   if (loading) {
-    return (
-      <RequestedBookingsSkeleton />
-    );
+    return <RequestedBookingsSkeleton />;
   }
+
+  const closeConfirmModal = () => {
+    if (actionId) return;
+    setConfirmModal((previous) => ({
+      ...previous,
+      isOpen: false,
+    }));
+  };
+
+  // modal open
+  const triggerStatusModal = (request, status) => {
+    setConfirmModal({
+      isOpen: true,
+      request,
+      status,
+    });
+  };
+
+  // confirm and api call
+  const handleConfirmStatusChange = async () => {
+    const { request, status } = confirmModal;
+    if (!request || !status) return;
+
+    await handleStatusChange(request, status);
+    closeConfirmModal();
+  };
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -156,7 +186,7 @@ export default function RequestedBookings() {
                   {request.status === "pending" && (
                     <div className="flex gap-2">
                       <button
-                        onClick={() => handleStatusChange(request, "accepted")}
+                        onClick={() => triggerStatusModal(request, "accepted")}
                         disabled={actionId === request._id}
                         className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
                       >
@@ -166,7 +196,7 @@ export default function RequestedBookings() {
                       </button>
 
                       <button
-                        onClick={() => handleStatusChange(request, "rejected")}
+                        onClick={() => triggerStatusModal(request, "rejected")}
                         disabled={actionId === request._id}
                         className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-red-200 px-4 text-sm font-semibold text-red-500 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-900/50 dark:hover:bg-red-500/10"
                       >
@@ -181,6 +211,41 @@ export default function RequestedBookings() {
           ))}
         </div>
       )}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={closeConfirmModal}
+        onConfirm={handleConfirmStatusChange}
+        loading={actionId === confirmModal.request?._id}
+        title={
+          confirmModal.status === "accepted"
+            ? "Accept Booking Request?"
+            : confirmModal.status === "rejected"
+              ? "Reject Booking Request?"
+              : "Review Booking Request"
+        }
+        message={
+          confirmModal.status === "accepted"
+            ? "Are you sure you want to accept this booking request?"
+            : confirmModal.status === "rejected"
+              ? "Are you sure you want to reject this booking request? This action cannot be undone."
+              : "Choose whether to accept or reject this booking request."
+        }
+        confirmText={
+          confirmModal.status === "accepted"
+            ? "Accept Booking"
+            : confirmModal.status === "rejected"
+              ? "Reject Booking"
+              : "Confirm"
+        }
+        cancelText="Keep Request"
+        confirmColor={
+          confirmModal.status === "accepted"
+            ? "success"
+            : confirmModal.status === "rejected"
+              ? "danger"
+              : "primary"
+        }
+      />
     </div>
   );
 }

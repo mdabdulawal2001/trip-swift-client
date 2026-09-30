@@ -5,11 +5,18 @@ import { Check, Eye, Loader2, X } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { getAdminTickets, updateTicketStatus } from "@/lib/api";
+import ConfirmModal from "../../shared/ConfirmModal";
 
 export default function ManageTickets() {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    ticketId: null,
+    actionType: null, // "approved" or "rejected"
+    loading: false,
+  });
 
   const loadTickets = async () => {
     try {
@@ -66,9 +73,46 @@ export default function ManageTickets() {
     }
   };
 
+  // modal open
+  const openConfirmModal = (ticketId, actionType) => {
+    setConfirmModal({
+      isOpen: true,
+      ticketId,
+      actionType,
+      loading: false,
+    });
+  };
+
+  // modal close
+  const closeConfirmModal = () => {
+    if (confirmModal.loading) return;
+    setConfirmModal((previous) => ({
+      ...previous,
+      isOpen: false,
+      loading: false,
+    }));
+  };
+
+  // click confirm btn and api call
+  const handleModalConfirm = async () => {
+    const { ticketId, actionType } = confirmModal;
+    if (!ticketId || !actionType) return;
+
+    try {
+      setConfirmModal((prev) => ({ ...prev, loading: true }));
+
+      // handler
+      await handleStatusChange(ticketId, actionType);
+
+      closeConfirmModal();
+    } catch (error) {
+      console.error("Failed to update ticket status:", error);
+      setConfirmModal((prev) => ({ ...prev, loading: false }));
+    }
+  };
   return (
     <div className="mx-auto max-w-7xl">
-            {/* Loading */}
+      {/* Loading */}
       {loading && <ManageTicketsSkeleton />}
       {/* Header */}
       <div className="mb-8">
@@ -85,7 +129,6 @@ export default function ManageTickets() {
         </p>
       </div>
 
-
       {/* Empty */}
       {!loading && tickets.length === 0 && (
         <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900">
@@ -101,7 +144,91 @@ export default function ManageTickets() {
 
       {/* Tickets */}
       {!loading && tickets.length > 0 && (
-        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+        <div className="space-y-4 md:hidden">
+          {tickets.map((ticket) => (
+            <article
+              key={ticket._id}
+              className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h2 className="wrap-break-word font-semibold text-slate-900 dark:text-white">
+                    {ticket.title}
+                  </h2>
+                  <p className="mt-1 text-xs text-slate-500">{ticket.type}</p>
+                </div>
+                <StatusBadge status={ticket.status} />
+              </div>
+
+              <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-950!">
+                <p className="text-xs font-medium text-slate-500">Route</p>
+                <p className="mt-1 wrap-break-word text-sm font-medium text-slate-700 dark:text-slate-300">
+                  {ticket.from} → {ticket.to}
+                </p>
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <div className="min-w-0">
+                  <p className="text-xs font-medium text-slate-500">Vendor</p>
+                  <p className="mt-1 break-all text-sm text-slate-600 dark:text-slate-400">
+                    {ticket.vendorEmail || "Unknown vendor"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-slate-500">Price</p>
+                  <p className="mt-1 font-bold text-slate-900 dark:text-white">
+                    ৳{ticket.price}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4 dark:border-slate-800!">
+                <Link
+                  href={`/dashboard/manage-tickets/${ticket._id}`}
+                  className="inline-flex h-10 min-w-18 flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900! dark:text-slate-300"
+                >
+                  <Eye className="h-4 w-4" />
+                  <span>View</span>
+                </Link>
+
+                {ticket.status === "pending" && (
+                  <>
+                    <button
+                      type="button"
+                      disabled={
+                        confirmModal.loading &&
+                        confirmModal.ticketId === ticket._id
+                      }
+                      onClick={() => openConfirmModal(ticket._id, "approved")}
+                      className="inline-flex h-10 min-w-22 flex-1 items-center justify-center gap-1.5 rounded-lg bg-emerald-50 px-3 text-xs font-semibold text-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-emerald-500/10 dark:text-emerald-400"
+                      title="Approve ticket"
+                    >
+                      <Check className="h-4 w-4" />
+                      <span>Approve</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={
+                        confirmModal.loading &&
+                        confirmModal.ticketId === ticket._id
+                      }
+                      onClick={() => openConfirmModal(ticket._id, "rejected")}
+                      className="inline-flex h-10 min-w-20 flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-50 px-3 text-xs font-semibold text-red-500 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-500/10 dark:text-red-400"
+                      title="Reject ticket"
+                    >
+                      <X className="h-4 w-4" />
+                      <span>Reject</span>
+                    </button>
+                  </>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+
+      {!loading && tickets.length > 0 && (
+        <div className="hidden overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 md:block">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[950px] text-left">
               <thead className="border-b border-slate-200 bg-slate-50 dark:border-slate-800! dark:bg-slate-950!">
@@ -198,8 +325,8 @@ export default function ManageTickets() {
                           </button>
                         </Link>
 
-                        {/* Approve / Reject */}
-                        {ticket.status === "pending" && (
+                        {/* Approve / Reject old */}
+                        {/* {ticket.status === "pending" && (
                           <>
                             <button
                               type="button"
@@ -258,10 +385,46 @@ export default function ManageTickets() {
                               <span>Reject</span>
                             </button>
                           </>
+                        )} */}
+
+                        {/* Approve / Reject Buttons */}
+                        {ticket.status === "pending" && (
+                          <>
+                            <button
+                              type="button"
+                              disabled={
+                                confirmModal.loading &&
+                                confirmModal.ticketId === ticket._id
+                              }
+                              onClick={() =>
+                                openConfirmModal(ticket._id, "approved")
+                              }
+                              className="flex h-9 items-center gap-1.5 rounded-lg bg-emerald-50 px-3 text-xs font-semibold text-emerald-600 transition-all duration-200 hover:bg-emerald-100 hover:shadow-sm active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20"
+                              title="Approve ticket"
+                            >
+                              <Check className="h-4 w-4" />
+                              <span>Approve</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              disabled={
+                                confirmModal.loading &&
+                                confirmModal.ticketId === ticket._id
+                              }
+                              onClick={() =>
+                                openConfirmModal(ticket._id, "rejected")
+                              }
+                              className="flex h-9 items-center gap-1.5 rounded-lg bg-red-50 px-3 text-xs font-semibold text-red-500 transition-all duration-200 hover:bg-red-100 hover:shadow-sm active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
+                              title="Reject ticket"
+                            >
+                              <X className="h-4 w-4" />
+                              <span>Reject</span>
+                            </button>
+                          </>
                         )}
                       </div>
                     </td>
-                    
                   </tr>
                 ))}
               </tbody>
@@ -269,6 +432,33 @@ export default function ManageTickets() {
           </div>
         </div>
       )}
+
+      {/* Dynamic Reusable Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={closeConfirmModal}
+        onConfirm={handleModalConfirm}
+        loading={confirmModal.loading}
+        title={
+          confirmModal.actionType === "approved"
+            ? "Approve Ticket"
+            : "Reject Ticket"
+        }
+        message={
+          confirmModal.actionType === "approved"
+            ? "Are you sure you want to approve this ticket? This action will process the request."
+            : "Are you sure you want to reject this ticket? This action cannot be undone."
+        }
+        confirmText={
+          confirmModal.actionType === "approved"
+            ? "Yes, Approve"
+            : "Yes, Reject"
+        }
+        cancelText="Cancel"
+        confirmColor={
+          confirmModal.actionType === "approved" ? "success" : "danger"
+        }
+      />
     </div>
   );
 }
@@ -316,8 +506,48 @@ function ManageTicketsSkeleton() {
         <div className="h-4 w-96 max-w-full animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
       </div>
 
+      {/* Mobile Card Skeleton */}
+      <div className="space-y-4 md:hidden">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div
+            key={index}
+            className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800! dark:bg-slate-900!"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1 space-y-2">
+                <div className="h-4 w-3/4 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                <div className="h-3 w-20 animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
+              </div>
+              <div className="h-6 w-20 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
+            </div>
+
+            <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-950!">
+              <div className="h-3 w-12 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+              <div className="mt-2 h-4 w-4/5 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="h-3 w-14 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                <div className="h-4 w-full animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+              </div>
+              <div className="space-y-2">
+                <div className="h-3 w-10 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                <div className="h-4 w-16 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+              </div>
+            </div>
+
+            <div className="mt-4 flex gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
+              <div className="h-10 flex-1 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />
+              <div className="h-10 flex-1 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />
+              <div className="h-10 flex-1 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />
+            </div>
+          </div>
+        ))}
+      </div>
+
       {/* Table Skeleton */}
-      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-800! dark:bg-slate-900">
+      <div className="hidden overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-800! dark:bg-slate-900 md:block">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[950px] text-left">
             {/* Header */}

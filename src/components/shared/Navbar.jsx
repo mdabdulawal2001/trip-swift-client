@@ -174,46 +174,6 @@ const Navbar = () => {
   // ============================================================
 
   useEffect(() => {
-    if (!isMenuOpen) {
-      return;
-    }
-
-    const handleEscape = (event) => {
-      if (event.key === "Escape") {
-        setIsMenuOpen(false);
-      }
-    };
-
-    const handlePointerDownOutside = (event) => {
-      if (
-        mobileMenuRef.current &&
-        !mobileMenuRef.current.contains(event.target)
-      ) {
-        setIsMenuOpen(false);
-      }
-    };
-
-    document.addEventListener("keydown", handleEscape);
-    document.addEventListener("pointerdown", handlePointerDownOutside);
-
-    // Prevent the background page from scrolling
-    const originalBodyOverflow = document.body.style.overflow;
-    const originalHtmlOverflow = document.documentElement.style.overflow;
-
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
-
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-
-      document.removeEventListener("pointerdown", handlePointerDownOutside);
-
-      document.body.style.overflow = originalBodyOverflow;
-      document.documentElement.style.overflow = originalHtmlOverflow;
-    };
-  }, [isMenuOpen]);
-
-  useEffect(() => {
     if (!isProfileOpen) {
       return;
     }
@@ -244,9 +204,8 @@ const Navbar = () => {
   // ============================================================
   // MOBILE MENU OUTSIDE CLICK + ESCAPE
   // ============================================================
-
   useEffect(() => {
-    if (!isMenuOpen) {
+    if (!isMenuOpen || isLogoutModalOpen) {
       return;
     }
 
@@ -266,19 +225,26 @@ const Navbar = () => {
     };
 
     document.addEventListener("keydown", handleEscape);
-
     document.addEventListener("pointerdown", handlePointerDownOutside);
 
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
     document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    // const originalBodyOverflow = document.body.style.overflow;
+    // document.body.style.overflow = "hidden";
 
     return () => {
       document.removeEventListener("keydown", handleEscape);
 
       document.removeEventListener("pointerdown", handlePointerDownOutside);
 
-      document.body.style.overflow = "";
+      document.body.style.overflow = originalBodyOverflow;
+
+      document.documentElement.style.overflow = originalHtmlOverflow;
     };
-  }, [isMenuOpen]);
+  }, [isMenuOpen, isLogoutModalOpen]);
 
   // ============================================================
   // CLOSE MENUS AFTER ROUTE CHANGE
@@ -1147,8 +1113,11 @@ const Navbar = () => {
                 border-slate-200
 
                 bg-white
-
+               
                 text-slate-600
+                dark:bg-slate-950
+                dark:text-white
+                dark:border-blue-300
 
                 shadow-sm
                 transition-all
@@ -1495,6 +1464,8 @@ const Navbar = () => {
                     rounded-xl
 
                     border
+                    px-4
+                    py-3
                     border-[#238FD7]/50
                     bg-white
                     text-[#1978B8]
@@ -1536,6 +1507,9 @@ const Navbar = () => {
                     <button
                       type="button"
                       onClick={() => {
+                        if (logoutLoading) return;
+
+                        setIsMenuOpen(false);
                         setIsProfileOpen(false);
                         setIsLogoutModalOpen(true);
                       }}
@@ -1612,7 +1586,7 @@ const Navbar = () => {
         message="Are you sure you want to logout from your TripSwift account?"
         confirmText="Logout"
         cancelText="Cancel"
-        confirmColor="logout"
+        confirmColor="danger"
       />
     </>
   );

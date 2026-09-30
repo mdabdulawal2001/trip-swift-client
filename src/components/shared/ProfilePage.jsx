@@ -20,10 +20,15 @@ import { authClient } from "@/lib/auth-client";
 import { useProfile } from "@/context/ProfileContext";
 import Image from "next/image";
 import ProfileSkeleton from "./skeletons/ProfileSkeleton";
+import ConfirmModal from "./ConfirmModal";
 
 export default function ProfilePage() {
   const { profile, setProfile, isProfileLoading } = useProfile();
   const [isEditing, setIsEditing] = useState(false);
+  const [profileConfirmModal, setProfileConfirmModal] = useState({
+    isOpen: false,
+    action: null,
+  });
 
   const [formData, setFormData] = useState({
     name: "",
@@ -171,6 +176,10 @@ export default function ProfilePage() {
       }));
 
       setIsEditing(false);
+      setProfileConfirmModal((previous) => ({
+        ...previous,
+        isOpen: false,
+      }));
 
       toast.success("Profile updated successfully.");
     } catch (error) {
@@ -179,6 +188,30 @@ export default function ProfilePage() {
       toast.error(error.message || "Failed to update profile.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const closeProfileConfirmModal = () => {
+    if (saving) return;
+
+    setProfileConfirmModal((previous) => ({
+      ...previous,
+      isOpen: false,
+    }));
+  };
+
+  const handleConfirmProfileAction = async () => {
+    if (profileConfirmModal.action === "edit") {
+      setIsEditing(true);
+      setProfileConfirmModal((previous) => ({
+        ...previous,
+        isOpen: false,
+      }));
+      return;
+    }
+
+    if (profileConfirmModal.action === "save") {
+      await handleSave();
     }
   };
 
@@ -278,7 +311,9 @@ export default function ProfilePage() {
             {!isEditing ? (
               <button
                 type="button"
-                onClick={() => setIsEditing(true)}
+                onClick={() =>
+                  setProfileConfirmModal({ isOpen: true, action: "edit" })
+                }
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-600"
               >
                 <Edit3 size={17} />
@@ -298,7 +333,9 @@ export default function ProfilePage() {
 
                 <button
                   type="button"
-                  onClick={handleSave}
+                  onClick={() =>
+                    setProfileConfirmModal({ isOpen: true, action: "save" })
+                  }
                   disabled={saving}
                   className="inline-flex items-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-60"
                 >
@@ -414,6 +451,34 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={profileConfirmModal.isOpen}
+        onClose={closeProfileConfirmModal}
+        onConfirm={handleConfirmProfileAction}
+        loading={saving}
+        title={
+          profileConfirmModal.action === "edit"
+            ? "Edit Your Profile?"
+            : "Save Profile Changes?"
+        }
+        message={
+          profileConfirmModal.action === "edit"
+            ? "Would you like to edit your profile information?"
+            : "Are you sure you want to save these profile changes?"
+        }
+        confirmText={
+          profileConfirmModal.action === "edit"
+            ? "Edit Profile"
+            : "Save Changes"
+        }
+        cancelText={
+          profileConfirmModal.action === "edit" ? "Not Now" : "Review Changes"
+        }
+        confirmColor={
+          profileConfirmModal.action === "edit" ? "primary" : "success"
+        }
+      />
     </div>
   );
 }
@@ -517,4 +582,3 @@ function formatMemberSince(dateValue) {
     year: "numeric",
   });
 }
-

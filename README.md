@@ -48,7 +48,7 @@ Trip Swift was built with a strong focus on:
 * 🎫 Complete ticket management
 * 📋 Booking management
 * 💳 Stripe payment integration
-* 📄 PDF ticket generation and download
+* 📄 PDF transaction history generation and download
 * 📊 Revenue analytics
 * 🔎 Search, filtering & sorting
 * 📄 Pagination
@@ -92,8 +92,6 @@ The project is divided into two independent applications:
 
 # 📸 Screenshots
 
-> 💡 **How to add screenshots:**
-> Edit this README on GitHub and drag & drop your screenshot directly onto the corresponding placeholder below. GitHub will automatically generate the image URL.
 
 ### 🏠 Home Page
 
@@ -355,7 +353,7 @@ Ticket Quantity Reduced
  ↓
 Transaction Recorded
  ↓
-PDF Ticket Available
+PDF Transaction History Available
 ```
 
 ---
@@ -460,7 +458,7 @@ Trip Swift uses Stripe for secure online ticket payments.
 * Transaction storage
 * Ticket quantity reduction after successful payment
 * Transaction history
-* PDF ticket generation
+* PDF Transaction history generation
 
 ---
 
@@ -479,9 +477,9 @@ Transactions are displayed in a structured table format.
 
 ---
 
-# 📥 PDF Ticket Download
+# 📥 PDF Transaction History Download
 
-One of the additional features implemented in Trip Swift is **PDF ticket generation and download after successful payment**.
+One of the additional features implemented in Trip Swift is **PDF Transaction History generation and download after successful payment**.
 
 After completing payment, users can access their ticket and generate/download a PDF document.
 

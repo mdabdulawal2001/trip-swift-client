@@ -231,7 +231,7 @@ const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
                     </div>
                   </div>
 
-                  {/* Status Alert Banner (যদি ticket approved না হয়) */}
+                  {/* Status Alert Banner */}
                   {ticket.status !== "approved" && (
                     <div className="mt-4 rounded-xl bg-amber-500/10 border border-amber-500/20 p-3 text-xs font-medium text-amber-600 dark:text-amber-400">
                       Status:{" "}

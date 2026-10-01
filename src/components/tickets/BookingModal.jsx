@@ -57,7 +57,7 @@ export default function BookingModal({ isOpen, onClose, ticket }) {
 
       Swal.fire({
         title: "Good job!",
-        text: "Your Booking request submitted successfully!",
+        text: "Your Booking request submitted successfully! Go to your dashboard to see the status of your booking.",
         icon: "success",
       });
 
@@ -66,7 +66,6 @@ export default function BookingModal({ isOpen, onClose, ticket }) {
       setQuantity(1);
     } catch (error) {
       console.error(error);
-
       toast.error(error.message || "Failed to create booking");
     } finally {
       setLoading(false);

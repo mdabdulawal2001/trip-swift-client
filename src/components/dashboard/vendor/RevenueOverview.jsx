@@ -21,6 +21,14 @@ export default function RevenueOverview() {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto",
+    });
+  }, []);
+
   const loadPayments = useCallback(async () => {
     try {
       setLoading(true);
@@ -167,7 +175,7 @@ export default function RevenueOverview() {
 
   return (
     <div className="mx-auto max-w-7xl">
-      {loading && <RevenueSkeleton /> }
+      {loading && <RevenueSkeleton />}
       {/* Header */}
       <div className="mb-8">
         <p className="mb-2 text-sm font-semibold text-sky-500">

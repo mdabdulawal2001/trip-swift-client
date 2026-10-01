@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 
 import { getAdminTickets, updateTicketAdvertisement } from "@/lib/api";
 import ConfirmModal from "../../shared/ConfirmModal";
+import Swal from "sweetalert2";
 
 export default function AdvertiseTickets() {
   const [tickets, setTickets] = useState([]);
@@ -33,7 +34,12 @@ export default function AdvertiseTickets() {
     } catch (error) {
       console.error("Advertise tickets error:", error);
 
-      toast.error(error.message || "Failed to load tickets");
+      // toast.error(error.message || "Failed to load tickets");
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: error.message || "Failed to load tickets",
+      });
 
       setTickets([]);
     } finally {
@@ -53,7 +59,12 @@ export default function AdvertiseTickets() {
     const newValue = !ticket.advertised;
 
     if (newValue && advertisedCount >= 6) {
-      toast.error("You can advertise a maximum of 6 tickets.");
+      // toast.error("You can advertise a maximum of 6 tickets.");
+      Swal.fire({
+        icon: "error",
+        title: "Limit Exceeded!",
+        text: "You can advertise a maximum of 6 tickets.",
+      });
       return;
     }
 
@@ -76,13 +87,24 @@ export default function AdvertiseTickets() {
         ),
       );
 
-      toast.success(
-        newValue
+      // toast.success(
+      //   newValue
+      //     ? "Ticket added to advertisement."
+      //     : "Ticket removed from advertisement.",
+      // );
+      Swal.fire({
+        title: newValue ? "Added!" : "Removed!",
+        text: newValue
           ? "Ticket added to advertisement."
           : "Ticket removed from advertisement.",
-      );
+        icon: "success",
+      });
     } catch (error) {
-      toast.error(error.message || "Failed to update advertisement.");
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: error.message || "Failed to update advertisement.",
+      });
     } finally {
       setUpdatingId(null);
     }
@@ -129,6 +151,14 @@ export default function AdvertiseTickets() {
       setConfirmModal((prev) => ({ ...prev, loading: false }));
     }
   };
+
+        useEffect(() => {
+        window.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: "auto",
+        });
+      }, []);
 
   return (
     <div className="mx-auto max-w-7xl">

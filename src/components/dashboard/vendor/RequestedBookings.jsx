@@ -9,6 +9,7 @@ import { getVendorBookings, updateBookingStatus } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import RequestedBookingsSkeleton from "./vendorSkeletons/RequestedBookingsSkeleton";
 import ConfirmModal from "../../shared/ConfirmModal";
+import Swal from "sweetalert2";
 
 export default function RequestedBookings() {
   const [requests, setRequests] = useState([]);
@@ -45,6 +46,14 @@ export default function RequestedBookings() {
   };
 
   useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto",
+    });
+  }, []);
+
+  useEffect(() => {
     loadRequests();
 
     const interval = setInterval(() => {
@@ -67,14 +76,29 @@ export default function RequestedBookings() {
       );
 
       if (status === "accepted") {
-        toast.success("Booking accepted successfully.");
+        // toast.success("Booking accepted successfully.");
+        swal.fire({
+          icon: "success",
+          title: "Booking Accepted!",
+          text: "The booking request has been accepted successfully.",
+        });
       } else {
-        toast.error("Booking rejected successfully.");
+        // toast.error("Booking rejected successfully.");
+        swal.fire({
+          icon: "error",
+          title: "Booking Rejected!",
+          text: "The booking request has been rejected.",
+        });
       }
     } catch (error) {
       console.error(error);
 
-      toast.error(error.message || "Failed to update booking");
+      // toast.error(error.message || "Failed to update booking");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message || "Failed to update booking",
+      });
     } finally {
       setActionId(null);
     }

@@ -16,6 +16,7 @@ import toast from "react-hot-toast";
 
 import { authClient } from "@/lib/auth-client";
 import ConfirmModal from "../../shared/ConfirmModal";
+import Swal from "sweetalert2";
 
 export default function ManageUsers() {
   const [users, setUsers] = useState([]);
@@ -53,7 +54,13 @@ export default function ManageUsers() {
       setUsers(data?.users || []);
     } catch (error) {
       console.error("Manage users error:", error);
-      toast.error(error.message || "Failed to load users");
+      // toast.error(error.message || "Failed to load users");
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: error.message || "Failed to load users",
+      });
+
       setUsers([]);
     } finally {
       setLoading(false);
@@ -99,10 +106,20 @@ export default function ManageUsers() {
         ),
       );
 
-      toast.success(`${user.name || "User"} is now ${newRole}.`);
+      // toast.success(`${user.name || "User"} is now ${newRole}.`);
+      Swal.fire({
+        icon: "success",
+        title: "Role Updated!",
+        text: `${user.name || "User"} is now ${newRole}.`,
+      });
     } catch (error) {
       console.error("Role change error:", error);
-      toast.error(error.message || "Failed to change user role");
+      // toast.error(error.message || "Failed to change user role");
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: error.message || "Failed to change user role",
+      });
     } finally {
       setUpdatingUserId(null);
     }
@@ -139,7 +156,12 @@ export default function ManageUsers() {
           ),
         );
 
-        toast.success("User unblocked.");
+        // toast.success("User unblocked.");
+        Swal.fire({
+          icon: "success",
+          title: "User Unblocked!",
+          text: `${user.name || "User"} is no longer blocked.`,
+        });
       } else {
         const { error } = await authClient.admin.banUser({
           userId: user.id,
@@ -161,11 +183,21 @@ export default function ManageUsers() {
           ),
         );
 
-        toast.success("User blocked.");
+        // toast.success("User blocked.");
+        Swal.fire({
+          icon: "success",
+          title: "User Blocked!",
+          text: `${user.name || "User"} is now blocked.`,
+        });
       }
     } catch (error) {
       console.error("User status error:", error);
-      toast.error(error.message || "Failed to update user status");
+      // toast.error(error.message || "Failed to update user status");
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: error.message || "Failed to update user status",
+      });
     } finally {
       setUpdatingUserId(null);
     }
@@ -211,14 +243,26 @@ export default function ManageUsers() {
         ),
       );
 
-      toast.success(
-        nextFraudStatus
+      // toast.success(
+      //   nextFraudStatus
+      //     ? `${user.name || "Vendor"} marked as fraud.`
+      //     : `${user.name || "Vendor"} is no longer marked as fraud.`,
+      // );
+      Swal.fire({
+        icon: "success",
+        title: "Fraud Status Updated!",
+        text: nextFraudStatus
           ? `${user.name || "Vendor"} marked as fraud.`
           : `${user.name || "Vendor"} is no longer marked as fraud.`,
-      );
+      });
     } catch (error) {
       console.error("Fraud status error:", error);
-      toast.error(error.message || "Failed to update fraud status");
+      // toast.error(error.message || "Failed to update fraud status");
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: error.message || "Failed to update fraud status",
+      });
     } finally {
       setUpdatingUserId(null);
     }
@@ -244,7 +288,7 @@ export default function ManageUsers() {
     }));
   };
 
-  // ১. Role Change
+  // Role Change
   const triggerRoleChangeModal = (user, newRole) => {
     setConfirmModal({
       isOpen: true,
@@ -255,7 +299,7 @@ export default function ManageUsers() {
     });
   };
 
-  // ২. Block / Unblock
+  // Block / Unblock
   const triggerBlockModal = (user) => {
     setConfirmModal({
       isOpen: true,
@@ -266,7 +310,7 @@ export default function ManageUsers() {
     });
   };
 
-  // ৩. Fraud / Un-fraud
+  // Fraud / Un-fraud
   const triggerFraudModal = (user) => {
     setConfirmModal({
       isOpen: true,
@@ -299,6 +343,13 @@ export default function ManageUsers() {
       setConfirmModal((prev) => ({ ...prev, loading: false }));
     }
   };
+        useEffect(() => {
+        window.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: "auto",
+        });
+      }, []);
 
   return (
     <div className="mx-auto max-w-7xl">

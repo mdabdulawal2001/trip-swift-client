@@ -14,6 +14,7 @@ import {
   TrainFront,
   Users,
 } from "lucide-react";
+import { useEffect } from "react";
 
 const features = [
   {
@@ -81,6 +82,13 @@ const stats = [
 ];
 
 export default function AboutPage() {
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto",
+    });
+  }, []);
   return (
     <main className="overflow-hidden">
       {/* ======================================================
@@ -109,10 +117,10 @@ export default function AboutPage() {
             </h1>
 
             <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base sm:leading-8 dark:text-slate-400">
-              TripSwift is a modern travel ticket booking platform designed
-              to make discovering, booking, and managing journeys easier.
-              From finding the right ticket to managing bookings, everything
-              is organized in one place.
+              TripSwift is a modern travel ticket booking platform designed to
+              make discovering, booking, and managing journeys easier. From
+              finding the right ticket to managing bookings, everything is
+              organized in one place.
             </p>
 
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
@@ -156,10 +164,10 @@ export default function AboutPage() {
             </h2>
 
             <p className="mt-5 text-sm leading-7 text-slate-600 sm:text-base sm:leading-8 dark:text-slate-400">
-              TripSwift brings travelers and ticket providers together
-              through a structured digital platform. Travelers can browse
-              available tickets and manage their bookings, while vendors can
-              manage their listings and booking activities.
+              TripSwift brings travelers and ticket providers together through a
+              structured digital platform. Travelers can browse available
+              tickets and manage their bookings, while vendors can manage their
+              listings and booking activities.
             </p>
 
             <div className="mt-7 space-y-3">
@@ -169,10 +177,7 @@ export default function AboutPage() {
                 "Dedicated features for vendors and administrators",
                 "Responsive experience across devices",
               ].map((item) => (
-                <div
-                  key={item}
-                  className="flex items-start gap-3"
-                >
+                <div key={item} className="flex items-start gap-3">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
 
                   <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -191,13 +196,9 @@ export default function AboutPage() {
             className="rounded-3xl border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/5 sm:p-7 dark:border-slate-800 dark:bg-slate-900"
           >
             <div className="rounded-2xl bg-gradient-to-br from-sky-500 to-blue-700 p-7 text-white">
-              <p className="text-sm font-semibold text-sky-100">
-                TRIPSWIFT
-              </p>
+              <p className="text-sm font-semibold text-sky-100">TRIPSWIFT</p>
 
-              <h3 className="mt-3 text-3xl font-black">
-                Travel • Book • Go
-              </h3>
+              <h3 className="mt-3 text-3xl font-black">Travel • Book • Go</h3>
 
               <p className="mt-4 text-sm leading-6 text-sky-50/90">
                 A connected travel experience where discovering and managing
@@ -241,8 +242,8 @@ export default function AboutPage() {
             </h2>
 
             <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-400">
-              TripSwift is designed to support different types of journeys
-              from one convenient platform.
+              TripSwift is designed to support different types of journeys from
+              one convenient platform.
             </p>
           </div>
 

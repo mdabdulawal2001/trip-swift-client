@@ -6,6 +6,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { getAdminTickets, updateTicketStatus } from "@/lib/api";
 import ConfirmModal from "../../shared/ConfirmModal";
+import Swal from "sweetalert2";
 
 export default function ManageTickets() {
   const [tickets, setTickets] = useState([]);
@@ -30,7 +31,12 @@ export default function ManageTickets() {
     } catch (error) {
       console.error("Manage tickets error:", error);
 
-      toast.error(error.message || "Failed to load tickets.");
+      // toast.error(error.message || "Failed to load tickets.");
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: error.message || "Failed to load tickets.",
+      });
     } finally {
       setLoading(false);
     }
@@ -58,16 +64,28 @@ export default function ManageTickets() {
           ),
         );
 
-        toast.success(
-          status === "approved"
-            ? "Ticket approved successfully."
-            : "Ticket rejected successfully.",
-        );
+          // toast.success(
+          //   status === "approved"
+          //     ? "Ticket approved successfully."
+          //     : "Ticket rejected successfully.",
+          // );
+          Swal.fire({
+            icon: "success",
+            title: status === "approved" ? "Ticket Approved!" : "Ticket Rejected!",
+            text: status === "approved"
+              ? "Ticket approved successfully."
+              : "Ticket rejected successfully.",
+          });
       }
     } catch (error) {
       console.error("Status update error:", error);
 
-      toast.error(error.message || "Failed to update ticket.");
+      // toast.error(error.message || "Failed to update ticket.");
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: error.message || "Failed to update ticket.",
+      });
     } finally {
       setUpdatingId(null);
     }
@@ -110,6 +128,15 @@ export default function ManageTickets() {
       setConfirmModal((prev) => ({ ...prev, loading: false }));
     }
   };
+
+        useEffect(() => {
+        window.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: "auto",
+        });
+      }, []);
+      
   return (
     <div className="mx-auto max-w-7xl">
       {/* Loading */}

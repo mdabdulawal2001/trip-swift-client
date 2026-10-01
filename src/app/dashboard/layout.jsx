@@ -1,80 +1,21 @@
-"use client";
+import DashboardLayoutClient from "./DashboardLayoutClient";
 
-import { useState } from "react";
 
-import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
-import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
+export const metadata = {
+  title: {
+    default: "Dashboard",
+    template: "%s | TripSwift Dashboard",
+  },
 
-import { DashboardRoleProvider } from "@/context/DashboardRoleContext";
+  description:
+    "Manage bookings, tickets, users, revenue, transactions, and your TripSwift account from the dashboard.",
 
-import { authClient } from "@/lib/auth-client";
-import { ProfileProvider } from "@/context/ProfileContext";
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
-export default function DashboardLayout({
-  children,
-}) {
-  const [sidebarOpen, setSidebarOpen] =
-    useState(false);
-
-  const {
-    data: session,
-    isPending,
-  } = authClient.useSession();
-
-  if (isPending) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
-        <div className="text-center">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-sky-500" />
-
-          <p className="mt-4 text-sm text-slate-500">
-            Loading dashboard...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  const role =
-    session?.user?.role || "user";
-
-  const user = {
-    name:
-      session?.user?.name || "User",
-
-    image:
-      session?.user?.image || "",
-  };
-
-  return (
-    
-    <DashboardRoleProvider role={role}>
-      <div className="rounded-lg mt-10 mb-10 max-w-7xl min-h-screen mx-auto bg-slate-50 dark:bg-slate-950">
-        <div className="flex min-h-screen">
-          <DashboardSidebar
-            role={role}
-            open={sidebarOpen}
-            setOpen={setSidebarOpen}
-          />
-
-          <div className="min-w-0 flex-1">
-            <DashboardNavbar
-              user={user}
-              role={role}
-              setSidebarOpen={
-                setSidebarOpen
-              }
-            />
-
-            <main className="p-4 sm:p-6 lg:p-8">
-              <div className="mx-auto max-w-7xl">
-                {children}
-              </div>
-            </main>
-          </div>
-        </div>
-      </div>
-    </DashboardRoleProvider>
- 
-  );
+export default function DashboardLayout({ children }) {
+  return <DashboardLayoutClient>{children}</DashboardLayoutClient>;
 }

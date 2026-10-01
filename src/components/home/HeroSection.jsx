@@ -57,19 +57,23 @@ const HeroSection = () => {
     <section
       className="
         relative
-        overflow-visible
+        overflow-x-clip
+        lg:overflow-visible
         max-w-7xl
         mx-auto
         dark:bg-[#071522]
         transition-colors
         duration-500
-      ">
+      "
+    >
       {/* =========================================================
           SOFT BACKGROUND DECORATION
       ========================================================== */}
 
       <div
         className="
+          hidden
+          sm:block
           pointer-events-none
           absolute
           -left-40
@@ -85,6 +89,8 @@ const HeroSection = () => {
 
       <div
         className="
+          hidden
+          sm:block
           pointer-events-none
           absolute
           -right-40
@@ -253,8 +259,7 @@ const HeroSection = () => {
                         "
                         style={{
                           backgroundImage: `url("${slide.image}")`,
-                          backgroundPosition:
-                            slide.position || "center",
+                          backgroundPosition: slide.position || "center",
                         }}
                       />
 
@@ -272,9 +277,7 @@ const HeroSection = () => {
                         style={{
                           backgroundImage: `url("${slide.image}")`,
                           backgroundPosition:
-                            slide.mobilePosition ||
-                            slide.position ||
-                            "center",
+                            slide.mobilePosition || slide.position || "center",
                         }}
                       />
 
@@ -350,9 +353,7 @@ const HeroSection = () => {
                           <Icon className="text-[11px]" />
                         </span>
 
-                        <span>
-                          {slide.badge}
-                        </span>
+                        <span>{slide.badge}</span>
                       </div>
                     </div>
 
@@ -549,9 +550,7 @@ const HeroSection = () => {
                           >
                             {slide.from}
 
-                            <span className="mx-2 text-[#238FD7]">
-                              →
-                            </span>
+                            <span className="mx-2 text-[#238FD7]">→</span>
 
                             {slide.to}
                           </p>
@@ -637,7 +636,6 @@ const HeroSection = () => {
                           "
                         >
                           Explore Tickets
-
                           <span
                             className="
                               flex
@@ -718,9 +716,7 @@ const HeroSection = () => {
                             "
                           />
 
-                          <span>
-                            10K+ happy travelers
-                          </span>
+                          <span>10K+ happy travelers</span>
                         </div>
 
                         <span className="hidden text-slate-300 sm:block dark:text-slate-700">
@@ -736,18 +732,14 @@ const HeroSection = () => {
                             "
                           />
 
-                          <span>
-                            Secure booking
-                          </span>
+                          <span>Secure booking</span>
                         </div>
 
                         <span className="hidden text-slate-300 sm:block dark:text-slate-700">
                           •
                         </span>
 
-                        <span>
-                          500+ available tickets
-                        </span>
+                        <span>500+ available tickets</span>
                       </div>
                     </div>
                   </div>
@@ -864,7 +856,6 @@ const HeroSection = () => {
                   dark:bg-[#38BDF8]
                 "
               />
-
               Live Search
             </div>
           </div>
@@ -1074,12 +1065,9 @@ const HeroSection = () => {
               >
                 {activeSlide?.icon &&
                   (() => {
-                    const ActiveIcon =
-                      activeSlide.icon;
+                    const ActiveIcon = activeSlide.icon;
 
-                    return (
-                      <ActiveIcon className="text-xs" />
-                    );
+                    return <ActiveIcon className="text-xs" />;
                   })()}
               </div>
 
@@ -1099,9 +1087,7 @@ const HeroSection = () => {
 
                 <select
                   value={transport}
-                  onChange={(e) =>
-                    setTransport(e.target.value)
-                  }
+                  onChange={(e) => setTransport(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       handleSearch(e);
@@ -1121,25 +1107,15 @@ const HeroSection = () => {
                     dark:text-white
                   "
                 >
-                  <option value="">
-                    All types
-                  </option>
+                  <option value="">All types</option>
 
-                  <option value="Bus">
-                    Bus
-                  </option>
+                  <option value="Bus">Bus</option>
 
-                  <option value="Train">
-                    Train
-                  </option>
+                  <option value="Train">Train</option>
 
-                  <option value="Flight">
-                    Flight
-                  </option>
+                  <option value="Flight">Flight</option>
 
-                  <option value="Car">
-                    Car
-                  </option>
+                  <option value="Car">Car</option>
                 </select>
               </div>
             </div>
@@ -1184,9 +1160,7 @@ const HeroSection = () => {
                 <FaMagnifyingGlass className="text-[11px]" />
               </span>
 
-              <span>
-                Search
-              </span>
+              <span>Search</span>
 
               <FaArrowRight
                 className="

@@ -7,6 +7,12 @@ import PopularRoutes from "@/components/home/PopularRoutes";
 import WhyTripSwift from "@/components/home/WhyTripSwift";
 import TicketBrowserSkeleton from "@/components/tickets/ticketSkeletons/TicketBrowserSkeleton";
 
+export const metadata = {
+  title: "Travel & Ticket Booking",
+  description:
+    "Discover travel tickets, explore popular routes, and book your next journey with TripSwift.",
+};
+
 
 export default function Home() {
   return (

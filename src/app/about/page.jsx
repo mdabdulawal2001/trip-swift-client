@@ -1,11 +1,11 @@
-import React from 'react';
+import AboutPage from "@/components/about/AboutPage";
 
-const AboutPage = () => {
-    return (
-        <div className='max-w-7xl mx-auto'>
-            <h1 className='text-3xl'>This is About Page</h1>
-        </div>
-    );
+export const metadata = {
+  title: "About Us",
+  description:
+    "Learn more about TripSwift, a modern travel ticket booking platform designed to make discovering, booking, and managing journeys easier.",
 };
 
-export default AboutPage;
+export default function About() {
+  return <AboutPage />;
+}

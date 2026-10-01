@@ -1,6 +1,12 @@
 import TicketBrowser from "@/components/tickets/TicketBrowser";
 import { getTickets } from "@/lib/api";
 
+export const metadata = {
+  title: "All Tickets",
+  description:
+    "Browse available bus, train, flight, and travel tickets on TripSwift.",
+};
+
 const ITEMS_PER_PAGE = 6;
 
 export default async function TicketsPage({ searchParams }) {

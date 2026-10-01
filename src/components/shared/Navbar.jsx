@@ -276,7 +276,6 @@ const Navbar = () => {
           pt-3
           sm:px-5
           sm:pt-4
-
           lg:px-8
           lg:pt-5
         "
@@ -406,7 +405,7 @@ const Navbar = () => {
           {/* DESKTOP NAVIGATION */}
           {/* ================================================== */}
 
-          <div className="hidden items-center gap-1 xl:flex">
+          <div className="hidden items-center gap-1 lg:flex">
             {navLinks.map((link) => {
               const active = isActive(link.href);
 
@@ -484,7 +483,7 @@ const Navbar = () => {
           {/* DESKTOP RIGHT SIDE */}
           {/* ================================================== */}
 
-          <div className="hidden items-center gap-2 xl:flex">
+          <div className="hidden items-center gap-2 lg:flex">
             {/* THEME TOGGLE */}
 
             <button
@@ -839,7 +838,7 @@ const Navbar = () => {
           {/* MOBILE CONTROLS */}
           {/* ================================================== */}
 
-          <div className="flex items-center gap-2 xl:hidden">
+          <div className="flex items-center gap-2 lg:hidden">
             {/* MOBILE THEME */}
 
             <button
@@ -965,7 +964,7 @@ const Navbar = () => {
 
           overflow-hidden
 
-          xl:hidden
+          lg:hidden
         "
             >
               {/* ================================================== */}

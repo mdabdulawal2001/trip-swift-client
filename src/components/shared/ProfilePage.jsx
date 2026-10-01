@@ -21,6 +21,7 @@ import { useProfile } from "@/context/ProfileContext";
 import Image from "next/image";
 import ProfileSkeleton from "./skeletons/ProfileSkeleton";
 import ConfirmModal from "./ConfirmModal";
+import Swal from "sweetalert2";
 
 export default function ProfilePage() {
   const { profile, setProfile, isProfileLoading } = useProfile();
@@ -76,7 +77,13 @@ export default function ProfilePage() {
     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
 
     if (!allowedTypes.includes(file.type)) {
-      toast.error("Please select a JPG, PNG, or WebP image.");
+      // toast.error("Please select a JPG, PNG, or WebP image.");
+      Swal.fire({
+        title: "Invalid File Type",
+        text: "Please select a JPG, PNG, or WebP image.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
 
       event.target.value = "";
       return;
@@ -85,7 +92,13 @@ export default function ProfilePage() {
     const maxSize = 5 * 1024 * 1024;
 
     if (file.size > maxSize) {
-      toast.error("Image size must be less than 5MB.");
+      // toast.error("Image size must be less than 5MB.");
+      Swal.fire({
+        title: "File Too Large",
+        text: "Image size must be less than 5MB.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
 
       event.target.value = "";
       return;
@@ -136,11 +149,23 @@ export default function ProfilePage() {
         image: imageUrl,
       }));
 
-      toast.success("Profile picture updated successfully.");
+      // toast.success("Profile picture updated successfully.");
+      Swal.fire({
+        title: "Success",
+        text: "Profile picture updated successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
     } catch (error) {
       console.error("Profile image upload error:", error);
 
-      toast.error(error?.message || "Failed to update profile picture.");
+      // toast.error(error?.message || "Failed to update profile picture.");
+      Swal.fire({
+        title: "Error",
+        text: error?.message || "Failed to update profile picture.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     } finally {
       setUploadingImage(false);
 
@@ -150,7 +175,13 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     if (!formData.name.trim()) {
-      toast.error("Name is required.");
+      // toast.error("Name is required.");
+      Swal.fire({
+        title: "Error",
+        text: "Name is required.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
       return;
     }
 
@@ -181,11 +212,23 @@ export default function ProfilePage() {
         isOpen: false,
       }));
 
-      toast.success("Profile updated successfully.");
+      // toast.success("Profile updated successfully.");
+      Swal.fire({
+        title: "Success",
+        text: "Profile updated successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
     } catch (error) {
       console.error("Profile update error:", error);
 
-      toast.error(error.message || "Failed to update profile.");
+      // toast.error(error.message || "Failed to update profile.");
+      Swal.fire({
+        title: "Error",
+        text: error.message || "Failed to update profile.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     } finally {
       setSaving(false);
     }

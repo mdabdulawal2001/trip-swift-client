@@ -22,6 +22,14 @@ export default function Transactions() {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto",
+    });
+  }, []);
+
   const loadPayments = useCallback(async () => {
     try {
       setLoading(true);
@@ -143,7 +151,6 @@ export default function Transactions() {
       doc.setTextColor(27, 142, 217);
 
       doc.text("TripSwift", 25, 18);
-      
 
       doc.setFont("NotoSans", "normal");
       doc.setFontSize(12);
@@ -170,7 +177,7 @@ export default function Transactions() {
       doc.text(`Total Paid: BDT ${totalPaid.toLocaleString()}`, 25, 38);
 
       doc.text(`Successful Transactions: ${successfulPayments}`, 25, 45);
-  
+
       // --------------------------------
       // Table Data
       // --------------------------------
@@ -346,7 +353,6 @@ export default function Transactions() {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-8"
     >
-
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>

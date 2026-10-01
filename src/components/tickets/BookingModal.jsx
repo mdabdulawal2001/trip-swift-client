@@ -43,6 +43,17 @@ export default function BookingModal({ isOpen, onClose, ticket }) {
         return;
       }
 
+      if (user.role !== "user") {
+        Swal.fire({
+          icon: "warning",
+          title: "Booking Unavailable",
+          text: "Only regular users can book tickets.",
+        });
+
+        onClose();
+        return;
+      }
+
       const bookingData = {
         ticketId: ticket._id,
 

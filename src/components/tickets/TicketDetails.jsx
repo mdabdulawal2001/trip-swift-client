@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import RelatedTickets from "./RelatedTickets";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -20,19 +20,55 @@ import {
 
 import Countdown from "./Countdown";
 import BookingModal from "./BookingModal";
+import { authClient } from "@/lib/auth-client";
 
 const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+  const [roleLoading, setRoleLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const getUserRole = async () => {
+      try {
+        const { data: session } = await authClient.getSession();
+
+        if (mounted) {
+          setUserRole(session?.user?.role || null);
+        }
+      } catch (error) {
+        console.error("Failed to get user role:", error);
+
+        if (mounted) {
+          setUserRole(null);
+        }
+      } finally {
+        if (mounted) {
+          setRoleLoading(false);
+        }
+      }
+    };
+
+    getUserRole();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const TransportIcon = ticket.type === "Train" ? FaTrain : FaBus;
 
   const isSoldOut = ticket.quantity <= 0;
+  const isManagementRole = userRole === "admin" || userRole === "vendor";
+
+  const canBook = userRole === "user";
 
   const isExpired = useMemo(() => {
     return new Date(ticket.departureDateTime).getTime() <= Date.now();
   }, [ticket.departureDateTime]);
 
-  const cannotBook = isSoldOut || isExpired;
+  const cannotBook = isSoldOut || isExpired || !canBook || roleLoading;
 
   return (
     <>
@@ -235,9 +271,9 @@ const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
                   </div>
 
                   {/* Action Button Section */}
-                  {isManagementView ? (
-                    <div className="mt-6 text-center text-xs font-semibold text-slate-500">
-                      Management View Only
+                  {isManagementView || isManagementRole ? (
+                    <div className="mt-6 rounded-xl bg-slate-100 px-4 py-3 text-center text-xs font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                      Booking is available for users only.
                     </div>
                   ) : (
                     <button
@@ -249,19 +285,21 @@ const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
                           : "bg-[#238fd8] text-white hover:bg-[#1978B8] hover:transition-all duration-500 hover:gap-4 hover:shadow-lg"
                       }`}
                     >
-                      {ticket.status === "pending"
-                        ? "Approval Pending"
-                        : ticket.status === "rejected"
-                          ? "Ticket Rejected"
-                          : isSoldOut
-                            ? "Sold Out"
-                            : isExpired
-                              ? "Departure Passed"
-                              : "Book Now"}
+                      {roleLoading
+                        ? "Checking access..."
+                        : ticket.status === "pending"
+                          ? "Approval Pending"
+                          : ticket.status === "rejected"
+                            ? "Ticket Rejected"
+                            : isSoldOut
+                              ? "Sold Out"
+                              : isExpired
+                                ? "Departure Passed"
+                                : "Book Now"}
 
-                      {ticket.status === "approved" && !cannotBook && (
-                        <FaArrowRight />
-                      )}
+                      {ticket.status === "approved" &&
+                        !cannotBook &&
+                        canBook && <FaArrowRight />}
                     </button>
                   )}
 

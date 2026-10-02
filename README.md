@@ -87,80 +87,67 @@ Administrators can manage tickets and users, control vendor access, manage fraud
 
 ### 🏠 Home Page
 
-<!-- Drag & drop Home Page screenshot here -->
-
 <p align="center">
-  <img src="PASTE_HOME_SCREENSHOT_URL_HERE" alt="Trip Swift Home Page" />
+  <img width="1007" height="670" alt="home" src="https://github.com/user-attachments/assets/b35e11a9-51d8-4297-a46f-9706403c473a" />
 </p>
 
 ---
 
 ### 🎫 All Tickets
 
-<!-- Drag & drop All Tickets screenshot here -->
-
 <p align="center">
-  <img src="PASTE_ALL_TICKETS_SCREENSHOT_URL_HERE" alt="Trip Swift All Tickets Page" />
+  <img width="435" height="582" alt="Screenshot 2026-10-03 013625" src="https://github.com/user-attachments/assets/ff86bd1a-56a8-4a43-b37d-6f94de25ab45" />
 </p>
 
 ---
 
 ### 🎟️ Ticket Details
 
-<!-- Drag & drop Ticket Details screenshot here -->
-
 <p align="center">
-  <img src="PASTE_TICKET_DETAILS_SCREENSHOT_URL_HERE" alt="Trip Swift Ticket Details Page" />
+  <img width="1245" height="542" alt="Screenshot 2026-10-03 013818" src="https://github.com/user-attachments/assets/14041b82-4fdf-4323-b8d6-9acec64393ba" />
 </p>
 
 ---
 
 ### 👤 User Dashboard
 
-<!-- Drag & drop User Dashboard screenshot here -->
-
 <p align="center">
-  <img src="PASTE_USER_DASHBOARD_SCREENSHOT_URL_HERE" alt="Trip Swift User Dashboard" />
+  <img width="853" height="532" alt="Screenshot 2026-10-01 202729" src="https://github.com/user-attachments/assets/a3d41c42-100d-4a00-8779-99c38b056453" />
 </p>
 
 ---
 
 ### 🏪 Vendor Dashboard
 
-<!-- Drag & drop Vendor Dashboard screenshot here -->
-
 <p align="center">
-  <img src="PASTE_VENDOR_DASHBOARD_SCREENSHOT_URL_HERE" alt="Trip Swift Vendor Dashboard" />
+  <img width="626" height="581" alt="Screenshot 2026-10-03 013136" src="https://github.com/user-attachments/assets/1984bfae-040b-42d3-81e9-9d88316dc433" />
 </p>
 
 ---
 
 ### 🛡️ Admin Dashboard
 
-<!-- Drag & drop Admin Dashboard screenshot here -->
-
 <p align="center">
-  <img src="PASTE_ADMIN_DASHBOARD_SCREENSHOT_URL_HERE" alt="Trip Swift Admin Dashboard" />
+  <img width="863" height="567" alt="Screenshot 2026-10-03 013341" src="https://github.com/user-attachments/assets/63a27a90-9b9e-48f5-9ac8-d04bd093be91" />
 </p>
 
 ---
 
 ### 💳 Stripe Payment
 
-<!-- Drag & drop Stripe Payment screenshot here -->
-
 <p align="center">
-  <img src="PASTE_PAYMENT_SCREENSHOT_URL_HERE" alt="Trip Swift Stripe Payment" />
+  <img width="487" height="435" alt="Screenshot 2026-10-03 022203" src="https://github.com/user-attachments/assets/7748ec04-326b-40f7-b6a5-fb32555fc970" />
+</p>
+<p align="center">
+  <img width="537" height="547" alt="Screenshot 2026-10-03 012614" src="https://github.com/user-attachments/assets/d936c99d-cba0-4251-9952-4afd4e88ee95" />
 </p>
 
 ---
 
 ### 📄 PDF Ticket
 
-<!-- Drag & drop PDF Ticket screenshot here -->
-
 <p align="center">
-  <img src="PASTE_PDF_TICKET_SCREENSHOT_URL_HERE" alt="Trip Swift PDF Ticket" />
+  <img width="262" height="481" alt="Screenshot 2026-10-03 020914" src="https://github.com/user-attachments/assets/37c99086-cf6e-4168-ab7d-a6bc7b918857" />
 </p>
 
 ---

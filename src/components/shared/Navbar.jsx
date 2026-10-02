@@ -272,11 +272,10 @@ const Navbar = () => {
           top-0
           z-50
           mx-auto
-          px-3
+          w-full
+          max-w-7xl
           pt-3
-          sm:px-5
           sm:pt-4
-          lg:px-8
           lg:pt-5
         "
       >
@@ -517,7 +516,7 @@ const Navbar = () => {
                 focus-visible:ring-2
                 focus-visible:ring-[#238FD7]/40
 
-                dark:border-white/10
+                dark:border-white/10!
                 dark:bg-white/5
                 dark:text-slate-300
 

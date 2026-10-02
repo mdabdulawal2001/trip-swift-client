@@ -49,8 +49,7 @@ export const metadata = {
 
   openGraph: {
     title: "TripSwift — Travel, Book, Go",
-    description:
-      "Discover and book travel tickets easily with TripSwift.",
+    description: "Discover and book travel tickets easily with TripSwift.",
     siteName: "TripSwift",
     type: "website",
   },
@@ -72,12 +71,12 @@ export default function RootLayout({ children }) {
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="mx-auto bg-[#F4F9FC] dark:bg-[#071522]!">
+      <body className="mx-auto flex min-h-screen flex-col bg-[#F4F9FC] dark:bg-[#071522]!">
         <ThemeProvider>
           <ProfileProvider>
             <Navbar />
 
-            {children}
+            <div className="flex-1">{children}</div>
 
             <Footer />
           </ProfileProvider>

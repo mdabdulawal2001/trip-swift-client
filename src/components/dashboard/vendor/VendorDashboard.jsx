@@ -84,16 +84,6 @@ export default function VendorDashboard() {
 
   useEffect(() => {
     loadDashboardData();
-
-    const handleFocus = () => {
-      loadDashboardData();
-    };
-
-    window.addEventListener("focus", handleFocus);
-
-    return () => {
-      window.removeEventListener("focus", handleFocus);
-    };
   }, []);
 
   const totalTickets = tickets.length;

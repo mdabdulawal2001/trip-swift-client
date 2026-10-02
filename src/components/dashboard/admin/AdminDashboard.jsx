@@ -53,26 +53,6 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     loadDashboardData();
-
-    const handleFocus = () => {
-      loadDashboardData();
-    };
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        loadDashboardData();
-      }
-    };
-
-    window.addEventListener("focus", handleFocus);
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () => {
-      window.removeEventListener("focus", handleFocus);
-
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
   }, [loadDashboardData]);
 
   const stats = data?.stats || {};

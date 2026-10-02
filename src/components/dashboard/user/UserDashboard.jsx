@@ -73,24 +73,6 @@ export default function UserDashboard() {
 
   useEffect(() => {
     loadDashboardData();
-
-    const handleFocus = () => {
-      loadDashboardData();
-    };
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        loadDashboardData();
-      }
-    };
-
-    window.addEventListener("focus", handleFocus);
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () => {
-      window.removeEventListener("focus", handleFocus);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
   }, [loadDashboardData]);
 
   // Dynamic Statistics Calculation

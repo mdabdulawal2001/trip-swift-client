@@ -1226,6 +1226,8 @@ NEXT_PUBLIC_BETTER_AUTH_URL=your_better_auth_url
 
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
 
+STRIPE_SECRET_KEY=your_stripe_secret_key
+
 NEXT_PUBLIC_IMGBB_API_KEY=your_imgbb_api_key
 
 GOOGLE_CLIENT_ID=your_google_client_id

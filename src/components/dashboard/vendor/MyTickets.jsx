@@ -90,7 +90,7 @@ export default function MyTickets() {
     }
 
     try {
-      const doc = await createPdfReport("My Added Tickets");
+      const doc = await createPdfReport("My Added Tickets", "landscape", 221);
 
       doc.setFont("NotoSans", "normal");
       doc.setFontSize(10);
@@ -101,6 +101,7 @@ export default function MyTickets() {
         startY: 45,
         head: [
           [
+            "#",
             "Ticket ID",
             "Title",
             "Route",
@@ -112,7 +113,8 @@ export default function MyTickets() {
             "Status",
           ],
         ],
-        body: tickets.map((ticket) => [
+        body: tickets.map((ticket, index) => [
+          String(index + 1),
           String(ticket._id || "N/A"),
           ticket.title || "N/A",
           `${ticket.from || "N/A"} to ${ticket.to || "N/A"}`,
@@ -124,7 +126,9 @@ export default function MyTickets() {
           String(ticket.status || "pending"),
         ]),
         theme: "grid",
-        margin: { left: 25, right: 25 },
+        margin: { left: 25, right: 25, bottom: 16 },
+        rowPageBreak: "avoid",
+        showHead: "everyPage",
         styles: {
           font: "NotoSans",
           fontSize: 7,
@@ -139,15 +143,16 @@ export default function MyTickets() {
           textColor: [255, 255, 255],
         },
         columnStyles: {
-          0: { cellWidth: 34 },
-          1: { cellWidth: 39 },
-          2: { cellWidth: 37 },
-          3: { cellWidth: 32 },
-          4: { cellWidth: 23 },
-          5: { cellWidth: 19 },
-          6: { cellWidth: 21 },
-          7: { cellWidth: 14 },
-          8: { cellWidth: 20 },
+          0: { cellWidth: 8, halign: "center" },
+          1: { cellWidth: 29 },
+          2: { cellWidth: 35 },
+          3: { cellWidth: 33 },
+          4: { cellWidth: 29 },
+          5: { cellWidth: 20 },
+          6: { cellWidth: 17 },
+          7: { cellWidth: 20 },
+          8: { cellWidth: 12 },
+          9: { cellWidth: 18 },
         },
         didParseCell: (data) => {
           data.cell.styles.font = "NotoSans";

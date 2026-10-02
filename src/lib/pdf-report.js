@@ -19,7 +19,11 @@ async function loadFontAsBase64(url) {
   return btoa(binary);
 }
 
-export async function createPdfReport(title, orientation = "landscape") {
+export async function createPdfReport(
+  title,
+  orientation = "landscape",
+  tableWidth = null,
+) {
   const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
   const regularFont = await loadFontAsBase64("/fonts/NotoSans-Regular.ttf");
   const boldFont = await loadFontAsBase64("/fonts/NotoSans-Bold.ttf");
@@ -42,7 +46,8 @@ export async function createPdfReport(title, orientation = "landscape") {
 
   doc.setFontSize(9);
   doc.setTextColor(100, 110, 120);
-  doc.text(`Generated: ${formatPdfDate(new Date())}`, pageWidth - 25, 18, {
+  const tableRightEdge = tableWidth ? 25 + tableWidth : pageWidth - 25;
+  doc.text(`Generated: ${formatPdfDate(new Date())}`, tableRightEdge, 18, {
     align: "right",
   });
 

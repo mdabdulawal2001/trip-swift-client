@@ -238,27 +238,42 @@ export default function VendorDashboard() {
 
       doc.setFontSize(9);
       doc.setTextColor(100, 110, 120);
-      doc.text(`Generated: ${formatDate(new Date())}`, pageWidth - 25, 18, {
-        align: "right",
-      });
+      doc.text(`Generated: ${formatDate(new Date())}`, 25, 38);
 
       // Summary
+      const summaryRows = [
+        ["Total Tickets", String(totalTickets)],
+        ["Active Tickets", String(activeTickets)],
+        ["Pending Requests", String(pendingRequests)],
+        ["Total Revenue", `৳${totalRevenue.toLocaleString()}`],
+      ];
+
+      summaryRows.forEach(([label, value], index) => {
+        const rowY = 46 + index * 6;
+
+        doc.setFont("NotoSans", "normal");
+        doc.setFontSize(9);
+        doc.setTextColor(100, 110, 120);
+        doc.text(label, 25, rowY);
+
+        doc.setFont("NotoSans", "bold");
+        doc.setTextColor(40, 50, 60);
+        doc.text(value, 155, rowY, { align: "right" });
+
+        if (index < summaryRows.length - 1) {
+          doc.setDrawColor(225, 230, 235);
+          doc.line(25, rowY + 2, 155, rowY + 2);
+        }
+      });
+
       doc.setFontSize(10);
       doc.setTextColor(40, 50, 60);
-
-      doc.text(`Total Tickets: ${totalTickets}`, 25, 38);
-
-      doc.text(`Active Tickets: ${activeTickets}`, 90, 38);
-
-      doc.text(`Pending Requests: ${pendingRequests}`, 155, 38);
-
-      doc.text(`Total Revenue: ৳${totalRevenue.toLocaleString()}`, 225, 38);
 
       // Monthly ticket data
       doc.setFont("NotoSans", "bold");
       doc.setFontSize(12);
       doc.setTextColor(40, 50, 60);
-      doc.text("Tickets Added — Last 6 Months", 25, 50);
+      doc.text("Tickets Added — Last 6 Months", 25, 78);
 
       const ticketRows = monthlyTicketData.map((item) => [
         `${item.month} ${item.year}`,
@@ -266,7 +281,7 @@ export default function VendorDashboard() {
       ]);
 
       autoTable(doc, {
-        startY: 56,
+        startY: 84,
         head: [["Month", "Tickets Added"]],
         body: ticketRows,
         theme: "grid",

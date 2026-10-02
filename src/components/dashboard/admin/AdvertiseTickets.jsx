@@ -131,7 +131,7 @@ export default function AdvertiseTickets() {
     }
 
     try {
-      const doc = await createPdfReport("Advertised Tickets");
+      const doc = await createPdfReport("Advertised Tickets", "landscape", 216);
       doc.setFont("NotoSans", "normal");
       doc.setFontSize(10);
       doc.setTextColor(40, 50, 60);
@@ -141,6 +141,7 @@ export default function AdvertiseTickets() {
         startY: 45,
         head: [
           [
+            "#",
             "Ticket ID",
             "Title",
             "Route",
@@ -153,7 +154,8 @@ export default function AdvertiseTickets() {
             "Featured Since",
           ],
         ],
-        body: advertisedTickets.map((ticket) => [
+        body: advertisedTickets.map((ticket, index) => [
+          String(index + 1),
           String(ticket._id || "N/A"),
           ticket.title || "N/A",
           `${ticket.from || "N/A"} to ${ticket.to || "N/A"}`,
@@ -166,7 +168,22 @@ export default function AdvertiseTickets() {
           formatPdfDate(ticket.advertisedAt),
         ]),
         theme: "grid",
-        margin: { left: 25, right: 25 },
+        margin: { left: 25, right: 25, bottom: 16 },
+        rowPageBreak: "avoid",
+        showHead: "everyPage",
+        columnStyles: {
+          0: { cellWidth: 8, halign: "center" },
+          1: { cellWidth: 23 },
+          2: { cellWidth: 28 },
+          3: { cellWidth: 31 },
+          4: { cellWidth: 22 },
+          5: { cellWidth: 15 },
+          6: { cellWidth: 19 },
+          7: { cellWidth: 16 },
+          8: { cellWidth: 20 },
+          9: { cellWidth: 12 },
+          10: { cellWidth: 22 },
+        },
         styles: {
           font: "NotoSans",
           fontSize: 7,

@@ -60,7 +60,7 @@ export default function RequestedBookings() {
     }
 
     try {
-      const doc = await createPdfReport("Requested Bookings");
+      const doc = await createPdfReport("Requested Bookings", "landscape", 232);
       const pendingCount = requests.filter(
         (request) => request.status === "pending",
       ).length;
@@ -83,6 +83,7 @@ export default function RequestedBookings() {
         startY: 45,
         head: [
           [
+            "#",
             "Booking ID",
             "Passenger",
             "Email",
@@ -94,7 +95,8 @@ export default function RequestedBookings() {
             "Status",
           ],
         ],
-        body: requests.map((request) => [
+        body: requests.map((request, index) => [
+          String(index + 1),
           String(request._id || "N/A"),
           request.userName || "N/A",
           request.userEmail || "N/A",
@@ -106,7 +108,10 @@ export default function RequestedBookings() {
           String(request.status || "pending"),
         ]),
         theme: "grid",
-        margin: { left: 25, right: 25 },
+        margin: { left: 25, right: 25, bottom: 16 },
+        pageBreak: "auto",
+        rowPageBreak: "avoid",
+        showHead: "everyPage",
         styles: {
           font: "NotoSans",
           fontSize: 7,
@@ -121,15 +126,16 @@ export default function RequestedBookings() {
           textColor: [255, 255, 255],
         },
         columnStyles: {
-          0: { cellWidth: 29 },
+          0: { cellWidth: 8, halign: "center" },
           1: { cellWidth: 25 },
-          2: { cellWidth: 40 },
+          2: { cellWidth: 22 },
           3: { cellWidth: 35 },
-          4: { cellWidth: 35 },
-          5: { cellWidth: 21 },
-          6: { cellWidth: 12 },
-          7: { cellWidth: 24 },
-          8: { cellWidth: 21 },
+          4: { cellWidth: 31 },
+          5: { cellWidth: 35 },
+          6: { cellWidth: 20 },
+          7: { cellWidth: 10 },
+          8: { cellWidth: 25 },
+          9: { cellWidth: 21 },
         },
         didParseCell: (data) => {
           data.cell.styles.font = "NotoSans";

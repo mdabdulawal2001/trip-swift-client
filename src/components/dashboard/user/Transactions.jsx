@@ -164,7 +164,7 @@ export default function Transactions() {
       doc.setFontSize(9);
       doc.setTextColor(100, 110, 120);
 
-      doc.text(`Generated: ${formatDate(new Date())}`, pageWidth - 25, 18, {
+      doc.text(`Generated: ${formatDate(new Date())}`, 256, 18, {
         align: "right",
       });
 
@@ -181,7 +181,8 @@ export default function Transactions() {
       // --------------------------------
       // Table Data
       // --------------------------------
-      const tableRows = payments.map((payment) => [
+      const tableRows = payments.map((payment, index) => [
+        String(index + 1),
         payment.transactionId || "N/A",
         payment.bookingId ? String(payment.bookingId) : "N/A",
         payment.ticketTitle || "Ticket",
@@ -199,6 +200,7 @@ export default function Transactions() {
 
         head: [
           [
+            "#",
             "Transaction ID",
             "Booking ID",
             "Ticket",
@@ -218,7 +220,10 @@ export default function Transactions() {
         margin: {
           left: 25,
           right: 25,
+          bottom: 16,
         },
+        rowPageBreak: "avoid",
+        showHead: "everyPage",
 
         styles: {
           font: "NotoSans",
@@ -240,39 +245,41 @@ export default function Transactions() {
         },
 
         columnStyles: {
+          0: { cellWidth: 9, halign: "center" },
+
           // Transaction ID
-          0: {
-            cellWidth: 40,
+          1: {
+            cellWidth: 35,
           },
 
           // Booking ID
-          1: {
-            cellWidth: 40,
+          2: {
+            cellWidth: 35,
           },
 
           // Ticket
-          2: {
-            cellWidth: 55,
+          3: {
+            cellWidth: 50,
           },
 
           // Payment Date
-          3: {
-            cellWidth: 32,
-          },
-
-          // Amount
           4: {
             cellWidth: 30,
           },
 
-          // Method
+          // Amount
           5: {
-            cellWidth: 25,
+            cellWidth: 28,
+          },
+
+          // Method
+          6: {
+            cellWidth: 22,
           },
 
           // Status
-          6: {
-            cellWidth: 25,
+          7: {
+            cellWidth: 22,
           },
         },
 
@@ -285,7 +292,7 @@ export default function Transactions() {
           }
 
           // Status column
-          if (data.section === "body" && data.column.index === 6) {
+          if (data.section === "body" && data.column.index === 7) {
             data.cell.styles.fontStyle = "bold";
             data.cell.styles.halign = "center";
           }

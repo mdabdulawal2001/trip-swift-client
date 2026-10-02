@@ -56,7 +56,7 @@ export default function ManageTickets() {
     }
 
     try {
-      const doc = await createPdfReport("Managed Tickets");
+      const doc = await createPdfReport("Managed Tickets", "landscape", 224);
       const statusCounts = tickets.reduce((counts, ticket) => {
         const status = String(ticket.status || "pending").toLowerCase();
         counts[status] = (counts[status] || 0) + 1;
@@ -75,6 +75,7 @@ export default function ManageTickets() {
         startY: 45,
         head: [
           [
+            "#",
             "Ticket ID",
             "Title",
             "Route",
@@ -86,7 +87,8 @@ export default function ManageTickets() {
             "Status",
           ],
         ],
-        body: tickets.map((ticket) => [
+        body: tickets.map((ticket, index) => [
+          String(index + 1),
           String(ticket._id || "N/A"),
           ticket.title || "N/A",
           `${ticket.from || "N/A"} to ${ticket.to || "N/A"}`,
@@ -98,7 +100,9 @@ export default function ManageTickets() {
           String(ticket.status || "pending"),
         ]),
         theme: "grid",
-        margin: { left: 25, right: 25 },
+        margin: { left: 25, right: 25, bottom: 16 },
+        rowPageBreak: "avoid",
+        showHead: "everyPage",
         styles: {
           font: "NotoSans",
           fontSize: 7,
@@ -113,15 +117,16 @@ export default function ManageTickets() {
           textColor: [255, 255, 255],
         },
         columnStyles: {
-          0: { cellWidth: 30 },
-          1: { cellWidth: 38 },
-          2: { cellWidth: 36 },
-          3: { cellWidth: 42 },
-          4: { cellWidth: 20 },
-          5: { cellWidth: 22 },
-          6: { cellWidth: 21 },
-          7: { cellWidth: 14 },
-          8: { cellWidth: 20 },
+          0: { cellWidth: 8, halign: "center" },
+          1: { cellWidth: 24 },
+          2: { cellWidth: 34 },
+          3: { cellWidth: 32 },
+          4: { cellWidth: 38 },
+          5: { cellWidth: 18 },
+          6: { cellWidth: 20 },
+          7: { cellWidth: 19 },
+          8: { cellWidth: 13 },
+          9: { cellWidth: 18 },
         },
         didParseCell: (data) => {
           data.cell.styles.font = "NotoSans";

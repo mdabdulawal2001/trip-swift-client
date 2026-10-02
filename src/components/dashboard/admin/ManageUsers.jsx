@@ -329,7 +329,11 @@ export default function ManageUsers() {
         counts[role] = (counts[role] || 0) + 1;
         return counts;
       }, {});
-      const doc = await createPdfReport("Platform User Directory");
+      const doc = await createPdfReport(
+        "Platform User Directory",
+        "landscape",
+        227,
+      );
 
       doc.setFont("NotoSans", "normal");
       doc.setFontSize(9);
@@ -343,6 +347,7 @@ export default function ManageUsers() {
         startY: 45,
         head: [
           [
+            "#",
             "User ID",
             "Name",
             "Email",
@@ -355,7 +360,8 @@ export default function ManageUsers() {
             "Ban Expires",
           ],
         ],
-        body: allUsers.map((user) => [
+        body: allUsers.map((user, index) => [
+          String(index + 1),
           String(user.id || "N/A"),
           user.name || "Unnamed User",
           user.email || "N/A",
@@ -368,7 +374,9 @@ export default function ManageUsers() {
           formatPdfDate(user.banExpires),
         ]),
         theme: "grid",
-        margin: { left: 25, right: 25 },
+        margin: { left: 25, right: 25, bottom: 16 },
+        rowPageBreak: "avoid",
+        showHead: "everyPage",
         styles: {
           font: "NotoSans",
           fontSize: 6,
@@ -383,16 +391,17 @@ export default function ManageUsers() {
           textColor: [255, 255, 255],
         },
         columnStyles: {
-          0: { cellWidth: 28 },
-          1: { cellWidth: 27 },
-          2: { cellWidth: 39 },
-          3: { cellWidth: 17 },
-          4: { cellWidth: 17 },
-          5: { cellWidth: 15 },
+          0: { cellWidth: 8, halign: "center" },
+          1: { cellWidth: 24 },
+          2: { cellWidth: 24 },
+          3: { cellWidth: 36 },
+          4: { cellWidth: 16 },
+          5: { cellWidth: 16 },
           6: { cellWidth: 14 },
-          7: { cellWidth: 22 },
-          8: { cellWidth: 39 },
-          9: { cellWidth: 24 },
+          7: { cellWidth: 13 },
+          8: { cellWidth: 20 },
+          9: { cellWidth: 34 },
+          10: { cellWidth: 22 },
         },
         didParseCell: (data) => {
           data.cell.styles.font = "NotoSans";

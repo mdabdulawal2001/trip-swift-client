@@ -46,15 +46,10 @@ const Footer = () => {
     },
   ];
 
-  const paymentIcons = [
-    FaCcVisa,
-    FaCcMastercard,
-    FaCcAmex,
-    FaPaypal,
-  ];
+  const paymentIcons = [FaCcVisa, FaCcMastercard, FaCcAmex, FaPaypal];
 
   return (
-    <footer className="relative mt-20 overflow-hidden border-t border-slate-200 bg-white text-slate-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
+    <footer className="relative mt-20 overflow-hidden border-t border-sky-100 bg-white text-slate-700 dark:border-sky-900/70 dark:bg-slate-950 dark:text-slate-300">
       {/* =========================
           BACKGROUND EFFECTS
       ========================== */}
@@ -145,7 +140,6 @@ const Footer = () => {
 
       <div className="relative z-10 mx-auto max-w-7xl px-5 pb-8 pt-16 sm:px-8 lg:px-8">
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
-
           {/* =========================
               BRAND
           ========================== */}
@@ -218,8 +212,8 @@ const Footer = () => {
                 md:text-left
               "
             >
-              TripSwift makes ticket booking simple, reliable and convenient
-              so you can spend less time planning and more time travelling.
+              TripSwift makes ticket booking simple, reliable and convenient so
+              you can spend less time planning and more time travelling.
             </p>
 
             {/* Social */}
@@ -301,7 +295,6 @@ const Footer = () => {
             </h3>
 
             <div className="mt-5 flex flex-col items-center space-y-4 md:items-start">
-
               <div className="flex gap-3">
                 <FaMapMarkerAlt className="mt-1 shrink-0 text-[#238FD7]" />
 
@@ -325,7 +318,6 @@ const Footer = () => {
                   support@tripswift.com
                 </p>
               </div>
-
             </div>
           </div>
 
@@ -356,17 +348,26 @@ const Footer = () => {
                     justify-center
                     rounded-lg
                     border
-                    border-slate-200
+                    border-sky-200
                     bg-slate-50
                     text-2xl
                     text-[#238FD7]
-                    transition-colors
+                    transition-all
                     duration-300
-                    hover:bg-[#238FD7]/10
-                    dark:border-slate-800
+                    ease-out
+                    hover:-translate-y-1
+                    hover:scale-[1.03]
+                    hover:border-sky-400
+                    hover:bg-sky-50
+                    hover:text-sky-600
+                    hover:shadow-md
+                    dark:border-sky-900/70!
                     dark:bg-slate-900
-                    dark:text-slate-400
-                    dark:hover:bg-[#238FD7]/10
+                    dark:text-sky-300
+                    dark:hover:border-sky-400
+                    dark:hover:bg-sky-500/10
+                    dark:hover:text-sky-200
+                    dark:hover:shadow-sky-500/10
                   "
                 >
                   <Icon />
@@ -374,9 +375,7 @@ const Footer = () => {
               ))}
             </div>
 
-            <p className="mt-4 text-xs text-slate-500">
-              Powered by Stripe
-            </p>
+            <p className="mt-4 text-xs text-slate-500">Powered by Stripe</p>
           </div>
         </div>
 
@@ -392,10 +391,10 @@ const Footer = () => {
             items-center
             gap-4
             border-t
-            border-slate-200
+            border-sky-100
             pt-6
             text-center
-            dark:border-slate-800
+            dark:border-sky-900/70!
             sm:flex-row
             sm:items-center
             sm:justify-between

@@ -219,7 +219,7 @@ export default function UserDashboard() {
 
       doc.setFontSize(9);
       doc.setTextColor(100, 110, 120);
-      doc.text(`Generated: ${formatDate(new Date())}`, pageWidth - 25, 18, {
+      doc.text(`Generated: ${formatDate(new Date())}`, 275, 18, {
         align: "right",
       });
 

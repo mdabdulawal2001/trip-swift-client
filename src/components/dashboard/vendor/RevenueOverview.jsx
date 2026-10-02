@@ -239,45 +239,56 @@ export default function RevenueOverview() {
       doc.setFont("NotoSans", "normal");
 
       const pageWidth = doc.internal.pageSize.getWidth();
+      const contentWidth = 110;
+      const contentLeft = (pageWidth - contentWidth) / 2;
+      const contentRight = contentLeft + contentWidth;
 
       // Header
       doc.setFont("NotoSans", "bold");
       doc.setFontSize(22);
       doc.setTextColor(27, 142, 217);
-      doc.text("TripSwift", 25, 18);
+      doc.text("TripSwift", contentLeft, 18);
 
       doc.setFont("NotoSans", "normal");
       doc.setFontSize(12);
       doc.setTextColor(80, 90, 105);
-      doc.text("Revenue Overview", 25, 26);
+      doc.text("Revenue Overview", contentLeft, 26);
 
       doc.setFontSize(9);
       doc.setTextColor(100, 110, 120);
-      doc.text(`Generated: ${formatDate(new Date())}`, pageWidth - 25, 18, {
-        align: "right",
-      });
+      doc.text(`Generated: ${formatDate(new Date())}`, contentLeft, 38);
 
       // Revenue summary
-      doc.setFontSize(10);
-      doc.setTextColor(40, 50, 60);
+      const summaryRows = [
+        ["Total Revenue", `৳${totalRevenue.toLocaleString()}`],
+        ["This Month", `৳${currentMonthRevenue.toLocaleString()}`],
+        ["Tickets Sold", ticketsSold.toLocaleString()],
+        ["Average Booking", `৳${Math.round(averageBooking).toLocaleString()}`],
+      ];
 
-      doc.text(`Total Revenue: ৳${totalRevenue.toLocaleString()}`, 25, 38);
+      summaryRows.forEach(([label, value], index) => {
+        const rowY = 46 + index * 6;
 
-      doc.text(`This Month: ৳${currentMonthRevenue.toLocaleString()}`, 100, 38);
+        doc.setFont("NotoSans", "normal");
+        doc.setFontSize(9);
+        doc.setTextColor(100, 110, 120);
+        doc.text(label, contentLeft, rowY);
 
-      doc.text(`Tickets Sold: ${ticketsSold.toLocaleString()}`, 175, 38);
+        doc.setFont("NotoSans", "bold");
+        doc.setTextColor(40, 50, 60);
+        doc.text(value, contentRight, rowY, { align: "right" });
 
-      doc.text(
-        `Avg. Booking: ৳${Math.round(averageBooking).toLocaleString()}`,
-        240,
-        38,
-      );
+        if (index < summaryRows.length - 1) {
+          doc.setDrawColor(225, 230, 235);
+          doc.line(contentLeft, rowY + 2, contentRight, rowY + 2);
+        }
+      });
 
       // Monthly revenue
       doc.setFont("NotoSans", "bold");
       doc.setFontSize(12);
       doc.setTextColor(40, 50, 60);
-      doc.text("Revenue Performance — Last 6 Months", 25, 50);
+      doc.text("Revenue Performance — Last 6 Months", contentLeft, 78);
 
       const revenueRows = monthlyRevenue.map((item) => [
         `${item.month} ${item.year}`,
@@ -285,15 +296,15 @@ export default function RevenueOverview() {
       ]);
 
       autoTable(doc, {
-        startY: 56,
+        startY: 84,
         head: [["Month", "Revenue"]],
         body: revenueRows,
         theme: "grid",
         margin: {
-          left: 25,
-          right: 25,
+          left: contentLeft,
+          right: pageWidth - contentRight,
         },
-        tableWidth: 110,
+        tableWidth: contentWidth,
         styles: {
           font: "NotoSans",
           fontStyle: "normal",
@@ -323,7 +334,7 @@ export default function RevenueOverview() {
       doc.setFont("NotoSans", "bold");
       doc.setFontSize(12);
       doc.setTextColor(40, 50, 60);
-      doc.text("Top Performing Route", 25, routeStartY);
+      doc.text("Top Performing Route", contentLeft, routeStartY);
 
       autoTable(doc, {
         startY: routeStartY + 5,
@@ -339,9 +350,10 @@ export default function RevenueOverview() {
         ],
         theme: "grid",
         margin: {
-          left: 25,
-          right: 25,
+          left: contentLeft,
+          right: pageWidth - contentRight,
         },
+        tableWidth: contentWidth,
         styles: {
           font: "NotoSans",
           fontStyle: "normal",
@@ -358,9 +370,9 @@ export default function RevenueOverview() {
           textColor: [255, 255, 255],
         },
         columnStyles: {
-          0: { cellWidth: 110 },
-          1: { cellWidth: 40 },
-          2: { cellWidth: 45 },
+          0: { cellWidth: 50 },
+          1: { cellWidth: 26 },
+          2: { cellWidth: 34 },
         },
         didParseCell: (cellData) => {
           cellData.cell.styles.font = "NotoSans";

@@ -197,7 +197,7 @@ export default function AdminDashboard() {
 
       doc.setFontSize(9);
       doc.setTextColor(100, 110, 120);
-      doc.text(`Generated: ${formatDate(new Date())}`, pageWidth - 25, 18, {
+      doc.text(`Generated: ${formatDate(new Date())}`, 245, 18, {
         align: "right",
       });
 

@@ -22,7 +22,11 @@ import {
   Download,
 } from "lucide-react";
 
-import { getUserBookings, createCheckoutSession } from "@/lib/api";
+import {
+  getUserBookings,
+  getUserPayments,
+  createCheckoutSession,
+} from "@/lib/api";
 
 import { authClient } from "@/lib/auth-client";
 import { addPdfReportFooter, createPdfReport } from "@/lib/pdf-report";
@@ -306,9 +310,48 @@ export default function MyBookedTickets() {
       const ticketOperator = getBookingOperator(booking);
 
       const bookingId = booking._id ? String(booking._id) : "N/A";
+      const ticketId = String(booking.ticketId || booking.ticket?._id || "N/A");
+      const passengerName = booking.userName || booking.passengerName || "N/A";
+      const passengerEmail =
+        booking.userEmail || booking.passengerEmail || "N/A";
 
-      const transactionId =
-        booking.transactionId || booking.payment?.transactionId || "N/A";
+      let transactionId =
+        booking.transactionId ||
+        booking.payment?.transactionId ||
+        booking.paymentIntentId ||
+        booking.paymentIntent?.id ||
+        booking.payment?.paymentIntentId ||
+        booking.payment?.payment_intent ||
+        "N/A";
+
+      if (transactionId === "N/A" && bookingId !== "N/A") {
+        const email = booking.userEmail || booking.passengerEmail;
+
+        if (email) {
+          try {
+            const paymentData = await getUserPayments(email);
+            const matchingPayment = paymentData?.payments?.find((payment) => {
+              const paymentBookingId =
+                payment.bookingId?._id ||
+                payment.bookingId ||
+                payment.booking?._id;
+
+              return String(paymentBookingId || "") === bookingId;
+            });
+
+            transactionId =
+              matchingPayment?.transactionId ||
+              matchingPayment?.paymentIntentId ||
+              matchingPayment?.stripeSessionId ||
+              "N/A";
+          } catch (error) {
+            console.warn(
+              "Could not load transaction ID for ticket PDF:",
+              error,
+            );
+          }
+        }
+      }
 
       const departureDate = formatDepartureDate(booking.departureDateTime);
 
@@ -331,7 +374,7 @@ export default function MyBookedTickets() {
 
       doc.setTextColor(90, 100, 115);
 
-      doc.text("Digital Travel Ticket", 20, 28);
+      doc.text("DIGITAL BOARDING PASS", 20, 28);
 
       // --------------------------------
       // Paid Badge
@@ -342,9 +385,9 @@ export default function MyBookedTickets() {
 
       doc.setTextColor(16, 150, 80);
 
-      doc.text("PAID", pageWidth - 20, 20, {
-        align: "right",
-      });
+      doc.setFillColor(226, 247, 236);
+      doc.roundedRect(pageWidth - 39, 13, 19, 9, 3, 3, "F");
+      doc.text("PAID", pageWidth - 29.5, 19, { align: "center" });
 
       // --------------------------------
       // Generated Date
@@ -434,7 +477,7 @@ export default function MyBookedTickets() {
           ["Operator", ticketOperator],
           ["Departure Date", departureDate],
           ["Departure Time", departureTime],
-          ["Quantity", `${quantity} Ticket${quantity > 1 ? "s" : ""}`],
+          ["Seat / Quantity", `${quantity} Ticket${quantity > 1 ? "s" : ""}`],
           ["Unit Price", `BDT ${unitPrice.toLocaleString()}`],
           ["Total Amount", `BDT ${totalPrice.toLocaleString()}`],
         ],
@@ -491,9 +534,12 @@ export default function MyBookedTickets() {
       autoTable(doc, {
         startY: paymentTableStartY,
 
-        head: [["Payment Information", "Details"]],
+        head: [["Passenger & Payment", "Details"]],
 
         body: [
+          ["Passenger", passengerName],
+          ["Passenger Email", passengerEmail],
+          ["Ticket ID", ticketId],
           ["Booking ID", bookingId],
           ["Transaction ID", transactionId],
           ["Payment Method", "Stripe"],
@@ -545,7 +591,7 @@ export default function MyBookedTickets() {
           if (
             data.section === "body" &&
             data.column.index === 1 &&
-            data.row.index === 3
+            data.row.index === 6
           ) {
             data.cell.styles.fontStyle = "bold";
 
@@ -578,7 +624,7 @@ export default function MyBookedTickets() {
       doc.setTextColor(110, 120, 130);
 
       doc.text(
-        "Please keep this digital ticket for your travel records.",
+        "Thank you for your booking. Please keep this ticket for your travel records.",
         26,
         noteY + 15,
         {
@@ -634,7 +680,7 @@ export default function MyBookedTickets() {
     }
 
     try {
-      const doc = await createPdfReport("My Booked Tickets");
+      const doc = await createPdfReport("My Booked Tickets", "landscape", 215);
       doc.setFont("NotoSans", "normal");
       doc.setFontSize(9);
       doc.setTextColor(40, 50, 60);
@@ -647,6 +693,7 @@ export default function MyBookedTickets() {
         startY: 45,
         head: [
           [
+            "#",
             "Booking ID",
             "Ticket",
             "Operator",
@@ -660,7 +707,7 @@ export default function MyBookedTickets() {
             "Payment",
           ],
         ],
-        body: bookings.map((booking) => {
+        body: bookings.map((booking, index) => {
           const quantity = Number(booking.quantity) || 0;
           const unitPrice =
             Number(
@@ -673,6 +720,7 @@ export default function MyBookedTickets() {
             unitPrice * quantity || Number(booking.totalPrice) || 0;
 
           return [
+            String(index + 1),
             String(booking._id || "N/A"),
             booking.title ||
               booking.ticketTitle ||
@@ -690,7 +738,9 @@ export default function MyBookedTickets() {
           ];
         }),
         theme: "grid",
-        margin: { left: 25, right: 25 },
+        margin: { left: 25, right: 25, bottom: 16 },
+        rowPageBreak: "avoid",
+        showHead: "everyPage",
         styles: {
           font: "NotoSans",
           fontSize: 6.5,
@@ -705,17 +755,18 @@ export default function MyBookedTickets() {
           textColor: [255, 255, 255],
         },
         columnStyles: {
-          0: { cellWidth: 25 },
-          1: { cellWidth: 30 },
-          2: { cellWidth: 25 },
-          3: { cellWidth: 30 },
-          4: { cellWidth: 20 },
-          5: { cellWidth: 16 },
-          6: { cellWidth: 9 },
-          7: { cellWidth: 21 },
-          8: { cellWidth: 21 },
-          9: { cellWidth: 21 },
-          10: { cellWidth: 19 },
+          0: { cellWidth: 8, halign: "center" },
+          1: { cellWidth: 20 },
+          2: { cellWidth: 27 },
+          3: { cellWidth: 22 },
+          4: { cellWidth: 27 },
+          5: { cellWidth: 18 },
+          6: { cellWidth: 14 },
+          7: { cellWidth: 8 },
+          8: { cellWidth: 18 },
+          9: { cellWidth: 18 },
+          10: { cellWidth: 18 },
+          11: { cellWidth: 17 },
         },
         didParseCell: (data) => {
           data.cell.styles.font = "NotoSans";
@@ -1021,7 +1072,6 @@ export default function MyBookedTickets() {
                         </button>
                       )}
 
-                    {/* Paid */}
                     {/* Paid */}
                     {booking.paymentStatus === "paid" && (
                       <div className="mt-4 space-y-2">

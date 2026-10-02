@@ -2,12 +2,19 @@
 
 import { useEffect, useState } from "react";
 
-import { Check, Megaphone, Star, Ticket } from "lucide-react";
+import { ArrowDownToLine, Check, Megaphone, Star, Ticket } from "lucide-react";
 import { motion } from "framer-motion";
 
 import toast from "react-hot-toast";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 import { getAdminTickets, updateTicketAdvertisement } from "@/lib/api";
+import {
+  addPdfReportFooter,
+  createPdfReport,
+  formatPdfDate,
+} from "@/lib/pdf-report";
 import ConfirmModal from "../../shared/ConfirmModal";
 import Swal from "sweetalert2";
 
@@ -113,6 +120,84 @@ export default function AdvertiseTickets() {
   const approvedTickets = tickets.filter(
     (ticket) => ticket.status === "approved",
   );
+  const advertisedTickets = approvedTickets.filter(
+    (ticket) => ticket.advertised,
+  );
+
+  const handleExport = async () => {
+    if (!advertisedTickets.length) {
+      toast.error("No advertised tickets available to export.");
+      return;
+    }
+
+    try {
+      const doc = await createPdfReport("Advertised Tickets");
+      doc.setFont("NotoSans", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(40, 50, 60);
+      doc.text(`Advertised Tickets: ${advertisedTickets.length}`, 25, 38);
+
+      autoTable(doc, {
+        startY: 45,
+        head: [
+          [
+            "Ticket ID",
+            "Title",
+            "Route",
+            "Operator",
+            "Type",
+            "Date",
+            "Departure",
+            "Price",
+            "Seats",
+            "Featured Since",
+          ],
+        ],
+        body: advertisedTickets.map((ticket) => [
+          String(ticket._id || "N/A"),
+          ticket.title || "N/A",
+          `${ticket.from || "N/A"} to ${ticket.to || "N/A"}`,
+          ticket.operator || "N/A",
+          ticket.type || "N/A",
+          formatPdfDate(ticket.date),
+          ticket.departure || "N/A",
+          `BDT ${Number(ticket.price || 0).toLocaleString()}`,
+          String(ticket.quantity ?? "N/A"),
+          formatPdfDate(ticket.advertisedAt),
+        ]),
+        theme: "grid",
+        margin: { left: 25, right: 25 },
+        styles: {
+          font: "NotoSans",
+          fontSize: 7,
+          cellPadding: 2,
+          valign: "middle",
+          overflow: "linebreak",
+        },
+        headStyles: {
+          font: "NotoSans",
+          fontStyle: "bold",
+          fillColor: [27, 142, 217],
+          textColor: [255, 255, 255],
+        },
+        didParseCell: (data) => {
+          data.cell.styles.font = "NotoSans";
+          if (data.section === "head") data.cell.styles.fontStyle = "bold";
+        },
+      });
+
+      addPdfReportFooter(doc, "Advertised Tickets");
+      doc.save(
+        `tripswift-advertised-tickets-${new Date().toISOString().slice(0, 10)}.pdf`,
+      );
+      toast.success("Advertised tickets PDF downloaded successfully.");
+    } catch (error) {
+      console.error("Advertised tickets PDF export error:", error);
+      toast.error(
+        error?.message || "Failed to generate advertised tickets PDF.",
+      );
+    }
+  };
 
   // modal open
   const openAdConfirmModal = (ticket) => {
@@ -152,31 +237,45 @@ export default function AdvertiseTickets() {
     }
   };
 
-        useEffect(() => {
-        window.scrollTo({
-          top: 0,
-          left: 0,
-          behavior: "auto",
-        });
-      }, []);
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto",
+    });
+  }, []);
+
+  if (loading) {
+    return <AdvertiseTicketsSkeleton />;
+  }
 
   return (
     <div className="mx-auto max-w-7xl">
       {/* Header */}
-      {/* Loading */}
-      {loading && <AdvertiseTicketsSkeleton />}
-      <div className="mb-8">
-        <p className="mb-2 text-sm font-semibold text-sky-500">
-          Admin Dashboard
-        </p>
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="mb-2 text-sm font-semibold text-sky-500">
+            Admin Dashboard
+          </p>
 
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
-          Advertise Tickets
-        </h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
+            Advertise Tickets
+          </h1>
 
-        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-          Select approved tickets to feature on the homepage.
-        </p>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            Select approved tickets to feature on the homepage.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleExport}
+          disabled={advertisedTickets.length === 0}
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:text-sky-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-sky-700 sm:w-fit"
+        >
+          <ArrowDownToLine className="h-4 w-4" />
+          Export PDF
+        </button>
       </div>
 
       {/* Counter */}
@@ -585,12 +684,16 @@ function AdvertiseTicketsSkeleton() {
   return (
     <div className="mx-auto max-w-7xl">
       {/* Header */}
-      <div className="mb-8 space-y-3">
-        <div className="h-4 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0 flex-1 space-y-3">
+          <div className="h-4 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
 
-        <div className="h-9 w-64 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800" />
+          <div className="h-9 w-64 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800" />
 
-        <div className="h-4 w-96 max-w-full animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+          <div className="h-4 w-96 max-w-full animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+        </div>
+
+        <div className="h-11 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800 sm:w-32" />
       </div>
 
       {/* Counter */}

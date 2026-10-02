@@ -3,12 +3,15 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
+  ArrowDownToLine,
   ArrowUpRight,
   DollarSign,
   Ticket,
   TrendingUp,
   Wallet,
 } from "lucide-react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
@@ -173,22 +176,265 @@ export default function RevenueOverview() {
     );
   }, [payments]);
 
+  const formatDate = (dateValue) => {
+    if (!dateValue) return "N/A";
+
+    const date = new Date(dateValue);
+
+    if (Number.isNaN(date.getTime())) {
+      return "N/A";
+    }
+
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const handleExport = async () => {
+    if (!payments.length) {
+      toast.error("No revenue data available to export.");
+      return;
+    }
+
+    try {
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const loadFontAsBase64 = async (url) => {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(`Failed to load font: ${url}`);
+        }
+
+        const buffer = await response.arrayBuffer();
+
+        let binary = "";
+        const bytes = new Uint8Array(buffer);
+        const chunkSize = 0x8000;
+
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+          const chunk = bytes.subarray(i, i + chunkSize);
+          binary += String.fromCharCode(...chunk);
+        }
+
+        return btoa(binary);
+      };
+
+      const regularFont = await loadFontAsBase64("/fonts/NotoSans-Regular.ttf");
+
+      const boldFont = await loadFontAsBase64("/fonts/NotoSans-Bold.ttf");
+
+      doc.addFileToVFS("NotoSans-Regular.ttf", regularFont);
+      doc.addFont("NotoSans-Regular.ttf", "NotoSans", "normal", "Identity-H");
+
+      doc.addFileToVFS("NotoSans-Bold.ttf", boldFont);
+      doc.addFont("NotoSans-Bold.ttf", "NotoSans", "bold", "Identity-H");
+
+      doc.setFont("NotoSans", "normal");
+
+      const pageWidth = doc.internal.pageSize.getWidth();
+
+      // Header
+      doc.setFont("NotoSans", "bold");
+      doc.setFontSize(22);
+      doc.setTextColor(27, 142, 217);
+      doc.text("TripSwift", 25, 18);
+
+      doc.setFont("NotoSans", "normal");
+      doc.setFontSize(12);
+      doc.setTextColor(80, 90, 105);
+      doc.text("Revenue Overview", 25, 26);
+
+      doc.setFontSize(9);
+      doc.setTextColor(100, 110, 120);
+      doc.text(`Generated: ${formatDate(new Date())}`, pageWidth - 25, 18, {
+        align: "right",
+      });
+
+      // Revenue summary
+      doc.setFontSize(10);
+      doc.setTextColor(40, 50, 60);
+
+      doc.text(`Total Revenue: ৳${totalRevenue.toLocaleString()}`, 25, 38);
+
+      doc.text(`This Month: ৳${currentMonthRevenue.toLocaleString()}`, 100, 38);
+
+      doc.text(`Tickets Sold: ${ticketsSold.toLocaleString()}`, 175, 38);
+
+      doc.text(
+        `Avg. Booking: ৳${Math.round(averageBooking).toLocaleString()}`,
+        240,
+        38,
+      );
+
+      // Monthly revenue
+      doc.setFont("NotoSans", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(40, 50, 60);
+      doc.text("Revenue Performance — Last 6 Months", 25, 50);
+
+      const revenueRows = monthlyRevenue.map((item) => [
+        `${item.month} ${item.year}`,
+        `৳${item.revenue.toLocaleString()}`,
+      ]);
+
+      autoTable(doc, {
+        startY: 56,
+        head: [["Month", "Revenue"]],
+        body: revenueRows,
+        theme: "grid",
+        margin: {
+          left: 25,
+          right: 25,
+        },
+        tableWidth: 110,
+        styles: {
+          font: "NotoSans",
+          fontStyle: "normal",
+          fontSize: 9,
+          cellPadding: 3,
+          valign: "middle",
+          textColor: [40, 45, 50],
+        },
+        headStyles: {
+          font: "NotoSans",
+          fontStyle: "bold",
+          fillColor: [27, 142, 217],
+          textColor: [255, 255, 255],
+        },
+        didParseCell: (cellData) => {
+          cellData.cell.styles.font = "NotoSans";
+
+          if (cellData.section === "head") {
+            cellData.cell.styles.fontStyle = "bold";
+          }
+        },
+      });
+
+      // Top route
+      const routeStartY = (doc.lastAutoTable?.finalY || 56) + 12;
+
+      doc.setFont("NotoSans", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(40, 50, 60);
+      doc.text("Top Performing Route", 25, routeStartY);
+
+      autoTable(doc, {
+        startY: routeStartY + 5,
+        head: [["Route", "Tickets Sold", "Revenue"]],
+        body: [
+          bestRoute
+            ? [
+                bestRoute.route,
+                String(bestRoute.tickets),
+                `৳${bestRoute.revenue.toLocaleString()}`,
+              ]
+            : ["No payment data available", "0", "৳0"],
+        ],
+        theme: "grid",
+        margin: {
+          left: 25,
+          right: 25,
+        },
+        styles: {
+          font: "NotoSans",
+          fontStyle: "normal",
+          fontSize: 8,
+          cellPadding: 3,
+          valign: "middle",
+          overflow: "linebreak",
+          textColor: [40, 45, 50],
+        },
+        headStyles: {
+          font: "NotoSans",
+          fontStyle: "bold",
+          fillColor: [27, 142, 217],
+          textColor: [255, 255, 255],
+        },
+        columnStyles: {
+          0: { cellWidth: 110 },
+          1: { cellWidth: 40 },
+          2: { cellWidth: 45 },
+        },
+        didParseCell: (cellData) => {
+          cellData.cell.styles.font = "NotoSans";
+
+          if (cellData.section === "head") {
+            cellData.cell.styles.fontStyle = "bold";
+          }
+        },
+      });
+
+      // Footer
+      const pageCount = doc.internal.getNumberOfPages();
+
+      for (let page = 1; page <= pageCount; page++) {
+        doc.setPage(page);
+
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        doc.setFont("NotoSans", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(120, 125, 130);
+
+        doc.text(
+          `TripSwift • Revenue Overview • Page ${page} of ${pageCount}`,
+          pageWidth / 2,
+          pageHeight - 8,
+          {
+            align: "center",
+          },
+        );
+      }
+
+      const fileDate = new Date().toISOString().slice(0, 10);
+
+      doc.save(`tripswift-revenue-overview-${fileDate}.pdf`);
+
+      toast.success("Revenue PDF downloaded successfully.");
+    } catch (error) {
+      console.error("Revenue PDF export error:", error);
+
+      toast.error(error?.message || "Failed to generate revenue PDF.");
+    }
+  };
+
+  if (loading) {
+    return <RevenueSkeleton />;
+  }
+
   return (
     <div className="mx-auto max-w-7xl">
-      {loading && <RevenueSkeleton />}
       {/* Header */}
-      <div className="mb-8">
-        <p className="mb-2 text-sm font-semibold text-sky-500">
-          Vendor Dashboard
-        </p>
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0 flex-1">
+          <p className="mb-2 text-sm font-semibold text-sky-500">
+            Vendor Dashboard
+          </p>
 
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
-          Revenue Overview
-        </h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
+            Revenue Overview
+          </h1>
 
-        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-          Track your ticket sales, earnings and business performance.
-        </p>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            Track your ticket sales, earnings and business performance.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleExport}
+          disabled={payments.length === 0}
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:text-sky-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-sky-700 sm:w-fit"
+        >
+          <ArrowDownToLine className="h-4 w-4" />
+          Export PDF
+        </button>
       </div>
 
       {/* Stats */}

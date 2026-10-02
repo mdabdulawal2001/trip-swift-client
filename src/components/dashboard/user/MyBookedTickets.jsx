@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 import {
   BusFront,
@@ -12,15 +14,18 @@ import {
   MapPin,
   CreditCard,
   ArrowRight,
+  ArrowDownToLine,
   XCircle,
   CheckCircle2,
   AlertCircle,
   Timer,
+  Download,
 } from "lucide-react";
 
 import { getUserBookings, createCheckoutSession } from "@/lib/api";
 
 import { authClient } from "@/lib/auth-client";
+import { addPdfReportFooter, createPdfReport } from "@/lib/pdf-report";
 
 const statusConfig = {
   pending: {
@@ -218,6 +223,518 @@ export default function MyBookedTickets() {
   };
 
   // =========================
+  // Download Booking Ticket PDF
+  // =========================
+  const handleDownloadTicket = async (booking) => {
+    if (!booking || booking.paymentStatus !== "paid") {
+      toast.error("Ticket is available only after successful payment.");
+      return;
+    }
+
+    try {
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      // --------------------------------
+      // Load Unicode Fonts
+      // --------------------------------
+      const loadFontAsBase64 = async (url) => {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(`Failed to load font: ${url}`);
+        }
+
+        const buffer = await response.arrayBuffer();
+
+        let binary = "";
+
+        const bytes = new Uint8Array(buffer);
+
+        const chunkSize = 0x8000;
+
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+          const chunk = bytes.subarray(i, i + chunkSize);
+
+          binary += String.fromCharCode(...chunk);
+        }
+
+        return btoa(binary);
+      };
+
+      const regularFont = await loadFontAsBase64("/fonts/NotoSans-Regular.ttf");
+
+      const boldFont = await loadFontAsBase64("/fonts/NotoSans-Bold.ttf");
+
+      doc.addFileToVFS("NotoSans-Regular.ttf", regularFont);
+
+      doc.addFont("NotoSans-Regular.ttf", "NotoSans", "normal", "Identity-H");
+
+      doc.addFileToVFS("NotoSans-Bold.ttf", boldFont);
+
+      doc.addFont("NotoSans-Bold.ttf", "NotoSans", "bold", "Identity-H");
+
+      doc.setFont("NotoSans", "normal");
+
+      const pageWidth = doc.internal.pageSize.getWidth();
+
+      // --------------------------------
+      // Booking Data
+      // --------------------------------
+      const quantity = Number(booking.quantity) || 0;
+
+      const unitPrice =
+        Number(
+          booking.unitPrice ??
+            booking.price ??
+            booking.ticketPrice ??
+            booking.ticket?.price,
+        ) || 0;
+
+      const calculatedTotal = unitPrice * quantity;
+
+      const totalPrice = calculatedTotal || Number(booking.totalPrice) || 0;
+
+      const ticketTitle =
+        booking.title ||
+        booking.ticketTitle ||
+        booking.ticket?.title ||
+        "Booked Ticket";
+      const ticketOperator = getBookingOperator(booking);
+
+      const bookingId = booking._id ? String(booking._id) : "N/A";
+
+      const transactionId =
+        booking.transactionId || booking.payment?.transactionId || "N/A";
+
+      const departureDate = formatDepartureDate(booking.departureDateTime);
+
+      const departureTime = formatDepartureTime(booking.departureDateTime);
+
+      // --------------------------------
+      // Header
+      // --------------------------------
+      doc.setFont("NotoSans", "bold");
+
+      doc.setFontSize(24);
+
+      doc.setTextColor(27, 142, 217);
+
+      doc.text("TripSwift", 20, 20);
+
+      doc.setFont("NotoSans", "normal");
+
+      doc.setFontSize(11);
+
+      doc.setTextColor(90, 100, 115);
+
+      doc.text("Digital Travel Ticket", 20, 28);
+
+      // --------------------------------
+      // Paid Badge
+      // --------------------------------
+      doc.setFont("NotoSans", "bold");
+
+      doc.setFontSize(10);
+
+      doc.setTextColor(16, 150, 80);
+
+      doc.text("PAID", pageWidth - 20, 20, {
+        align: "right",
+      });
+
+      // --------------------------------
+      // Generated Date
+      // --------------------------------
+      doc.setFont("NotoSans", "normal");
+
+      doc.setFontSize(8);
+
+      doc.setTextColor(120, 125, 135);
+
+      doc.text(`Generated: ${formatPdfDate(new Date())}`, pageWidth - 20, 27, {
+        align: "right",
+      });
+
+      // --------------------------------
+      // Divider
+      // --------------------------------
+      doc.setDrawColor(220, 225, 230);
+
+      doc.line(20, 35, pageWidth - 20, 35);
+
+      // --------------------------------
+      // Ticket Title
+      // --------------------------------
+      doc.setFont("NotoSans", "bold");
+
+      doc.setFontSize(17);
+
+      doc.setTextColor(30, 40, 50);
+
+      doc.text(ticketTitle, 20, 48, {
+        maxWidth: pageWidth - 40,
+      });
+
+      // --------------------------------
+      // Route Box
+      // --------------------------------
+      doc.setFillColor(245, 250, 253);
+
+      doc.roundedRect(20, 56, pageWidth - 40, 35, 4, 4, "F");
+
+      doc.setFont("NotoSans", "normal");
+
+      doc.setFontSize(8);
+
+      doc.setTextColor(120, 130, 140);
+
+      doc.text("FROM", 28, 66);
+
+      doc.text("TO", pageWidth - 28, 66, {
+        align: "right",
+      });
+
+      doc.setFont("NotoSans", "bold");
+
+      doc.setFontSize(13);
+
+      doc.setTextColor(35, 45, 55);
+
+      doc.text(String(booking.from || "N/A"), 28, 76, {
+        maxWidth: 55,
+      });
+
+      doc.text(String(booking.to || "N/A"), pageWidth - 28, 76, {
+        align: "right",
+        maxWidth: 55,
+      });
+
+      // Arrow
+      doc.setFontSize(15);
+
+      doc.setTextColor(27, 142, 217);
+
+      doc.text("→", pageWidth / 2, 76, {
+        align: "center",
+      });
+
+      // --------------------------------
+      // Journey Information
+      // --------------------------------
+      autoTable(doc, {
+        startY: 101,
+
+        head: [["Journey Information", "Details"]],
+
+        body: [
+          ["Operator", ticketOperator],
+          ["Departure Date", departureDate],
+          ["Departure Time", departureTime],
+          ["Quantity", `${quantity} Ticket${quantity > 1 ? "s" : ""}`],
+          ["Unit Price", `BDT ${unitPrice.toLocaleString()}`],
+          ["Total Amount", `BDT ${totalPrice.toLocaleString()}`],
+        ],
+
+        theme: "grid",
+
+        margin: {
+          left: 20,
+          right: 20,
+        },
+
+        styles: {
+          font: "NotoSans",
+          fontStyle: "normal",
+          fontSize: 9,
+          cellPadding: 4,
+          valign: "middle",
+          textColor: [45, 50, 55],
+        },
+
+        headStyles: {
+          font: "NotoSans",
+          fontStyle: "bold",
+          fontSize: 9,
+          fillColor: [27, 142, 217],
+          textColor: [255, 255, 255],
+        },
+
+        columnStyles: {
+          0: {
+            cellWidth: 65,
+            fontStyle: "bold",
+          },
+
+          1: {
+            cellWidth: "auto",
+          },
+        },
+
+        didParseCell: (data) => {
+          data.cell.styles.font = "NotoSans";
+
+          if (data.section === "head") {
+            data.cell.styles.fontStyle = "bold";
+          }
+        },
+      });
+
+      // --------------------------------
+      // Payment Information
+      // --------------------------------
+      const paymentTableStartY = doc.lastAutoTable.finalY + 12;
+
+      autoTable(doc, {
+        startY: paymentTableStartY,
+
+        head: [["Payment Information", "Details"]],
+
+        body: [
+          ["Booking ID", bookingId],
+          ["Transaction ID", transactionId],
+          ["Payment Method", "Stripe"],
+          ["Payment Status", "Paid"],
+        ],
+
+        theme: "grid",
+
+        margin: {
+          left: 20,
+          right: 20,
+        },
+
+        styles: {
+          font: "NotoSans",
+          fontStyle: "normal",
+          fontSize: 9,
+          cellPadding: 4,
+          valign: "middle",
+          textColor: [45, 50, 55],
+        },
+
+        headStyles: {
+          font: "NotoSans",
+          fontStyle: "bold",
+          fontSize: 9,
+          fillColor: [27, 142, 217],
+          textColor: [255, 255, 255],
+        },
+
+        columnStyles: {
+          0: {
+            cellWidth: 65,
+            fontStyle: "bold",
+          },
+
+          1: {
+            cellWidth: "auto",
+          },
+        },
+
+        didParseCell: (data) => {
+          data.cell.styles.font = "NotoSans";
+
+          if (data.section === "head") {
+            data.cell.styles.fontStyle = "bold";
+          }
+
+          if (
+            data.section === "body" &&
+            data.column.index === 1 &&
+            data.row.index === 3
+          ) {
+            data.cell.styles.fontStyle = "bold";
+
+            data.cell.styles.textColor = [16, 150, 80];
+          }
+        },
+      });
+
+      // --------------------------------
+      // Important Note
+      // --------------------------------
+      const noteY = doc.lastAutoTable.finalY + 15;
+
+      doc.setFillColor(248, 250, 252);
+
+      doc.roundedRect(20, noteY, pageWidth - 40, 24, 3, 3, "F");
+
+      doc.setFont("NotoSans", "bold");
+
+      doc.setFontSize(8);
+
+      doc.setTextColor(70, 80, 90);
+
+      doc.text("Important", 26, noteY + 8);
+
+      doc.setFont("NotoSans", "normal");
+
+      doc.setFontSize(7.5);
+
+      doc.setTextColor(110, 120, 130);
+
+      doc.text(
+        "Please keep this digital ticket for your travel records.",
+        26,
+        noteY + 15,
+        {
+          maxWidth: pageWidth - 52,
+        },
+      );
+
+      // --------------------------------
+      // Footer
+      // --------------------------------
+      const pageCount = doc.internal.getNumberOfPages();
+
+      for (let page = 1; page <= pageCount; page++) {
+        doc.setPage(page);
+
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        doc.setFont("NotoSans", "normal");
+
+        doc.setFontSize(8);
+
+        doc.setTextColor(120, 125, 130);
+
+        doc.text(
+          `TripSwift • Digital Ticket • Page ${page} of ${pageCount}`,
+          pageWidth / 2,
+          pageHeight - 8,
+          {
+            align: "center",
+          },
+        );
+      }
+
+      // --------------------------------
+      // Save PDF
+      // --------------------------------
+      const fileDate = new Date().toISOString().slice(0, 10);
+
+      doc.save(`tripswift-ticket-${bookingId}-${fileDate}.pdf`);
+
+      toast.success("Ticket PDF downloaded successfully.");
+    } catch (error) {
+      console.error("Ticket PDF export error:", error);
+
+      toast.error(error?.message || "Failed to generate ticket PDF.");
+    }
+  };
+
+  const handleExportBookings = async () => {
+    if (!bookings.length) {
+      toast.error("No bookings available to export.");
+      return;
+    }
+
+    try {
+      const doc = await createPdfReport("My Booked Tickets");
+      doc.setFont("NotoSans", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(40, 50, 60);
+      doc.text(`All Bookings: ${allBookings}`, 25, 38);
+      doc.text(`Pending: ${pendingBookings}`, 85, 38);
+      doc.text(`Accepted: ${acceptedBookings}`, 140, 38);
+      doc.text(`Paid: ${paidBookings}`, 200, 38);
+
+      autoTable(doc, {
+        startY: 45,
+        head: [
+          [
+            "Booking ID",
+            "Ticket",
+            "Operator",
+            "Route",
+            "Departure",
+            "Time",
+            "Qty",
+            "Unit Price",
+            "Total",
+            "Booking Status",
+            "Payment",
+          ],
+        ],
+        body: bookings.map((booking) => {
+          const quantity = Number(booking.quantity) || 0;
+          const unitPrice =
+            Number(
+              booking.unitPrice ??
+                booking.price ??
+                booking.ticketPrice ??
+                booking.ticket?.price,
+            ) || 0;
+          const totalPrice =
+            unitPrice * quantity || Number(booking.totalPrice) || 0;
+
+          return [
+            String(booking._id || "N/A"),
+            booking.title ||
+              booking.ticketTitle ||
+              booking.ticket?.title ||
+              "Booked Ticket",
+            getBookingOperator(booking),
+            `${booking.from || "N/A"} to ${booking.to || "N/A"}`,
+            formatDepartureDate(booking.departureDateTime),
+            formatDepartureTime(booking.departureDateTime),
+            String(quantity),
+            `BDT ${unitPrice.toLocaleString()}`,
+            `BDT ${totalPrice.toLocaleString()}`,
+            String(booking.status || "pending"),
+            String(booking.paymentStatus || "unpaid"),
+          ];
+        }),
+        theme: "grid",
+        margin: { left: 25, right: 25 },
+        styles: {
+          font: "NotoSans",
+          fontSize: 6.5,
+          cellPadding: 1.8,
+          valign: "middle",
+          overflow: "linebreak",
+        },
+        headStyles: {
+          font: "NotoSans",
+          fontStyle: "bold",
+          fillColor: [27, 142, 217],
+          textColor: [255, 255, 255],
+        },
+        columnStyles: {
+          0: { cellWidth: 25 },
+          1: { cellWidth: 30 },
+          2: { cellWidth: 25 },
+          3: { cellWidth: 30 },
+          4: { cellWidth: 20 },
+          5: { cellWidth: 16 },
+          6: { cellWidth: 9 },
+          7: { cellWidth: 21 },
+          8: { cellWidth: 21 },
+          9: { cellWidth: 21 },
+          10: { cellWidth: 19 },
+        },
+        didParseCell: (data) => {
+          data.cell.styles.font = "NotoSans";
+          if (data.section === "head") data.cell.styles.fontStyle = "bold";
+        },
+      });
+
+      addPdfReportFooter(doc, "My Booked Tickets");
+      doc.save(
+        `tripswift-my-booked-tickets-${new Date().toISOString().slice(0, 10)}.pdf`,
+      );
+      toast.success("Booking summary PDF downloaded successfully.");
+    } catch (error) {
+      console.error("Booking summary PDF export error:", error);
+      toast.error(error?.message || "Failed to generate booking summary PDF.");
+    }
+  };
+
+  // =========================
   // Summary
   // =========================
   const allBookings = bookings.length;
@@ -238,8 +755,8 @@ export default function MyBookedTickets() {
   // Loading
   // =========================
   if (loading) {
-  return <BookingsSkeleton />;
-}
+    return <BookingsSkeleton />;
+  }
 
   // =========================
   // UI
@@ -250,18 +767,29 @@ export default function MyBookedTickets() {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-8"
     >
-
       {/* Header */}
-      <div>
-        <p className="text-sm font-semibold text-sky-500">My Trips</p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-sky-500">My Trips</p>
 
-        <h1 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
-          My Booked Tickets
-        </h1>
+          <h1 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
+            My Booked Tickets
+          </h1>
 
-        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-          Track your bookings, payment status and upcoming journeys.
-        </p>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            Track your bookings, payment status and upcoming journeys.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleExportBookings}
+          disabled={bookings.length === 0}
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:text-sky-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-sky-700 sm:w-fit"
+        >
+          <ArrowDownToLine className="h-4 w-4" />
+          Export PDF
+        </button>
       </div>
 
       {/* Summary */}
@@ -340,6 +868,7 @@ export default function MyBookedTickets() {
               booking.ticketTitle ||
               booking.ticket?.title ||
               "Booked Ticket";
+            const ticketOperator = getBookingOperator(booking);
 
             const ticketImage =
               booking.image || booking.ticketImage || booking.ticket?.image;
@@ -384,6 +913,9 @@ export default function MyBookedTickets() {
                     <h3 className="mt-1 line-clamp-2 text-lg font-bold text-slate-900 dark:text-white">
                       {ticketTitle}
                     </h3>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      Operator: {ticketOperator}
+                    </p>
                   </div>
 
                   {/* Route */}
@@ -490,10 +1022,22 @@ export default function MyBookedTickets() {
                       )}
 
                     {/* Paid */}
+                    {/* Paid */}
                     {booking.paymentStatus === "paid" && (
-                      <div className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-emerald-50 px-4 py-2.5 text-sm font-bold text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
-                        <CheckCircle2 className="h-4 w-4" />
-                        Payment Complete
+                      <div className="mt-4 space-y-2">
+                        <div className="flex items-center justify-center gap-2 rounded-xl bg-emerald-50 px-4 py-2.5 text-sm font-bold text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+                          <CheckCircle2 className="h-4 w-4" />
+                          Payment Complete
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDownloadTicket(booking)}
+                          className="flex w-full items-center justify-center gap-2 rounded-xl border border-sky-200 bg-sky-50 px-4 py-2.5 text-sm font-bold text-sky-600 transition hover:border-sky-300 hover:bg-sky-100 hover:text-sky-700 dark:border-sky-500/20 dark:bg-sky-500/10 dark:text-sky-400 dark:hover:bg-sky-500/20"
+                        >
+                          <Download className="h-4 w-4" />
+                          Download Ticket
+                        </button>
                       </div>
                     )}
 
@@ -543,6 +1087,34 @@ function getDepartureTime(booking) {
   const timestamp = new Date(booking.departureDateTime).getTime();
 
   return Number.isNaN(timestamp) ? null : timestamp;
+}
+
+function getBookingOperator(booking) {
+  return (
+    booking?.operator ||
+    booking?.ticketOperator ||
+    booking?.ticket?.operator ||
+    "N/A"
+  );
+}
+
+// pdf helper
+function formatPdfDate(dateValue) {
+  if (!dateValue) {
+    return "N/A";
+  }
+
+  const date = new Date(dateValue);
+
+  if (Number.isNaN(date.getTime())) {
+    return "N/A";
+  }
+
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 function formatDepartureDate(dateTime) {
@@ -710,12 +1282,16 @@ function BookingsSkeleton() {
   return (
     <div className="space-y-8">
       {/* Header Skeleton */}
-      <div className="space-y-3">
-        <div className="h-4 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="space-y-3">
+          <div className="h-4 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
 
-        <div className="h-8 w-64 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-700 sm:h-9" />
+          <div className="h-8 w-64 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-700 sm:h-9" />
 
-        <div className="h-4 w-full max-w-md animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+          <div className="h-4 w-full max-w-md animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+        </div>
+
+        <div className="h-11 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700 sm:w-32" />
       </div>
 
       {/* Summary Skeleton */}

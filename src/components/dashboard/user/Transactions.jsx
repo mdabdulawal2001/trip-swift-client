@@ -355,27 +355,39 @@ export default function Transactions() {
     >
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-sm font-semibold text-sky-500">Payments</p>
+        {loading ? (
+          <div className="min-w-0 flex-1">
+            <div className="h-4 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+            <div className="mt-3 h-9 w-64 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-700 sm:w-72" />
+            <div className="mt-2 h-4 w-full max-w-xl animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+          </div>
+        ) : (
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-sky-500">Payments</p>
 
-          <h1 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
-            Transaction History
-          </h1>
+            <h1 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
+              Transaction History
+            </h1>
 
-          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-            View and track all your ticket payment transactions.
-          </p>
-        </div>
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+              View and track all your ticket payment transactions.
+            </p>
+          </div>
+        )}
 
-        <button
-          type="button"
-          onClick={handleExport}
-          disabled={loading || payments.length === 0}
-          className="flex w-fit items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:text-sky-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-sky-700"
-        >
-          <ArrowDownToLine className="h-4 w-4" />
-          Export
-        </button>
+        {loading ? (
+          <div className="h-11 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700 sm:w-28" />
+        ) : (
+          <button
+            type="button"
+            onClick={handleExport}
+            disabled={payments.length === 0}
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:text-sky-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-sky-700 sm:w-fit"
+          >
+            <ArrowDownToLine className="h-4 w-4" />
+            Export
+          </button>
+        )}
       </div>
 
       {/* Stats */}

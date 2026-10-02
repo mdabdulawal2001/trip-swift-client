@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  ArrowDownToLine,
   CalendarDays,
   CheckCircle2,
   Clock3,
@@ -11,6 +12,8 @@ import {
 } from "lucide-react";
 
 import toast from "react-hot-toast";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 import DashboardContainer from "@/components/dashboard/shared/DashboardContainer";
 import StatCard from "@/components/dashboard/shared/StatCard";
@@ -155,11 +158,257 @@ export default function UserDashboard() {
     });
   };
 
+  const handleExport = async () => {
+    if (!bookings.length && !payments.length) {
+      toast.error("No dashboard data available to export.");
+      return;
+    }
+
+    try {
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const loadFontAsBase64 = async (url) => {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(`Failed to load font: ${url}`);
+        }
+
+        const buffer = await response.arrayBuffer();
+
+        let binary = "";
+        const bytes = new Uint8Array(buffer);
+        const chunkSize = 0x8000;
+
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+          const chunk = bytes.subarray(i, i + chunkSize);
+          binary += String.fromCharCode(...chunk);
+        }
+
+        return btoa(binary);
+      };
+
+      const regularFont = await loadFontAsBase64("/fonts/NotoSans-Regular.ttf");
+
+      const boldFont = await loadFontAsBase64("/fonts/NotoSans-Bold.ttf");
+
+      doc.addFileToVFS("NotoSans-Regular.ttf", regularFont);
+      doc.addFont("NotoSans-Regular.ttf", "NotoSans", "normal", "Identity-H");
+
+      doc.addFileToVFS("NotoSans-Bold.ttf", boldFont);
+      doc.addFont("NotoSans-Bold.ttf", "NotoSans", "bold", "Identity-H");
+
+      doc.setFont("NotoSans", "normal");
+
+      const pageWidth = doc.internal.pageSize.getWidth();
+
+      // Header
+      doc.setFont("NotoSans", "bold");
+      doc.setFontSize(22);
+      doc.setTextColor(27, 142, 217);
+      doc.text("TripSwift", 25, 18);
+
+      doc.setFont("NotoSans", "normal");
+      doc.setFontSize(12);
+      doc.setTextColor(80, 90, 105);
+      doc.text("Travel Dashboard Report", 25, 26);
+
+      doc.setFontSize(9);
+      doc.setTextColor(100, 110, 120);
+      doc.text(`Generated: ${formatDate(new Date())}`, pageWidth - 25, 18, {
+        align: "right",
+      });
+
+      // Summary
+      doc.setFontSize(10);
+      doc.setTextColor(40, 50, 60);
+
+      doc.text(`Total Bookings: ${totalBookings}`, 25, 38);
+
+      doc.text(`Pending Bookings: ${pendingBookings}`, 90, 38);
+
+      doc.text(`Completed Trips: ${completedTrips}`, 160, 38);
+
+      doc.text(`Total Spent: ৳${totalSpent.toLocaleString()}`, 225, 38);
+
+      // Upcoming Journey
+      doc.setFont("NotoSans", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(40, 50, 60);
+      doc.text("Upcoming Journey", 25, 50);
+
+      const journeyRows = upcomingJourney
+        ? [
+            [
+              `${upcomingJourney.from || "Unknown"} → ${
+                upcomingJourney.to || "Unknown"
+              }`,
+              upcomingJourney.operator ||
+                upcomingJourney.ticketTitle ||
+                "Ticket",
+              upcomingJourney.type || "Transport",
+              String(upcomingJourney.status || "Pending")
+                .charAt(0)
+                .toUpperCase() +
+                String(upcomingJourney.status || "Pending").slice(1),
+              formatDate(upcomingJourney.departureDateTime),
+              formatTime(upcomingJourney.departureDateTime),
+            ],
+          ]
+        : [["No upcoming journey", "N/A", "N/A", "N/A", "N/A", "N/A"]];
+
+      autoTable(doc, {
+        startY: 56,
+        head: [
+          [
+            "Route",
+            "Operator / Ticket",
+            "Type",
+            "Status",
+            "Departure Date",
+            "Departure Time",
+          ],
+        ],
+        body: journeyRows,
+        theme: "grid",
+        margin: {
+          left: 25,
+          right: 25,
+        },
+        styles: {
+          font: "NotoSans",
+          fontStyle: "normal",
+          fontSize: 8,
+          cellPadding: 3,
+          valign: "middle",
+          overflow: "linebreak",
+          textColor: [40, 45, 50],
+        },
+        headStyles: {
+          font: "NotoSans",
+          fontStyle: "bold",
+          fillColor: [27, 142, 217],
+          textColor: [255, 255, 255],
+        },
+        columnStyles: {
+          0: { cellWidth: 55 },
+          1: { cellWidth: 65 },
+          2: { cellWidth: 30 },
+          3: { cellWidth: 30 },
+          4: { cellWidth: 35 },
+          5: { cellWidth: 35 },
+        },
+        didParseCell: (cellData) => {
+          cellData.cell.styles.font = "NotoSans";
+
+          if (cellData.section === "head") {
+            cellData.cell.styles.fontStyle = "bold";
+          }
+        },
+      });
+
+      // Dashboard summary table
+      const summaryStartY = (doc.lastAutoTable?.finalY || 56) + 12;
+
+      doc.setFont("NotoSans", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(40, 50, 60);
+      doc.text("Dashboard Summary", 25, summaryStartY);
+
+      autoTable(doc, {
+        startY: summaryStartY + 5,
+        head: [["Metric", "Value"]],
+        body: [
+          ["Total Bookings", String(totalBookings)],
+          ["Pending Bookings", String(pendingBookings)],
+          ["Completed Trips", String(completedTrips)],
+          ["Total Spent", `৳${totalSpent.toLocaleString()}`],
+          ["Payment Records", String(payments.length)],
+        ],
+        theme: "grid",
+        margin: {
+          left: 25,
+          right: 25,
+        },
+        tableWidth: 130,
+        styles: {
+          font: "NotoSans",
+          fontStyle: "normal",
+          fontSize: 8,
+          cellPadding: 2.5,
+          valign: "middle",
+          textColor: [40, 45, 50],
+        },
+        headStyles: {
+          font: "NotoSans",
+          fontStyle: "bold",
+          fillColor: [27, 142, 217],
+          textColor: [255, 255, 255],
+        },
+        didParseCell: (cellData) => {
+          cellData.cell.styles.font = "NotoSans";
+
+          if (cellData.section === "head") {
+            cellData.cell.styles.fontStyle = "bold";
+          }
+        },
+      });
+
+      // Footer
+      const pageCount = doc.internal.getNumberOfPages();
+
+      for (let page = 1; page <= pageCount; page++) {
+        doc.setPage(page);
+
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        doc.setFont("NotoSans", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(120, 125, 130);
+
+        doc.text(
+          `TripSwift • Travel Dashboard • Page ${page} of ${pageCount}`,
+          pageWidth / 2,
+          pageHeight - 8,
+          {
+            align: "center",
+          },
+        );
+      }
+
+      const fileDate = new Date().toISOString().slice(0, 10);
+
+      doc.save(`tripswift-user-dashboard-${fileDate}.pdf`);
+
+      toast.success("Dashboard PDF downloaded successfully.");
+    } catch (error) {
+      console.error("User dashboard PDF export error:", error);
+
+      toast.error(error?.message || "Failed to generate dashboard PDF.");
+    }
+  };
+
   return (
     <DashboardContainer
       eyebrow="Welcome back"
       title="Your Travel Overview"
       description="Manage your bookings, upcoming journeys and account activity."
+      loading={loading}
+      actions={
+        <button
+          type="button"
+          onClick={handleExport}
+          disabled={!bookings.length && !payments.length}
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:text-sky-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-sky-700 sm:w-fit"
+        >
+          <ArrowDownToLine className="h-4 w-4" />
+          Export PDF
+        </button>
+      }
     >
       {loading ? (
         <div className="space-y-6">

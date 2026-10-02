@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { Check, Clock3, X } from "lucide-react";
 import toast from "react-hot-toast";
+import { ArrowDownToLine } from "lucide-react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 import { getVendorBookings, updateBookingStatus } from "@/lib/api";
 
@@ -10,6 +13,11 @@ import { authClient } from "@/lib/auth-client";
 import RequestedBookingsSkeleton from "./vendorSkeletons/RequestedBookingsSkeleton";
 import ConfirmModal from "../../shared/ConfirmModal";
 import Swal from "sweetalert2";
+import {
+  addPdfReportFooter,
+  createPdfReport,
+  formatPdfDate,
+} from "@/lib/pdf-report";
 
 export default function RequestedBookings() {
   const [requests, setRequests] = useState([]);
@@ -45,6 +53,101 @@ export default function RequestedBookings() {
     }
   };
 
+  const handleExport = async () => {
+    if (!requests.length) {
+      toast.error("No booking requests available to export.");
+      return;
+    }
+
+    try {
+      const doc = await createPdfReport("Requested Bookings");
+      const pendingCount = requests.filter(
+        (request) => request.status === "pending",
+      ).length;
+      const acceptedCount = requests.filter(
+        (request) => request.status === "accepted",
+      ).length;
+      const rejectedCount = requests.filter(
+        (request) => request.status === "rejected",
+      ).length;
+
+      doc.setFont("NotoSans", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(40, 50, 60);
+      doc.text(`Requests: ${requests.length}`, 25, 38);
+      doc.text(`Pending: ${pendingCount}`, 75, 38);
+      doc.text(`Accepted: ${acceptedCount}`, 125, 38);
+      doc.text(`Rejected: ${rejectedCount}`, 185, 38);
+
+      autoTable(doc, {
+        startY: 45,
+        head: [
+          [
+            "Booking ID",
+            "Passenger",
+            "Email",
+            "Ticket",
+            "Route",
+            "Date",
+            "Qty",
+            "Total",
+            "Status",
+          ],
+        ],
+        body: requests.map((request) => [
+          String(request._id || "N/A"),
+          request.userName || "N/A",
+          request.userEmail || "N/A",
+          request.ticketTitle || "N/A",
+          `${request.from || "N/A"} to ${request.to || "N/A"}`,
+          formatPdfDate(request.date),
+          String(request.quantity ?? "N/A"),
+          `BDT ${Number(request.totalPrice || 0).toLocaleString()}`,
+          String(request.status || "pending"),
+        ]),
+        theme: "grid",
+        margin: { left: 25, right: 25 },
+        styles: {
+          font: "NotoSans",
+          fontSize: 7,
+          cellPadding: 2,
+          valign: "middle",
+          overflow: "linebreak",
+        },
+        headStyles: {
+          font: "NotoSans",
+          fontStyle: "bold",
+          fillColor: [27, 142, 217],
+          textColor: [255, 255, 255],
+        },
+        columnStyles: {
+          0: { cellWidth: 29 },
+          1: { cellWidth: 25 },
+          2: { cellWidth: 40 },
+          3: { cellWidth: 35 },
+          4: { cellWidth: 35 },
+          5: { cellWidth: 21 },
+          6: { cellWidth: 12 },
+          7: { cellWidth: 24 },
+          8: { cellWidth: 21 },
+        },
+        didParseCell: (data) => {
+          data.cell.styles.font = "NotoSans";
+          if (data.section === "head") data.cell.styles.fontStyle = "bold";
+        },
+      });
+
+      addPdfReportFooter(doc, "Requested Bookings");
+      doc.save(
+        `tripswift-requested-bookings-${new Date().toISOString().slice(0, 10)}.pdf`,
+      );
+      toast.success("Booking requests PDF downloaded successfully.");
+    } catch (error) {
+      console.error("Requested bookings PDF export error:", error);
+      toast.error(error?.message || "Failed to generate booking requests PDF.");
+    }
+  };
+
   useEffect(() => {
     window.scrollTo({
       top: 0,
@@ -77,14 +180,14 @@ export default function RequestedBookings() {
 
       if (status === "accepted") {
         // toast.success("Booking accepted successfully.");
-        swal.fire({
+        Swal.fire({
           icon: "success",
           title: "Booking Accepted!",
           text: "The booking request has been accepted successfully.",
         });
       } else {
         // toast.error("Booking rejected successfully.");
-        swal.fire({
+        Swal.fire({
           icon: "error",
           title: "Booking Rejected!",
           text: "The booking request has been rejected.",
@@ -136,18 +239,29 @@ export default function RequestedBookings() {
 
   return (
     <div className="mx-auto max-w-7xl">
-      <div className="mb-8">
-        <p className="mb-2 text-sm font-semibold text-sky-500">
-          Vendor Dashboard
-        </p>
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="mb-2 text-sm font-semibold text-sky-500">
+            Vendor Dashboard
+          </p>
 
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
-          Requested Bookings
-        </h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
+            Requested Bookings
+          </h1>
 
-        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-          Review and manage booking requests from passengers.
-        </p>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            Review and manage booking requests from passengers.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleExport}
+          disabled={requests.length === 0}
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:text-sky-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-sky-700 sm:w-fit"
+        >
+          <ArrowDownToLine className="h-4 w-4" />
+          Export PDF
+        </button>
       </div>
 
       {!requests.length ? (

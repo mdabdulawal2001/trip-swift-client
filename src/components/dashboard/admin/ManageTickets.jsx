@@ -1,10 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, Eye, Loader2, X } from "lucide-react";
+import { ArrowDownToLine, Check, Eye, Loader2, X } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import { getAdminTickets, updateTicketStatus } from "@/lib/api";
+import {
+  addPdfReportFooter,
+  createPdfReport,
+  formatPdfDate,
+} from "@/lib/pdf-report";
 import ConfirmModal from "../../shared/ConfirmModal";
 import Swal from "sweetalert2";
 
@@ -42,6 +49,97 @@ export default function ManageTickets() {
     }
   };
 
+  const handleExport = async () => {
+    if (!tickets.length) {
+      toast.error("No tickets available to export.");
+      return;
+    }
+
+    try {
+      const doc = await createPdfReport("Managed Tickets");
+      const statusCounts = tickets.reduce((counts, ticket) => {
+        const status = String(ticket.status || "pending").toLowerCase();
+        counts[status] = (counts[status] || 0) + 1;
+        return counts;
+      }, {});
+
+      doc.setFont("NotoSans", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(40, 50, 60);
+      doc.text(`Tickets: ${tickets.length}`, 25, 38);
+      doc.text(`Pending: ${statusCounts.pending || 0}`, 80, 38);
+      doc.text(`Approved: ${statusCounts.approved || 0}`, 135, 38);
+      doc.text(`Rejected: ${statusCounts.rejected || 0}`, 195, 38);
+
+      autoTable(doc, {
+        startY: 45,
+        head: [
+          [
+            "Ticket ID",
+            "Title",
+            "Route",
+            "Vendor",
+            "Type",
+            "Date",
+            "Price",
+            "Seats",
+            "Status",
+          ],
+        ],
+        body: tickets.map((ticket) => [
+          String(ticket._id || "N/A"),
+          ticket.title || "N/A",
+          `${ticket.from || "N/A"} to ${ticket.to || "N/A"}`,
+          ticket.vendorEmail || "Unknown vendor",
+          ticket.type || "N/A",
+          formatPdfDate(ticket.date),
+          `BDT ${Number(ticket.price || 0).toLocaleString()}`,
+          String(ticket.quantity ?? "N/A"),
+          String(ticket.status || "pending"),
+        ]),
+        theme: "grid",
+        margin: { left: 25, right: 25 },
+        styles: {
+          font: "NotoSans",
+          fontSize: 7,
+          cellPadding: 2,
+          valign: "middle",
+          overflow: "linebreak",
+        },
+        headStyles: {
+          font: "NotoSans",
+          fontStyle: "bold",
+          fillColor: [27, 142, 217],
+          textColor: [255, 255, 255],
+        },
+        columnStyles: {
+          0: { cellWidth: 30 },
+          1: { cellWidth: 38 },
+          2: { cellWidth: 36 },
+          3: { cellWidth: 42 },
+          4: { cellWidth: 20 },
+          5: { cellWidth: 22 },
+          6: { cellWidth: 21 },
+          7: { cellWidth: 14 },
+          8: { cellWidth: 20 },
+        },
+        didParseCell: (data) => {
+          data.cell.styles.font = "NotoSans";
+          if (data.section === "head") data.cell.styles.fontStyle = "bold";
+        },
+      });
+
+      addPdfReportFooter(doc, "Managed Tickets");
+      doc.save(
+        `tripswift-managed-tickets-${new Date().toISOString().slice(0, 10)}.pdf`,
+      );
+      toast.success("Tickets PDF downloaded successfully.");
+    } catch (error) {
+      console.error("Manage tickets PDF export error:", error);
+      toast.error(error?.message || "Failed to generate tickets PDF.");
+    }
+  };
+
   useEffect(() => {
     loadTickets();
   }, []);
@@ -64,18 +162,20 @@ export default function ManageTickets() {
           ),
         );
 
-          // toast.success(
-          //   status === "approved"
-          //     ? "Ticket approved successfully."
-          //     : "Ticket rejected successfully.",
-          // );
-          Swal.fire({
-            icon: "success",
-            title: status === "approved" ? "Ticket Approved!" : "Ticket Rejected!",
-            text: status === "approved"
+        // toast.success(
+        //   status === "approved"
+        //     ? "Ticket approved successfully."
+        //     : "Ticket rejected successfully.",
+        // );
+        Swal.fire({
+          icon: "success",
+          title:
+            status === "approved" ? "Ticket Approved!" : "Ticket Rejected!",
+          text:
+            status === "approved"
               ? "Ticket approved successfully."
               : "Ticket rejected successfully.",
-          });
+        });
       }
     } catch (error) {
       console.error("Status update error:", error);
@@ -129,31 +229,45 @@ export default function ManageTickets() {
     }
   };
 
-        useEffect(() => {
-        window.scrollTo({
-          top: 0,
-          left: 0,
-          behavior: "auto",
-        });
-      }, []);
-      
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto",
+    });
+  }, []);
+
+  if (loading) {
+    return <ManageTicketsSkeleton />;
+  }
+
   return (
     <div className="mx-auto max-w-7xl">
-      {/* Loading */}
-      {loading && <ManageTicketsSkeleton />}
       {/* Header */}
-      <div className="mb-8">
-        <p className="mb-2 text-sm font-semibold text-sky-500">
-          Admin Dashboard
-        </p>
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="mb-2 text-sm font-semibold text-sky-500">
+            Admin Dashboard
+          </p>
 
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
-          Manage Tickets
-        </h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
+            Manage Tickets
+          </h1>
 
-        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-          Review, approve, or reject vendor-submitted tickets.
-        </p>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            Review, approve, or reject vendor-submitted tickets.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleExport}
+          disabled={tickets.length === 0}
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:text-sky-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-sky-700 sm:w-fit"
+        >
+          <ArrowDownToLine className="h-4 w-4" />
+          Export PDF
+        </button>
       </div>
 
       {/* Empty */}
@@ -525,12 +639,16 @@ function ManageTicketsSkeleton() {
   return (
     <div className="mx-auto max-w-7xl">
       {/* Header Skeleton */}
-      <div className="mb-8 space-y-3">
-        <div className="h-4 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0 flex-1 space-y-3">
+          <div className="h-4 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
 
-        <div className="h-9 w-56 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800" />
+          <div className="h-9 w-56 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800" />
 
-        <div className="h-4 w-96 max-w-full animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+          <div className="h-4 w-96 max-w-full animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+        </div>
+
+        <div className="h-11 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800 sm:w-32" />
       </div>
 
       {/* Mobile Card Skeleton */}

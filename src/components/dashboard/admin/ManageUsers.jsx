@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import {
+  ArrowDownToLine,
   Ban,
   Search,
   ShieldAlert,
@@ -13,8 +14,15 @@ import {
 } from "lucide-react";
 
 import toast from "react-hot-toast";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 import { authClient } from "@/lib/auth-client";
+import {
+  addPdfReportFooter,
+  createPdfReport,
+  formatPdfDate,
+} from "@/lib/pdf-report";
 import ConfirmModal from "../../shared/ConfirmModal";
 import Swal from "sweetalert2";
 
@@ -22,6 +30,7 @@ export default function ManageUsers() {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
   const [updatingUserId, setUpdatingUserId] = useState(null);
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
@@ -278,6 +287,130 @@ export default function ManageUsers() {
   const totalVendors = users.filter((user) => user.role === "vendor").length;
   const totalBlocked = users.filter((user) => user.banned).length;
 
+  const handleExport = async () => {
+    setExporting(true);
+
+    try {
+      const allUsers = [];
+      const limit = 100;
+      let offset = 0;
+      let total = Number.POSITIVE_INFINITY;
+
+      while (offset < total) {
+        const { data, error } = await authClient.admin.listUsers({
+          query: {
+            limit,
+            offset,
+            sortBy: "createdAt",
+            sortDirection: "desc",
+          },
+        });
+
+        if (error) {
+          throw new Error(error.message || "Failed to load all users");
+        }
+
+        const pageUsers = data?.users || [];
+        total = Number(data?.total ?? offset + pageUsers.length);
+
+        if (!pageUsers.length) break;
+
+        allUsers.push(...pageUsers);
+        offset += pageUsers.length;
+      }
+
+      if (!allUsers.length) {
+        toast.error("No user records available to export.");
+        return;
+      }
+
+      const roleCounts = allUsers.reduce((counts, user) => {
+        const role = String(user.role || "user").toLowerCase();
+        counts[role] = (counts[role] || 0) + 1;
+        return counts;
+      }, {});
+      const doc = await createPdfReport("Platform User Directory");
+
+      doc.setFont("NotoSans", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(40, 50, 60);
+      doc.text(`Accounts: ${allUsers.length}`, 25, 38);
+      doc.text(`Users: ${roleCounts.user || 0}`, 75, 38);
+      doc.text(`Vendors: ${roleCounts.vendor || 0}`, 125, 38);
+      doc.text(`Admins: ${roleCounts.admin || 0}`, 180, 38);
+
+      autoTable(doc, {
+        startY: 45,
+        head: [
+          [
+            "User ID",
+            "Name",
+            "Email",
+            "Role",
+            "Status",
+            "Verified",
+            "Fraud",
+            "Joined",
+            "Ban Reason",
+            "Ban Expires",
+          ],
+        ],
+        body: allUsers.map((user) => [
+          String(user.id || "N/A"),
+          user.name || "Unnamed User",
+          user.email || "N/A",
+          String(user.role || "user"),
+          user.banned ? "Blocked" : "Active",
+          user.emailVerified ? "Yes" : "No",
+          user.isFraud ? "Flagged" : "No",
+          formatPdfDate(user.createdAt),
+          user.banReason || "N/A",
+          formatPdfDate(user.banExpires),
+        ]),
+        theme: "grid",
+        margin: { left: 25, right: 25 },
+        styles: {
+          font: "NotoSans",
+          fontSize: 6,
+          cellPadding: 1.8,
+          valign: "middle",
+          overflow: "linebreak",
+        },
+        headStyles: {
+          font: "NotoSans",
+          fontStyle: "bold",
+          fillColor: [27, 142, 217],
+          textColor: [255, 255, 255],
+        },
+        columnStyles: {
+          0: { cellWidth: 28 },
+          1: { cellWidth: 27 },
+          2: { cellWidth: 39 },
+          3: { cellWidth: 17 },
+          4: { cellWidth: 17 },
+          5: { cellWidth: 15 },
+          6: { cellWidth: 14 },
+          7: { cellWidth: 22 },
+          8: { cellWidth: 39 },
+          9: { cellWidth: 24 },
+        },
+        didParseCell: (data) => {
+          data.cell.styles.font = "NotoSans";
+          if (data.section === "head") data.cell.styles.fontStyle = "bold";
+        },
+      });
+
+      addPdfReportFooter(doc, "Platform User Directory");
+      doc.save(`tripswift-users-${new Date().toISOString().slice(0, 10)}.pdf`);
+      toast.success("User directory PDF downloaded successfully.");
+    } catch (error) {
+      console.error("Manage users PDF export error:", error);
+      toast.error(error?.message || "Failed to generate user directory PDF.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   // modal close
   const closeConfirmModal = () => {
     if (confirmModal.loading) return;
@@ -343,13 +476,13 @@ export default function ManageUsers() {
       setConfirmModal((prev) => ({ ...prev, loading: false }));
     }
   };
-        useEffect(() => {
-        window.scrollTo({
-          top: 0,
-          left: 0,
-          behavior: "auto",
-        });
-      }, []);
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto",
+    });
+  }, []);
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -357,15 +490,18 @@ export default function ManageUsers() {
       {loading && (
         <div className="space-y-6">
           {/* ================= HEADER SKELETON ================= */}
-          <div className="mb-8">
-            {/* Admin Dashboard */}
-            <div className="mb-3 h-4 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="min-w-0 flex-1">
+              {/* Admin Dashboard */}
+              <div className="mb-3 h-4 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
 
-            {/* Manage Users */}
-            <div className="h-9 w-52 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800 sm:h-10 sm:w-64" />
+              {/* Manage Users */}
+              <div className="h-9 w-52 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800 sm:h-10 sm:w-64" />
 
-            {/* Description */}
-            <div className="mt-3 h-4 w-full max-w-xl animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+              {/* Description */}
+              <div className="mt-3 h-4 w-full max-w-xl animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+            </div>
+            <div className="h-11 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800 sm:w-32" />
           </div>
 
           {/* ================= STATS SKELETON ================= */}
@@ -552,52 +688,66 @@ export default function ManageUsers() {
           </div>
         </div>
       )}
-      {/* Header */}
-      <div className="mb-8">
-        <p className="mb-2 text-sm font-semibold text-sky-500">
-          Admin Dashboard
-        </p>
+      {!loading && (
+        <>
+          {/* Header */}
+          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="mb-2 text-sm font-semibold text-sky-500">
+                Admin Dashboard
+              </p>
 
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
-          Manage Users
-        </h1>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
+                Manage Users
+              </h1>
 
-        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-          Manage platform users, vendors, roles and account status.
-        </p>
-      </div>
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                Manage platform users, vendors, roles and account status.
+              </p>
+            </div>
 
-      {/* Stats */}
-      <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <MiniStat
-          icon={<UserRound className="h-5 w-5" />}
-          label="Total Users"
-          value={totalUsers}
-        />
+            <button
+              type="button"
+              onClick={handleExport}
+              disabled={exporting || users.length === 0}
+              className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:text-sky-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-sky-700 sm:w-fit"
+            >
+              <ArrowDownToLine className="h-4 w-4" />
+              {exporting ? "Preparing PDF..." : "Export PDF"}
+            </button>
+          </div>
 
-        <MiniStat
-          icon={<ShieldCheck className="h-5 w-5" />}
-          label="Vendors"
-          value={totalVendors}
-        />
+          {/* Stats */}
+          <div className="mb-6 grid gap-4 sm:grid-cols-3">
+            <MiniStat
+              icon={<UserRound className="h-5 w-5" />}
+              label="Total Users"
+              value={totalUsers}
+            />
 
-        <MiniStat
-          icon={<Ban className="h-5 w-5" />}
-          label="Blocked Accounts"
-          value={totalBlocked}
-        />
-      </div>
+            <MiniStat
+              icon={<ShieldCheck className="h-5 w-5" />}
+              label="Vendors"
+              value={totalVendors}
+            />
 
-      {/* Search */}
-      <div className="mb-6 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="relative max-w-md">
-          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <MiniStat
+              icon={<Ban className="h-5 w-5" />}
+              label="Blocked Accounts"
+              value={totalBlocked}
+            />
+          </div>
 
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search name, email or role..."
-            className="
+          {/* Search */}
+          <div className="mb-6 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="relative max-w-md">
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search name, email or role..."
+                className="
               h-11 w-full rounded-xl
               border border-slate-200
               bg-white pl-11 pr-4
@@ -610,29 +760,29 @@ export default function ManageUsers() {
               dark:bg-slate-950!
               dark:text-white
             "
-          />
-        </div>
-      </div>
+              />
+            </div>
+          </div>
 
-      {/* Empty */}
-      {!loading && filteredUsers.length === 0 && (
-        <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center dark:border-slate-700 dark:bg-slate-900!">
-          <UserRound className="mx-auto h-10 w-10 text-slate-400" />
+          {/* Empty */}
+          {!loading && filteredUsers.length === 0 && (
+            <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center dark:border-slate-700 dark:bg-slate-900!">
+              <UserRound className="mx-auto h-10 w-10 text-slate-400" />
 
-          <p className="mt-4 text-sm font-semibold text-slate-700 dark:text-slate-300">
-            No users found.
-          </p>
+              <p className="mt-4 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                No users found.
+              </p>
 
-          <p className="mt-1 text-xs text-slate-500">
-            Try another name, email or role.
-          </p>
-        </div>
-      )}
+              <p className="mt-1 text-xs text-slate-500">
+                Try another name, email or role.
+              </p>
+            </div>
+          )}
 
-      {/* Users Table */}
-      {!loading && filteredUsers.length > 0 && (
-        <div
-          className="
+          {/* Users Table */}
+          {!loading && filteredUsers.length > 0 && (
+            <div
+              className="
       overflow-x-auto
     rounded-3xl
     border border-slate-200
@@ -640,10 +790,10 @@ export default function ManageUsers() {
     dark:border-slate-800
     dark:bg-slate-900
     "
-        >
-          {/* Desktop Header */}
-          <div
-            className="
+            >
+              {/* Desktop Header */}
+              <div
+                className="
     hidden
     border-b border-slate-200
     bg-slate-50/80
@@ -655,46 +805,46 @@ export default function ManageUsers() {
     lg:items-center
     lg:gap-4
   "
-          >
-            <TableHeading className="text-center">User</TableHeading>
+              >
+                <TableHeading className="text-center">User</TableHeading>
 
-            <TableHeading>Role & Status</TableHeading>
+                <TableHeading>Role & Status</TableHeading>
 
-            <TableHeading className="text-center">Actions</TableHeading>
-          </div>
+                <TableHeading className="text-center">Actions</TableHeading>
+              </div>
 
-          {/* Rows */}
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {filteredUsers.map((user, index) => {
-              const isUpdating = updatingUserId === user.id;
-              const isCurrentUser = user.id === currentUserId;
+              {/* Rows */}
+              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                {filteredUsers.map((user, index) => {
+                  const isUpdating = updatingUserId === user.id;
+                  const isCurrentUser = user.id === currentUserId;
 
-              return (
-                <div
-                  key={user.id}
-                  className="
+                  return (
+                    <div
+                      key={user.id}
+                      className="
               px-4 py-5
               transition-colors duration-200
               hover:bg-slate-50/70
               sm:px-5
               dark:hover:bg-slate-800/30
             "
-                >
-                  {/* ================= DESKTOP ================= */}
-                  <div
-                    className="
+                    >
+                      {/* ================= DESKTOP ================= */}
+                      <div
+                        className="
     hidden
     lg:grid
     lg:grid-cols-[minmax(300px,1fr)_190px_430px]
     lg:items-center
     lg:gap-4
   "
-                  >
-                    {/* ================= USER ================= */}
-                    <div className="flex min-w-0 items-center gap-3">
-                      {/* Serial */}
-                      <div
-                        className="
+                      >
+                        {/* ================= USER ================= */}
+                        <div className="flex min-w-0 items-center gap-3">
+                          {/* Serial */}
+                          <div
+                            className="
         flex h-9 w-9 shrink-0
         items-center justify-center
         rounded-xl
@@ -704,13 +854,13 @@ export default function ManageUsers() {
         dark:bg-slate-800
         dark:text-slate-400
       "
-                      >
-                        {index + 1}
-                      </div>
+                          >
+                            {index + 1}
+                          </div>
 
-                      {/* Avatar */}
-                      <div
-                        className="
+                          {/* Avatar */}
+                          <div
+                            className="
         flex h-11 w-11 shrink-0
         items-center justify-center
         rounded-2xl
@@ -719,98 +869,106 @@ export default function ManageUsers() {
         dark:bg-sky-500/10
         dark:text-sky-400
       "
-                      >
-                        <UserRound className="h-5 w-5" />
-                      </div>
+                          >
+                            <UserRound className="h-5 w-5" />
+                          </div>
 
-                      {/* Name + Email */}
-                      <div className="min-w-0 flex-1">
-                        <p
-                          className="
+                          {/* Name + Email */}
+                          <div className="min-w-0 flex-1">
+                            <p
+                              className="
           truncate
           text-sm font-bold
           text-slate-900
           dark:text-white
         "
-                          title={user.name || "Unnamed User"}
-                        >
-                          {user.name || "Unnamed User"}
-                        </p>
+                              title={user.name || "Unnamed User"}
+                            >
+                              {user.name || "Unnamed User"}
+                            </p>
 
-                        <p
-                          className="
+                            <p
+                              className="
           mt-1 truncate
           text-xs
           text-slate-500
           dark:text-slate-400
         "
-                          title={user.email}
-                        >
-                          {user.email}
-                        </p>
-                      </div>
-                    </div>
+                              title={user.email}
+                            >
+                              {user.email}
+                            </p>
+                          </div>
+                        </div>
 
-                    {/* ================= ROLE & STATUS ================= */}
-                    <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-                      <RoleBadge role={user.role || "user"} />
+                        {/* ================= ROLE & STATUS ================= */}
+                        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                          <RoleBadge role={user.role || "user"} />
 
-                      <StatusBadge
-                        status={user.banned ? "Blocked" : "Active"}
-                      />
-
-                      {user.role === "vendor" && user.isFraud && <FraudBadge />}
-                    </div>
-
-                    {/* ================= ACTIONS ================= */}
-                    <div className="flex min-w-0 justify-center">
-                      {isCurrentUser ? (
-                        <span className="inline-flex h-9 shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs font-semibold whitespace-nowrap text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
-                          <ShieldCheck className="h-4 w-4" />
-                          Current Account
-                        </span>
-                      ) : (
-                        <div className="flex shrink-0 items-center justify-start gap-1.5 whitespace-nowrap">
-                          {/* Make Vendor / Make User */}
-                          <RoleActionButton
-                            icon={<UserCog className="h-3.5 w-3.5" />}
-                            label={
-                              user.role === "user" ? "Make Vendor" : "Make User"
-                            }
-                            onClick={() =>
-                              triggerRoleChangeModal(
-                                user,
-                                user.role === "user" ? "vendor" : "user",
-                              )
-                            }
-                            disabled={isUpdating}
-                            variant={user.role === "user" ? "vendor" : "user"}
+                          <StatusBadge
+                            status={user.banned ? "Blocked" : "Active"}
                           />
 
-                          {/* Make Admin / Make Vendor */}
-                          <RoleActionButton
-                            icon={<ShieldCheck className="h-3.5 w-3.5" />}
-                            label={
-                              user.role === "admin"
-                                ? "Make Vendor"
-                                : "Make Admin"
-                            }
-                            onClick={() =>
-                              triggerRoleChangeModal(
-                                user,
-                                user.role === "admin" ? "vendor" : "admin",
-                              )
-                            }
-                            disabled={isUpdating}
-                            variant={user.role === "admin" ? "vendor" : "admin"}
-                          />
+                          {user.role === "vendor" && user.isFraud && (
+                            <FraudBadge />
+                          )}
+                        </div>
 
-                          {/* Block / Unblock */}
-                          <button
-                            type="button"
-                            disabled={isUpdating}
-                            onClick={() => triggerBlockModal(user)}
-                            className={`
+                        {/* ================= ACTIONS ================= */}
+                        <div className="flex min-w-0 justify-center">
+                          {isCurrentUser ? (
+                            <span className="inline-flex h-9 shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs font-semibold whitespace-nowrap text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
+                              <ShieldCheck className="h-4 w-4" />
+                              Current Account
+                            </span>
+                          ) : (
+                            <div className="flex shrink-0 items-center justify-start gap-1.5 whitespace-nowrap">
+                              {/* Make Vendor / Make User */}
+                              <RoleActionButton
+                                icon={<UserCog className="h-3.5 w-3.5" />}
+                                label={
+                                  user.role === "user"
+                                    ? "Make Vendor"
+                                    : "Make User"
+                                }
+                                onClick={() =>
+                                  triggerRoleChangeModal(
+                                    user,
+                                    user.role === "user" ? "vendor" : "user",
+                                  )
+                                }
+                                disabled={isUpdating}
+                                variant={
+                                  user.role === "user" ? "vendor" : "user"
+                                }
+                              />
+
+                              {/* Make Admin / Make Vendor */}
+                              <RoleActionButton
+                                icon={<ShieldCheck className="h-3.5 w-3.5" />}
+                                label={
+                                  user.role === "admin"
+                                    ? "Make Vendor"
+                                    : "Make Admin"
+                                }
+                                onClick={() =>
+                                  triggerRoleChangeModal(
+                                    user,
+                                    user.role === "admin" ? "vendor" : "admin",
+                                  )
+                                }
+                                disabled={isUpdating}
+                                variant={
+                                  user.role === "admin" ? "vendor" : "admin"
+                                }
+                              />
+
+                              {/* Block / Unblock */}
+                              <button
+                                type="button"
+                                disabled={isUpdating}
+                                onClick={() => triggerBlockModal(user)}
+                                className={`
           inline-flex h-9 shrink-0 items-center justify-center gap-1
           rounded-xl border px-2 text-[10px] font-bold whitespace-nowrap
           transition-all duration-200
@@ -821,27 +979,27 @@ export default function ManageUsers() {
               : `border-red-200 bg-white text-red-500 hover:bg-red-50 dark:border-red-900/40 dark:bg-slate-900! dark:text-red-400`
           }
         `}
-                          >
-                            {user.banned ? (
-                              <>
-                                <UserCheck className="h-3.5 w-3.5" />
-                                Unblock
-                              </>
-                            ) : (
-                              <>
-                                <Ban className="h-3.5 w-3.5" />
-                                Block
-                              </>
-                            )}
-                          </button>
+                              >
+                                {user.banned ? (
+                                  <>
+                                    <UserCheck className="h-3.5 w-3.5" />
+                                    Unblock
+                                  </>
+                                ) : (
+                                  <>
+                                    <Ban className="h-3.5 w-3.5" />
+                                    Block
+                                  </>
+                                )}
+                              </button>
 
-                          {/* Fraud */}
-                          {user.role === "vendor" && (
-                            <button
-                              type="button"
-                              disabled={isUpdating}
-                              onClick={() => triggerFraudModal(user)}
-                              className={`
+                              {/* Fraud */}
+                              {user.role === "vendor" && (
+                                <button
+                                  type="button"
+                                  disabled={isUpdating}
+                                  onClick={() => triggerFraudModal(user)}
+                                  className={`
             inline-flex h-9 shrink-0 items-center justify-center gap-1
             rounded-xl border px-2 text-[10px] font-bold whitespace-nowrap
             transition-all duration-200
@@ -852,32 +1010,32 @@ export default function ManageUsers() {
                 : `border-orange-200 bg-orange-50 text-orange-600 hover:bg-orange-100 dark:border-orange-900/40 dark:bg-orange-500/10 dark:text-orange-400`
             }
           `}
-                            >
-                              {user.isFraud ? (
-                                <>
-                                  <ShieldCheck className="h-3.5 w-3.5" />
-                                  Un-fraud
-                                </>
-                              ) : (
-                                <>
-                                  <ShieldAlert className="h-3.5 w-3.5" />
-                                  Mark Fraud
-                                </>
+                                >
+                                  {user.isFraud ? (
+                                    <>
+                                      <ShieldCheck className="h-3.5 w-3.5" />
+                                      Un-fraud
+                                    </>
+                                  ) : (
+                                    <>
+                                      <ShieldAlert className="h-3.5 w-3.5" />
+                                      Mark Fraud
+                                    </>
+                                  )}
+                                </button>
                               )}
-                            </button>
+                            </div>
                           )}
                         </div>
-                      )}
-                    </div>
-                  </div>
+                      </div>
 
-                  {/* ================= MOBILE / TABLET ================= */}
-                  <div className="lg:hidden">
-                    {/* User */}
-                    <div className="flex flex-col min-w-0 items-center gap-3">
-                      {/* Serial */}
-                      <div
-                        className="
+                      {/* ================= MOBILE / TABLET ================= */}
+                      <div className="lg:hidden">
+                        {/* User */}
+                        <div className="flex flex-col min-w-0 items-center gap-3">
+                          {/* Serial */}
+                          <div
+                            className="
                     flex h-8 w-8 shrink-0
                     items-center justify-center
                     rounded-lg
@@ -887,13 +1045,13 @@ export default function ManageUsers() {
                     dark:bg-slate-800
                     dark:text-slate-400
                   "
-                      >
-                        #{index + 1}
-                      </div>
+                          >
+                            #{index + 1}
+                          </div>
 
-                      {/* Avatar */}
-                      <div
-                        className="
+                          {/* Avatar */}
+                          <div
+                            className="
                     flex h-10 w-10 shrink-0
                     items-center justify-center
                     rounded-xl
@@ -902,56 +1060,58 @@ export default function ManageUsers() {
                     dark:bg-sky-500/10
                     dark:text-sky-400
                   "
-                      >
-                        <UserRound className="h-5 w-5" />
-                      </div>
+                          >
+                            <UserRound className="h-5 w-5" />
+                          </div>
 
-                      {/* Name + Email */}
-                      <div className="min-w-0 flex-1 flex flex-col items-center">
-                        <p
-                          className="
+                          {/* Name + Email */}
+                          <div className="min-w-0 flex-1 flex flex-col items-center">
+                            <p
+                              className="
                       truncate
                       text-sm font-bold
                       text-slate-900
                       dark:text-white
                     "
-                        >
-                          {user.name || "Unnamed User"}
-                        </p>
+                            >
+                              {user.name || "Unnamed User"}
+                            </p>
 
-                        <p
-                          className="
+                            <p
+                              className="
                       mt-1 truncate
                       text-xs
                       text-slate-500
                       dark:text-slate-400
                     "
-                        >
-                          {user.email}
-                        </p>
-                      </div>
-                    </div>
+                            >
+                              {user.email}
+                            </p>
+                          </div>
+                        </div>
 
-                    {/* Role + Status + Joined */}
-                    <div
-                      className="
+                        {/* Role + Status + Joined */}
+                        <div
+                          className="
                   mt-4
                   flex flex-wrap
                   items-center
                   justify-center
                   gap-2
                 "
-                    >
-                      <RoleBadge role={user.role || "user"} />
+                        >
+                          <RoleBadge role={user.role || "user"} />
 
-                      <StatusBadge
-                        status={user.banned ? "Blocked" : "Active"}
-                      />
+                          <StatusBadge
+                            status={user.banned ? "Blocked" : "Active"}
+                          />
 
-                      {user.role === "vendor" && user.isFraud && <FraudBadge />}
+                          {user.role === "vendor" && user.isFraud && (
+                            <FraudBadge />
+                          )}
 
-                      <span
-                        className="
+                          <span
+                            className="
                     inline-flex h-7
                     items-center
                     rounded-lg
@@ -962,16 +1122,16 @@ export default function ManageUsers() {
                     dark:bg-slate-800
                     dark:text-slate-400
                   "
-                      >
-                        {formatDate(user.createdAt)}
-                      </span>
-                    </div>
+                          >
+                            {formatDate(user.createdAt)}
+                          </span>
+                        </div>
 
-                    {/* Actions */}
-                    <div className="mt-4">
-                      {isCurrentUser ? (
-                        <span
-                          className="
+                        {/* Actions */}
+                        <div className="mt-4">
+                          {isCurrentUser ? (
+                            <span
+                              className="
                       inline-flex h-9
                       w-full
                       items-center justify-center
@@ -986,59 +1146,65 @@ export default function ManageUsers() {
                       dark:bg-slate-800
                       dark:text-slate-400
                     "
-                        >
-                          <ShieldCheck className="h-4 w-4" />
-                          Current Account
-                        </span>
-                      ) : (
-                        <div
-                          className="
+                            >
+                              <ShieldCheck className="h-4 w-4" />
+                              Current Account
+                            </span>
+                          ) : (
+                            <div
+                              className="
                        flex flex-wrap
                        items-center
                        justify-center
                        gap-2
                     "
-                        >
-                          {/* Make Vendor / Make User */}
-                          <RoleActionButton
-                            icon={<UserCog className="h-3.5 w-3.5" />}
-                            label={
-                              user.role === "user" ? "Make Vendor" : "Make User"
-                            }
-                            onClick={() =>
-                              triggerRoleChangeModal(
-                                user,
-                                user.role === "user" ? "vendor" : "user",
-                              )
-                            }
-                            disabled={isUpdating}
-                            variant={user.role === "user" ? "vendor" : "user"}
-                          />
+                            >
+                              {/* Make Vendor / Make User */}
+                              <RoleActionButton
+                                icon={<UserCog className="h-3.5 w-3.5" />}
+                                label={
+                                  user.role === "user"
+                                    ? "Make Vendor"
+                                    : "Make User"
+                                }
+                                onClick={() =>
+                                  triggerRoleChangeModal(
+                                    user,
+                                    user.role === "user" ? "vendor" : "user",
+                                  )
+                                }
+                                disabled={isUpdating}
+                                variant={
+                                  user.role === "user" ? "vendor" : "user"
+                                }
+                              />
 
-                          {/* Make Admin / Make Vendor */}
-                          <RoleActionButton
-                            icon={<ShieldCheck className="h-3.5 w-3.5" />}
-                            label={
-                              user.role === "admin"
-                                ? "Make Vendor"
-                                : "Make Admin"
-                            }
-                            onClick={() =>
-                              triggerRoleChangeModal(
-                                user,
-                                user.role === "admin" ? "vendor" : "admin",
-                              )
-                            }
-                            disabled={isUpdating}
-                            variant={user.role === "admin" ? "vendor" : "admin"}
-                          />
+                              {/* Make Admin / Make Vendor */}
+                              <RoleActionButton
+                                icon={<ShieldCheck className="h-3.5 w-3.5" />}
+                                label={
+                                  user.role === "admin"
+                                    ? "Make Vendor"
+                                    : "Make Admin"
+                                }
+                                onClick={() =>
+                                  triggerRoleChangeModal(
+                                    user,
+                                    user.role === "admin" ? "vendor" : "admin",
+                                  )
+                                }
+                                disabled={isUpdating}
+                                variant={
+                                  user.role === "admin" ? "vendor" : "admin"
+                                }
+                              />
 
-                          {/* Block / Unblock */}
-                          <button
-                            type="button"
-                            disabled={isUpdating}
-                            onClick={() => triggerBlockModal(user)}
-                            className={`
+                              {/* Block / Unblock */}
+                              <button
+                                type="button"
+                                disabled={isUpdating}
+                                onClick={() => triggerBlockModal(user)}
+                                className={`
                         inline-flex h-9.5
                         w-auto
                         shrink-0
@@ -1074,27 +1240,27 @@ export default function ManageUsers() {
                             `
                         }
                       `}
-                          >
-                            {user.banned ? (
-                              <>
-                                <UserCheck className="h-3.5 w-3.5" />
-                                Unblock
-                              </>
-                            ) : (
-                              <>
-                                <Ban className="h-3.5 w-3.5" />
-                                Block
-                              </>
-                            )}
-                          </button>
+                              >
+                                {user.banned ? (
+                                  <>
+                                    <UserCheck className="h-3.5 w-3.5" />
+                                    Unblock
+                                  </>
+                                ) : (
+                                  <>
+                                    <Ban className="h-3.5 w-3.5" />
+                                    Block
+                                  </>
+                                )}
+                              </button>
 
-                          {/* Fraud */}
-                          {user.role === "vendor" && (
-                            <button
-                              type="button"
-                              disabled={isUpdating}
-                              onClick={() => triggerFraudModal(user)}
-                              className={`
+                              {/* Fraud */}
+                              {user.role === "vendor" && (
+                                <button
+                                  type="button"
+                                  disabled={isUpdating}
+                                  onClick={() => triggerFraudModal(user)}
+                                  className={`
                           inline-flex h-9
                           w-auto
                           shrink-0
@@ -1130,29 +1296,31 @@ export default function ManageUsers() {
                               `
                           }
                         `}
-                            >
-                              {user.isFraud ? (
-                                <>
-                                  <ShieldCheck className="h-3.5 w-3.5" />
-                                  Un-fraud
-                                </>
-                              ) : (
-                                <>
-                                  <ShieldAlert className="h-3.5 w-3.5" />
-                                  Mark Fraud
-                                </>
+                                >
+                                  {user.isFraud ? (
+                                    <>
+                                      <ShieldCheck className="h-3.5 w-3.5" />
+                                      Un-fraud
+                                    </>
+                                  ) : (
+                                    <>
+                                      <ShieldAlert className="h-3.5 w-3.5" />
+                                      Mark Fraud
+                                    </>
+                                  )}
+                                </button>
                               )}
-                            </button>
+                            </div>
                           )}
                         </div>
-                      )}
+                      </div>
                     </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </>
       )}
       {/* Dynamic Reusable Confirm Modal */}
       {(() => {

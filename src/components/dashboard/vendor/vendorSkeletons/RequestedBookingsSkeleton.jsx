@@ -12,12 +12,15 @@ export default function RequestedBookingsSkeleton() {
   return (
     <div className="mx-auto max-w-7xl">
       {/* Header */}
-      <div className="mb-8">
-        <Skeleton className="h-4 w-28" />
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0 flex-1">
+          <Skeleton className="h-4 w-28" />
 
-        <Skeleton className="mt-3 h-9 w-60" />
+          <Skeleton className="mt-3 h-9 w-60" />
 
-        <Skeleton className="mt-2 h-4 w-full max-w-xl" />
+          <Skeleton className="mt-2 h-4 w-full max-w-xl" />
+        </div>
+        <Skeleton className="h-11 w-full rounded-xl sm:w-32" />
       </div>
 
       {/* Booking cards */}

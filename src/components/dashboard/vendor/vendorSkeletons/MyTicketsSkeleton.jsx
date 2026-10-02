@@ -21,7 +21,10 @@ export default function MyTicketsSkeleton() {
           <Skeleton className="mt-2 h-4 w-full max-w-lg" />
         </div>
 
-        <Skeleton className="h-11 w-32 rounded-xl" />
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+          <Skeleton className="h-11 w-full rounded-xl sm:w-32" />
+          <Skeleton className="h-11 w-full rounded-xl sm:w-32" />
+        </div>
       </div>
 
       {/* Cards */}

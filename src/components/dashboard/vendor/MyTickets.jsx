@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 
 import {
   ArrowRight,
+  ArrowDownToLine,
   BusFront,
   CalendarDays,
   CarFront,
@@ -25,11 +26,18 @@ import {
 
 import { Button } from "@heroui/react";
 import toast from "react-hot-toast";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 import { getVendorTickets, deleteTicket } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import ConfirmModal from "@/components/shared/ConfirmModal";
 import MyTicketsSkeleton from "./vendorSkeletons/MyTicketsSkeleton";
+import {
+  addPdfReportFooter,
+  createPdfReport,
+  formatPdfDate,
+} from "@/lib/pdf-report";
 
 export default function MyTickets() {
   const [tickets, setTickets] = useState([]);
@@ -75,6 +83,89 @@ export default function MyTickets() {
     loadTickets();
   }, []);
 
+  const handleExport = async () => {
+    if (!tickets.length) {
+      toast.error("No tickets available to export.");
+      return;
+    }
+
+    try {
+      const doc = await createPdfReport("My Added Tickets");
+
+      doc.setFont("NotoSans", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(40, 50, 60);
+      doc.text(`Total Tickets: ${tickets.length}`, 25, 38);
+
+      autoTable(doc, {
+        startY: 45,
+        head: [
+          [
+            "Ticket ID",
+            "Title",
+            "Route",
+            "Operator / Type",
+            "Date",
+            "Departure",
+            "Price",
+            "Seats",
+            "Status",
+          ],
+        ],
+        body: tickets.map((ticket) => [
+          String(ticket._id || "N/A"),
+          ticket.title || "N/A",
+          `${ticket.from || "N/A"} to ${ticket.to || "N/A"}`,
+          [ticket.operator, ticket.type].filter(Boolean).join(" / ") || "N/A",
+          formatPdfDate(ticket.date),
+          ticket.departure || "N/A",
+          `BDT ${Number(ticket.price || 0).toLocaleString()}`,
+          String(ticket.quantity ?? "N/A"),
+          String(ticket.status || "pending"),
+        ]),
+        theme: "grid",
+        margin: { left: 25, right: 25 },
+        styles: {
+          font: "NotoSans",
+          fontSize: 7,
+          cellPadding: 2,
+          valign: "middle",
+          overflow: "linebreak",
+        },
+        headStyles: {
+          font: "NotoSans",
+          fontStyle: "bold",
+          fillColor: [27, 142, 217],
+          textColor: [255, 255, 255],
+        },
+        columnStyles: {
+          0: { cellWidth: 34 },
+          1: { cellWidth: 39 },
+          2: { cellWidth: 37 },
+          3: { cellWidth: 32 },
+          4: { cellWidth: 23 },
+          5: { cellWidth: 19 },
+          6: { cellWidth: 21 },
+          7: { cellWidth: 14 },
+          8: { cellWidth: 20 },
+        },
+        didParseCell: (data) => {
+          data.cell.styles.font = "NotoSans";
+          if (data.section === "head") data.cell.styles.fontStyle = "bold";
+        },
+      });
+
+      addPdfReportFooter(doc, "My Added Tickets");
+      doc.save(
+        `tripswift-my-added-tickets-${new Date().toISOString().slice(0, 10)}.pdf`,
+      );
+      toast.success("Tickets PDF downloaded successfully.");
+    } catch (error) {
+      console.error("My tickets PDF export error:", error);
+      toast.error(error?.message || "Failed to generate tickets PDF.");
+    }
+  };
+
   const handleDelete = async () => {
     if (!deletingId) return;
 
@@ -96,10 +187,12 @@ export default function MyTickets() {
     }
   };
 
+  if (loading) {
+    return <MyTicketsSkeleton />;
+  }
+
   return (
     <div className="mx-auto max-w-7xl">
-      {/* Loading */}
-      {loading && <MyTicketsSkeleton />}
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -116,12 +209,23 @@ export default function MyTickets() {
           </p>
         </div>
 
-        <Link href="/dashboard/add-ticket">
-          <Button className="h-11 rounded-xl bg-sky-500 px-5 font-semibold text-white shadow-sm transition hover:bg-sky-600">
-            <Plus className="h-5 w-5" />
-            Add Ticket
-          </Button>
-        </Link>
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+          <button
+            type="button"
+            onClick={handleExport}
+            disabled={tickets.length === 0}
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:text-sky-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-sky-700 sm:w-fit"
+          >
+            <ArrowDownToLine className="h-4 w-4" />
+            Export PDF
+          </button>
+          <Link href="/dashboard/add-ticket" className="w-full sm:w-auto">
+            <Button className="h-11 w-full rounded-xl bg-sky-500 px-5 font-semibold text-white shadow-sm transition hover:bg-sky-600 sm:w-auto">
+              <Plus className="h-5 w-5" />
+              Add Ticket
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Empty State */}

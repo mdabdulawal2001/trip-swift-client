@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import {toast} from "react-hot-toast"
+import { toast } from "react-hot-toast";
 
 import {
   BarChart3,
@@ -294,7 +294,7 @@ export default function DashboardSidebar({ role = "user", open, setOpen }) {
         {/* NAVIGATION */}
         {/* ================================================== */}
 
-        <nav className="bg-white dark:!bg-slate-950 flex-1 overflow-y-auto px-3 py-5">
+        <nav className="bg-white dark:!bg-slate-950 px-3 py-5">
           {menus.map((section) => (
             <div key={section.section} className="mb-6">
               <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
@@ -527,8 +527,8 @@ export default function DashboardSidebar({ role = "user", open, setOpen }) {
       {/* DESKTOP SIDEBAR */}
       {/* ======================================================== */}
 
-      <aside className="hidden w-64 shrink-0 rounded-lg border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950! lg:block">
-        <div className="sticky top-[72px] flex h-[calc(100vh-72px)] flex-col">
+      <aside className="hidden w-64 shrink-0 overflow-clip rounded-xl border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950! lg:block">
+        <div className="sticky top-[72px] flex flex-col">
           <SidebarContent />
         </div>
       </aside>

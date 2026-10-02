@@ -38,7 +38,7 @@ export default function DashboardLayoutClient({ children }) {
   return (
     <DashboardRoleProvider role={role}>
       <div className="rounded-lg mt-10 mb-10 max-w-7xl min-h-screen mx-auto bg-slate-50 dark:bg-slate-950">
-        <div className="flex min-h-screen">
+        <div className="flex">
           <DashboardSidebar
             role={role}
             open={sidebarOpen}

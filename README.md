@@ -1031,14 +1031,22 @@ Frontend restrictions alone are not treated as sufficient protection for sensiti
 
 ## ⚙️ Backend
 
-- Node.js
-- Express.js
-- MongoDB
-- Better Auth
-- JWT
-- Stripe
-- CORS
-- dotenv
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=nodejs,express,mongodb,javascript" alt="Backend Technologies" />
+</p>
+
+| Technology      | Purpose                               |
+| --------------- | ------------------------------------- |
+| **Node.js**     | JavaScript runtime                    |
+| **Express.js**  | REST API framework                    |
+| **MongoDB**     | NoSQL database                        |
+| **Better Auth** | Authentication and session management |
+| **CORS**        | Cross-origin request handling         |
+| **dotenv**      | Environment variable management       |
+| **JWT**         | authorization handling                |
+| **Stripe**      | payment management handling           |
+
+
 
 The exact dependency versions are available in the backend repository's `package.json`.
 

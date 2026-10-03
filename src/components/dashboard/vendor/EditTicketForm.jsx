@@ -134,7 +134,7 @@ export default function EditTicketForm() {
 
       await updateTicket(ticketId, ticketData);
 
-      toast.success("Ticket updated successfully");
+      toast.success("Ticket update request submitted successfully");
       setIsConfirmModalOpen(false);
 
       router.push("/dashboard/my-tickets");

@@ -59,6 +59,13 @@ const Navbar = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
+  const [previousPathname, setPreviousPathname] = useState(pathname);
+
+  if (pathname !== previousPathname) {
+    setPreviousPathname(pathname);
+    setIsMenuOpen(false);
+    setIsProfileOpen(false);
+  }
 
   // ============================================================
   // HYDRATION
@@ -77,6 +84,26 @@ const Navbar = () => {
   const { data: session, isPending } = authClient.useSession();
 
   const user = session?.user;
+
+  useEffect(() => {
+    const currentUrl = new URL(window.location.href);
+    const googleLoginStatus = currentUrl.searchParams.get("googleLogin");
+
+    if (!googleLoginStatus || isPending) {
+      return;
+    }
+
+    if (googleLoginStatus === "success" && user) {
+      toast.success("Google sign-in successful!");
+    }
+
+    currentUrl.searchParams.delete("googleLogin");
+    window.history.replaceState(
+      window.history.state,
+      "",
+      `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`,
+    );
+  }, [isPending, user]);
 
   // ============================================================
   // THEME
@@ -250,11 +277,6 @@ const Navbar = () => {
   // CLOSE MENUS AFTER ROUTE CHANGE
   // ============================================================
 
-  useEffect(() => {
-    setIsMenuOpen(false);
-    setIsProfileOpen(false);
-  }, [pathname]);
-
   // ============================================================
   // RENDER
   // ============================================================
@@ -362,7 +384,6 @@ const Navbar = () => {
                 "
               />
             </div>
-
             <div className="hidden min-[320px]:block">
               <h1
                 className="
@@ -730,7 +751,7 @@ const Navbar = () => {
         border
         border-slate-200
 
-        bg-white/95
+        bg-white
         p-2
 
         shadow-[0_20px_50px_rgba(15,23,42,0.16)]

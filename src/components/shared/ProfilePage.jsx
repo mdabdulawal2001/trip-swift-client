@@ -39,6 +39,7 @@ export default function ProfilePage() {
 
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [failedImage, setFailedImage] = useState(null);
 
   useEffect(() => {
     if (!profile) return;
@@ -129,13 +130,13 @@ export default function ProfilePage() {
         throw new Error(data?.error?.message || "Failed to upload image.");
       }
 
-      const imageUrl = data?.data?.display_url || data?.data?.url;
+      const imageUrl = data?.data?.url || data?.data?.display_url;
 
       if (!imageUrl) {
         throw new Error("Image URL was not returned by ImgBB.");
       }
 
-      const { data: updatedUser, error } = await authClient.updateUser({
+      const { error } = await authClient.updateUser({
         image: imageUrl,
       });
 
@@ -143,11 +144,24 @@ export default function ProfilePage() {
         throw new Error(error.message || "Failed to update profile image.");
       }
 
+      const { data: sessionData, error: sessionError } =
+        await authClient.getSession();
+
+      if (sessionError) {
+        throw new Error(sessionError.message || "Failed to refresh profile.");
+      }
+
+      const updatedUser = sessionData?.user;
+
+      if (!updatedUser?.image) {
+        throw new Error("The updated profile image could not be confirmed.");
+      }
+
       setProfile((previous) => ({
         ...previous,
         ...updatedUser,
-        image: imageUrl,
       }));
+      setFailedImage(null);
 
       // toast.success("Profile picture updated successfully.");
       Swal.fire({
@@ -273,13 +287,8 @@ export default function ProfilePage() {
   }
 
   const displayName = profile.name || "User";
-
-  const initials = displayName
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase())
-    .join("");
+  const initials = displayName.trim().charAt(0).toUpperCase() || "U";
+  const showProfileImage = profile.image && profile.image !== failedImage;
 
   const role = profile.role || "user";
 
@@ -295,13 +304,16 @@ export default function ProfilePage() {
           <div className="-mt-10 flex flex-col gap-5 sm:-mt-12 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-end">
               {/* Avatar */}
-              <div className="relative h-28 w-28 rounded-[1.75rem] border-white object-cover shadow-xl dark:border-slate-900!">
-                {profile.image ? (
+              <div className="relative h-28 w-28 rounded-[1.75rem] border-3 border-white object-cover shadow-xl dark:border-slate-900!">
+                {showProfileImage ? (
                   <Image
                     src={profile.image}
+                    key={profile.image}
                     alt={displayName}
                     fill
                     sizes="112px"
+                    unoptimized
+                    onError={() => setFailedImage(profile.image)}
                     className="rounded-3xl border-4 border-white object-cover shadow-lg dark:border-slate-900"
                   />
                 ) : (

@@ -5,9 +5,8 @@ import { useEffect, useState } from "react";
 
 import { Bell, Menu } from "lucide-react";
 
-import { Avatar } from "@heroui/react";
-
 import ThemeToggle from "@/components/shared/ThemeToggle";
+import UserAvatar from "@/components/shared/UserAvatar";
 
 import { useProfile } from "@/context/ProfileContext";
 
@@ -42,13 +41,6 @@ export default function DashboardNavbar({ role, onMenuClick, setSidebarOpen }) {
   }, []);
 
   const displayName = profile?.name || "User";
-
-  const initials = displayName
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase())
-    .join("");
 
   const userRole = profile?.role || role || "user";
 
@@ -219,17 +211,14 @@ export default function DashboardNavbar({ role, onMenuClick, setSidebarOpen }) {
               </>
             ) : (
               <>
-                {profile?.image ? (
-                  <img
-                    src={profile.image}
-                    alt={displayName}
-                    className="h-9 w-9 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-sky-100 text-sm font-bold text-sky-600 dark:bg-sky-500/15 dark:text-sky-400">
-                    {initials || "U"}
-                  </div>
-                )}
+                <UserAvatar
+                  user={{
+                    ...profile,
+                    name: displayName,
+                    image: profile?.image,
+                  }}
+                  size="sm"
+                />
 
                 <div className="hidden text-left md:block">
                   <p className="text-sm font-semibold text-slate-900 dark:text-white">

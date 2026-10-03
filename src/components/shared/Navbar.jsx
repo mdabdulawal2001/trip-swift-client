@@ -363,7 +363,7 @@ const Navbar = () => {
               />
             </div>
 
-            <div className="hidden min-[420px]:block">
+            <div className="hidden min-[320px]:block">
               <h1
                 className="
                   bg-linear-to-r

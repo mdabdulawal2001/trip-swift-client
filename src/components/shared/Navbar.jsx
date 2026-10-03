@@ -273,13 +273,6 @@ const Navbar = () => {
     };
   }, [isMenuOpen, isLogoutModalOpen]);
 
-  // ============================================================
-  // CLOSE MENUS AFTER ROUTE CHANGE
-  // ============================================================
-
-  // ============================================================
-  // RENDER
-  // ============================================================
 
   return (
     <>
@@ -991,10 +984,8 @@ const Navbar = () => {
               className="
           fixed
           inset-0
-          z-[60]
-
+          z-60
           overflow-hidden
-
           lg:hidden
         "
             >
@@ -1007,17 +998,14 @@ const Navbar = () => {
                 className="
             absolute
             inset-0
-
             bg-slate-950/45
-            
             backdrop-blur-[2px]
           "
               />
 
-              {/* ================================================== */}
+              
               {/* RIGHT SIDEBAR */}
-              {/* ================================================== */}
-
+              
               <motion.aside
                 ref={mobileMenuRef}
                 initial={{
@@ -1057,15 +1045,15 @@ const Navbar = () => {
             dark:bg-slate-950!
           "
               >
-                {/* ================================================== */}
+
                 {/* SIDEBAR HEADER */}
-                {/* ================================================== */}
+
 
                 <div
                   className="
               flex
-              h-[76px]
-              min-h-[76px]
+              h-19
+              min-h-19
               shrink-0
 
               items-center
@@ -1190,9 +1178,8 @@ const Navbar = () => {
               dark:bg-slate-950
             "
                 >
-                  {/* ================================================== */}
+                  
                   {/* MOBILE PROFILE */}
-                  {/* ================================================== */}
 
                   {!mounted || isPending ? (
                     <div className="flex justify-center py-3">
@@ -1208,22 +1195,16 @@ const Navbar = () => {
                     flex
                     flex-col
                     items-center
-
                     rounded-2xl
-
                     border
                     border-blue-100
-
                     bg-linear-to-br
                     from-blue-50
                     via-white
                     to-cyan-50
-
                     px-3
                     py-4
-
                     shadow-sm
-
                     dark:border-blue-900/60
                     dark:bg-linear-to-br
                     dark:from-slate-900
@@ -1246,7 +1227,6 @@ const Navbar = () => {
                       text-base
                       font-bold
                       text-slate-900
-
                       dark:text-white
                     "
                         >
@@ -1329,20 +1309,15 @@ const Navbar = () => {
                         onClick={closeMobileMenu}
                         className={`
                     mt-1.5
-
                     flex
                     items-center
                     gap-3
-
                     rounded-xl
                     border
-
                     px-4
                     py-3
-
                     text-sm
                     font-semibold
-
                     transition-all
                     duration-200
 
@@ -1388,10 +1363,8 @@ const Navbar = () => {
                     </>
                   ) : null}
 
-                  {/* ================================================== */}
                   {/* MOBILE LINKS */}
-                  {/* ================================================== */}
-
+                  
                   <div className="space-y-1.5">
                     {navLinks.map((link) => {
                       const active = isActive(link.href);
@@ -1405,15 +1378,11 @@ const Navbar = () => {
                       flex
                       items-center
                       justify-between
-
                       rounded-xl
-
                       px-4
                       py-3
-
                       text-sm
                       font-semibold
-
                       transition-all
                       duration-200
 
@@ -1450,7 +1419,6 @@ const Navbar = () => {
                           h-2
                           w-2
                           rounded-full
-
                           bg-linear-to-r
                           from-cyan-400
                           to-blue-600
@@ -1476,9 +1444,7 @@ const Navbar = () => {
               "
                   />
 
-                  {/* ================================================== */}
                   {/* MOBILE AUTH */}
-                  {/* ================================================== */}
 
                   {isPending ? (
                     <div className="flex justify-center py-2">
@@ -1549,34 +1515,24 @@ const Navbar = () => {
                   items-center
                   justify-center
                   gap-2.5
-
                   rounded-xl
-
                   border
                   border-slate-200
-
                   bg-white
-
                   px-4
                   py-3
-
                   text-sm
                   font-semibold
                   text-red-500
-
                   shadow-sm
-
                   transition-all
                   duration-300
-
                   hover:border-red-200
                   hover:bg-red-50
                   hover:shadow-md
-
                   dark:border-slate-700
                   dark:bg-slate-900
                   dark:text-red-400
-
                   dark:hover:border-red-900/50
                   dark:hover:bg-red-950/30
                 "
@@ -1585,10 +1541,8 @@ const Navbar = () => {
                         className="
                     h-4
                     w-4
-
                     transition-transform
                     duration-300
-
                     group-hover:-translate-x-0.5
                   "
                       />

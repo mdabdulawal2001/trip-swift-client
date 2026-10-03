@@ -95,7 +95,7 @@ export default function BookingModal({ isOpen, onClose, ticket }) {
     >
       <Modal.Backdrop>
         <Modal.Container>
-          <Modal.Dialog className="sm:max-w-[500px]">
+          <Modal.Dialog className="sm:max-w-125">
             <Modal.CloseTrigger onClick={onClose} />
 
             <Modal.Header>

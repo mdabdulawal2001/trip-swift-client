@@ -144,11 +144,11 @@ export default function TicketBrowser({
             />
           </div>
 
-          <div className="w-full xl:w-[190px]">
+          <div className="w-full xl:w-47.5">
             <TicketFilters value={filters.type} onChange={handleFilterChange} />
           </div>
 
-          <div className="w-full xl:w-[190px]">
+          <div className="w-full xl:w-47.5">
             <TicketSort value={filters.sort} onChange={handleSortChange} />
           </div>
         </div>
@@ -160,7 +160,7 @@ export default function TicketBrowser({
             onClick={handleReset}
             className="cursor-pointer group inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-600 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#238FD8]/40 hover:bg-[#238FD8]/5 hover:text-[#238FD8] hover:shadow-sm active:translate-y-0 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300 dark:hover:border-[#38BDF8]/40 dark:hover:bg-[#38BDF8]/10 dark:hover:text-[#38BDF8]"
           >
-            <span className="transition-transform duration-300 group-hover:rotate-[-45deg]">
+            <span className="transition-transform duration-300 group-hover:-rotate-45">
               ↻
             </span>
             Reset

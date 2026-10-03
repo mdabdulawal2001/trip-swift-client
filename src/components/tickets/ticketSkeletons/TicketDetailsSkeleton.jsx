@@ -5,7 +5,7 @@ export default function TicketDetailsSkeleton() {
       <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
         {/* Image */}
         <div className="animate-pulse overflow-hidden rounded-3xl bg-slate-200 dark:bg-slate-800">
-          <div className="h-[420px] w-full sm:h-[500px]" />
+          <div className="h-105 w-full sm:h-125" />
         </div>
 
         {/* Content */}

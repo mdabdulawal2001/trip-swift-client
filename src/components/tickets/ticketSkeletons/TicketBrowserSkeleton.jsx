@@ -16,24 +16,24 @@ export default function TicketBrowserSkeleton() {
           {/* Search */}
           <div className="min-w-0 flex-1">
             <div className="grid w-full gap-3 md:grid-cols-[1fr_1fr_auto]">
-              <div className="h-[46px] rounded-xl bg-slate-200 dark:bg-slate-800" />
+              <div className="h-11.5 rounded-xl bg-slate-200 dark:bg-slate-800" />
 
-              <div className="h-[46px] rounded-xl bg-slate-200 dark:bg-slate-800" />
+              <div className="h-11.5 rounded-xl bg-slate-200 dark:bg-slate-800" />
 
-              <div className="h-[46px] rounded-xl bg-slate-200 dark:bg-slate-800" />
+              <div className="h-11.5 rounded-xl bg-slate-200 dark:bg-slate-800" />
             </div>
           </div>
 
           {/* Filter */}
-          <div className="w-full xl:w-[190px]">
+          <div className="w-full xl:w-47.5">
             <div className="mb-2 h-4 w-28 rounded bg-slate-200 dark:bg-slate-800" />
-            <div className="h-[46px] rounded-xl bg-slate-200 dark:bg-slate-800" />
+            <div className="h-11.5 rounded-xl bg-slate-200 dark:bg-slate-800" />
           </div>
 
           {/* Sort */}
-          <div className="w-full xl:w-[190px]">
+          <div className="w-full xl:w-47.5">
             <div className="mb-2 h-4 w-16 rounded bg-slate-200 dark:bg-slate-800" />
-            <div className="h-[46px] rounded-xl bg-slate-200 dark:bg-slate-800" />
+            <div className="h-11.5 rounded-xl bg-slate-200 dark:bg-slate-800" />
           </div>
         </div>
 

@@ -96,7 +96,7 @@ export default function AboutPage() {
       ====================================================== */}
 
       <section className="relative px-4 pb-16 pt-14 sm:px-6 sm:pb-20 sm:pt-20 lg:px-8 lg:pb-24 lg:pt-24">
-        <div className="absolute left-1/2 top-0 -z-10 h-[420px] w-[700px] -translate-x-1/2 rounded-full bg-sky-400/10 blur-3xl dark:bg-sky-500/10" />
+        <div className="absolute left-1/2 top-0 -z-10 h-105 w-175 -translate-x-1/2 rounded-full bg-sky-400/10 blur-3xl dark:bg-sky-500/10" />
 
         <div className="mx-auto max-w-5xl text-center">
           <motion.div
@@ -110,7 +110,7 @@ export default function AboutPage() {
 
             <h1 className="mx-auto mt-5 max-w-4xl text-4xl font-black tracking-tight text-slate-900 sm:text-5xl lg:text-6xl dark:text-white">
               Travel made{" "}
-              <span className="bg-gradient-to-r from-[#238FD7] to-cyan-400 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-[#238FD7] to-cyan-400 bg-clip-text text-transparent">
                 simpler
               </span>
               .
@@ -195,7 +195,7 @@ export default function AboutPage() {
             transition={{ duration: 0.5 }}
             className="rounded-3xl border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/5 sm:p-7 dark:border-slate-800 dark:bg-slate-900"
           >
-            <div className="rounded-2xl bg-gradient-to-br from-sky-500 to-blue-700 p-7 text-white">
+            <div className="rounded-2xl bg-linear-to-br from-sky-500 to-blue-700 p-7 text-white">
               <p className="text-sm font-semibold text-sky-100">TRIPSWIFT</p>
 
               <h3 className="mt-3 text-3xl font-black">Travel • Book • Go</h3>
@@ -336,7 +336,7 @@ export default function AboutPage() {
       ====================================================== */}
 
       <section className="px-4 pb-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl overflow-hidden rounded-3xl bg-gradient-to-r from-[#1978B8] to-[#238FD7] px-6 py-12 text-center shadow-2xl shadow-sky-900/15 sm:px-10">
+        <div className="mx-auto max-w-7xl overflow-hidden rounded-3xl bg-linear-to-r from-[#1978B8] to-[#238FD7] px-6 py-12 text-center shadow-2xl shadow-sky-900/15 sm:px-10">
           <h2 className="text-3xl font-black text-white sm:text-4xl">
             Ready for your next journey?
           </h2>

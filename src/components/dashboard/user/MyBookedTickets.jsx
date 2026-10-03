@@ -1208,7 +1208,7 @@ function formatDepartureTime(dateTime) {
 function Countdown({ departureTime, currentTime }) {
   if (!departureTime) {
     return (
-      <div className="mt-5 flex min-h-[112px] items-center justify-center rounded-2xl bg-slate-50 px-4 py-5 dark:bg-slate-950">
+      <div className="mt-5 flex min-h-28 items-center justify-center rounded-2xl bg-slate-50 px-4 py-5 dark:bg-slate-950">
         <div className="text-center">
           <Timer className="mx-auto h-5 w-5 text-slate-400" />
 
@@ -1225,7 +1225,7 @@ function Countdown({ departureTime, currentTime }) {
   // Departure time passed
   if (remaining <= 0) {
     return (
-      <div className="mt-5 flex min-h-[112px] flex-col items-center justify-center rounded-2xl border border-red-100 bg-red-50 px-4 py-5 text-center dark:border-red-500/20 dark:bg-red-500/10">
+      <div className="mt-5 flex min-h-28 flex-col items-center justify-center rounded-2xl border border-red-100 bg-red-50 px-4 py-5 text-center dark:border-red-500/20 dark:bg-red-500/10">
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-red-100 dark:bg-red-500/10">
           <Timer className="h-5 w-5 text-red-500 dark:text-red-400" />
         </div>
@@ -1252,7 +1252,7 @@ function Countdown({ departureTime, currentTime }) {
   const seconds = totalSeconds % 60;
 
   return (
-    <div className="mt-5 min-h-[112px] rounded-2xl bg-sky-50 p-4 dark:bg-sky-500/10">
+    <div className="mt-5 min-h-28 rounded-2xl bg-sky-50 p-4 dark:bg-sky-500/10">
       <div className="flex items-center gap-2">
         <Timer className="h-4 w-4 text-sky-500" />
 

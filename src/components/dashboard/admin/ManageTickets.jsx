@@ -376,7 +376,7 @@ export default function ManageTickets() {
       {!loading && tickets.length > 0 && (
         <div className="hidden overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 md:block">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[950px] text-left">
+            <table className="w-full min-w-237.5 text-left">
               <thead className="border-b border-slate-200 bg-slate-50 dark:border-slate-800! dark:bg-slate-950!">
                 <tr>
                   <th className="px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
@@ -428,7 +428,7 @@ export default function ManageTickets() {
                       </p>
                     </td>
                     <td className="px-5 py-5">
-                      <p className="max-w-[220px] truncate text-sm text-slate-600 dark:text-slate-400">
+                      <p className="max-w-55 truncate text-sm text-slate-600 dark:text-slate-400">
                         {ticket.vendorEmail || "Unknown vendor"}
                       </p>
                     </td>
@@ -699,7 +699,7 @@ function ManageTicketsSkeleton() {
       {/* Table Skeleton */}
       <div className="hidden overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-800! dark:bg-slate-900 md:block">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[950px] text-left">
+          <table className="w-full min-w-237.5 text-left">
             {/* Header */}
             <thead className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950!">
               <tr>

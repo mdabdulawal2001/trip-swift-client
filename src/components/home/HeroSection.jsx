@@ -112,7 +112,7 @@ const HeroSection = () => {
         className="
           relative
           mx-auto
-          max-w-[1440px]
+          max-w-360
           px-3
           pt-4
           sm:px-5
@@ -146,15 +146,15 @@ const HeroSection = () => {
                 <div
                   className="
                     relative
-                    min-h-[650px]
+                    min-h-162.5
                     overflow-hidden
                     bg-[#DCECF7]
 
                     dark:bg-[#0B1F2D]
 
-                    sm:min-h-[690px]
-                    lg:min-h-[620px]
-                    xl:min-h-[650px]
+                    sm:min-h-172.5
+                    lg:min-h-155
+                    xl:min-h-162.5
                   "
                 >
                   {/* =================================================
@@ -183,8 +183,8 @@ const HeroSection = () => {
                       absolute
                       -left-24
                       -top-28
-                      h-[420px]
-                      w-[420px]
+                      h-105
+                      w-105
                       rounded-full
                       bg-[#B8D9EE]/70
                       blur-2xl
@@ -197,9 +197,9 @@ const HeroSection = () => {
                     className="
                       absolute
                       -bottom-44
-                      right-[-80px]
-                      h-[520px]
-                      w-[520px]
+                      -right-20
+                      h-130
+                      w-130
                       rounded-full
                       bg-[#B8D9EE]/40
                       blur-3xl
@@ -218,17 +218,17 @@ const HeroSection = () => {
                       z-10
                       mx-auto
                       flex
-                      min-h-[650px]
+                      min-h-162.5
                       max-w-7xl
                       flex-col
 
-                      sm:min-h-[690px]
+                      sm:min-h-172.5
 
-                      lg:min-h-[620px]
+                      lg:min-h-155
                       lg:flex-row
                       lg:items-stretch
 
-                      xl:min-h-[650px]
+                      xl:min-h-162.5
                     "
                   >
                     {/* =================================================
@@ -238,7 +238,7 @@ const HeroSection = () => {
                     <div
                       className="
                         relative
-                        min-h-[330px]
+                        min-h-82.5
                         w-full
                         overflow-hidden
 
@@ -255,7 +255,7 @@ const HeroSection = () => {
                           bg-no-repeat
 
                           transition-transform
-                          duration-[7000ms]
+                          duration-7000
                         "
                         style={{
                           backgroundImage: `url("${slide.image}")`,

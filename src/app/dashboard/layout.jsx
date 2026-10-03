@@ -1,6 +1,5 @@
 import DashboardLayoutClient from "./DashboardLayoutClient";
 
-
 export const metadata = {
   title: {
     default: "Dashboard",

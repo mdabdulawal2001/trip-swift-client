@@ -404,7 +404,7 @@ export default function Transactions() {
       {/* Desktop Table */}
       <section className="hidden overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800! dark:bg-slate-900 md:block">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px]">
+          <table className="w-full min-w-225">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50 text-left dark:border-slate-800 dark:bg-slate-950!">
                 <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">

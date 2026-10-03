@@ -5,7 +5,7 @@ const HeroSkeleton = () => {
           HERO
       ========================================================== */}
 
-      <div className="relative mx-auto max-w-[1440px] px-3 pt-4 sm:px-5 lg:px-8 lg:pt-6">
+      <div className="relative mx-auto max-w-360 px-3 pt-4 sm:px-5 lg:px-8 lg:pt-6">
         <div
           className="
             relative
@@ -19,12 +19,12 @@ const HeroSkeleton = () => {
           <div
             className="
               flex
-              min-h-[650px]
+              min-h-162.5
               flex-col
-              sm:min-h-[690px]
-              lg:min-h-[620px]
+              sm:min-h-172.5
+              lg:min-h-155
               lg:flex-row
-              xl:min-h-[650px]
+              xl:min-h-162.5
             "
           >
             {/* =================================================
@@ -34,7 +34,7 @@ const HeroSkeleton = () => {
             <div
               className="
                 relative
-                min-h-[330px]
+                min-h-82.5
                 w-full
                 animate-pulse
                 bg-slate-200

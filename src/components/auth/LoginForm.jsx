@@ -81,14 +81,6 @@ const LoginForm = () => {
     }
   };
 
-  // login with google
-  const handleGoogleLogin = async () => {
-    await authClient.signIn.social({
-      provider: "google",
-      // Desired route
-      callbackURL: callbackUrl,
-    });
-  };
 
   return (
     <motion.div

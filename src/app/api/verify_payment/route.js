@@ -5,10 +5,8 @@ import { stripe } from "@/lib/stripe";
 
 export async function POST(request) {
   try {
-    // ============================================================
-    // REQUEST BODY
-    // ============================================================
 
+    // REQUEST BODY
     const body = await request.json();
 
     const sessionId = String(
@@ -113,7 +111,6 @@ export async function POST(request) {
     // ============================================================
     // STRIPE METADATA
     // ============================================================
-
     const bookingId =
       session.metadata?.bookingId;
 

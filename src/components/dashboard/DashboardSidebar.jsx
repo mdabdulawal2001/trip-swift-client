@@ -528,7 +528,7 @@ export default function DashboardSidebar({ role = "user", open, setOpen }) {
       {/* ======================================================== */}
 
       <aside className="hidden w-64 shrink-0 overflow-clip rounded-xl border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950! lg:block">
-        <div className="sticky top-[72px] flex flex-col">
+        <div className="sticky top-18 flex flex-col">
           <SidebarContent />
         </div>
       </aside>
@@ -547,7 +547,7 @@ export default function DashboardSidebar({ role = "user", open, setOpen }) {
             className="
               fixed
               inset-0
-              z-[60]
+              z-60
               overflow-hidden
               lg:hidden
             "
@@ -610,8 +610,8 @@ export default function DashboardSidebar({ role = "user", open, setOpen }) {
               <div
                 className="
                   flex
-                  h-[76px]
-                  min-h-[76px]
+                  h-19
+                  min-h-19
                   shrink-0
                   items-center
                   justify-between

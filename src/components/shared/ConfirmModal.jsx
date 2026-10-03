@@ -115,13 +115,13 @@ export default function ConfirmModal({
       }}
       size={size}
       placement="center"
-      className="z-[100]"
+      className="z-100"
     >
       <Modal.Backdrop
         className="
           fixed
           inset-0
-          z-[100]
+          z-100
 
           flex
           items-center
@@ -140,7 +140,7 @@ export default function ConfirmModal({
             mx-5
             md:mx-0
             md:w-[calc(100vw-24px)]
-            md:max-w-[420px]
+            md:max-w-105
             max-h-[calc(100dvh-24px)]
 
             items-center
@@ -148,7 +148,7 @@ export default function ConfirmModal({
 
             p-0
 
-            sm:w-[420px]
+            sm:w-105
           "
         >
           <motion.div

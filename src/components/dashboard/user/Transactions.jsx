@@ -57,26 +57,6 @@ export default function Transactions() {
 
   useEffect(() => {
     loadPayments();
-
-    const handleFocus = () => {
-      loadPayments();
-    };
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        loadPayments();
-      }
-    };
-
-    window.addEventListener("focus", handleFocus);
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () => {
-      window.removeEventListener("focus", handleFocus);
-
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
   }, [loadPayments]);
 
   const totalPaid = payments.reduce(
@@ -413,7 +393,12 @@ export default function Transactions() {
           loading={loading}
         />
 
-        <StatCard icon={XCircle} label="Failed" value="00" loading={loading} />
+        <StatCard
+          icon={XCircle}
+          label="Failed"
+          value="00"
+          loading={loading}
+        />
       </div>
 
       {/* Desktop Table */}
@@ -491,10 +476,18 @@ function StatCard({ icon: Icon, label, value, loading }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 text-center dark:border-slate-800 dark:bg-slate-900 sm:text-left">
       <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400 sm:mx-0">
-        <Icon className="h-5 w-5" />
+        {loading ? (
+          <div className="h-5 w-5 animate-pulse rounded-md bg-sky-200 dark:bg-sky-700" />
+        ) : (
+          <Icon className="h-5 w-5" />
+        )}
       </div>
 
-      <p className="mt-4 text-xs text-slate-400">{label}</p>
+      {loading ? (
+        <div className="mx-auto mt-4 h-3 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-700 sm:mx-0" />
+      ) : (
+        <p className="mt-4 text-xs text-slate-400">{label}</p>
+      )}
 
       {loading ? (
         <div className="mx-auto mt-2 h-7 w-24 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-700 sm:mx-0" />

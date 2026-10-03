@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 import { Bell, Menu } from "lucide-react";
 
@@ -12,6 +13,33 @@ import { useProfile } from "@/context/ProfileContext";
 
 export default function DashboardNavbar({ role, onMenuClick, setSidebarOpen }) {
   const { profile, isProfileLoading } = useProfile();
+  const [isHidden, setIsHidden] = useState(false);
+
+  useEffect(() => {
+    let previousScrollY = window.scrollY;
+
+    const updateVisibility = () => {
+      const currentScrollY = window.scrollY;
+
+      if (window.innerWidth >= 640 || currentScrollY <= 80) {
+        setIsHidden(false);
+      } else if (currentScrollY > previousScrollY) {
+        setIsHidden(true);
+      } else if (currentScrollY < previousScrollY) {
+        setIsHidden(false);
+      }
+
+      previousScrollY = currentScrollY;
+    };
+
+    window.addEventListener("scroll", updateVisibility, { passive: true });
+    window.addEventListener("resize", updateVisibility);
+
+    return () => {
+      window.removeEventListener("scroll", updateVisibility);
+      window.removeEventListener("resize", updateVisibility);
+    };
+  }, []);
 
   const displayName = profile?.name || "User";
 
@@ -27,7 +55,11 @@ export default function DashboardNavbar({ role, onMenuClick, setSidebarOpen }) {
   const roleLabel = userRole.charAt(0).toUpperCase() + userRole.slice(1);
 
   return (
-    <header className="sticky top-0 z-40 mx-2 rounded-lg border-b border-slate-200/80 bg-white/90 backdrop-blur-xl sm:mx-3 lg:mx-4 dark:border-slate-800! dark:bg-slate-950/90!">
+    <header
+      className={`sticky top-20 z-40 mx-2 rounded-lg border-b border-slate-200/80 bg-white/90 backdrop-blur-xl transition-transform duration-300 ease-in-out sm:top-[5.5rem] sm:mx-3 sm:translate-y-0 lg:top-0 lg:mx-4 dark:border-slate-800! dark:bg-slate-950/90! ${
+        isHidden ? "-translate-y-full" : "translate-y-0"
+      }`}
+    >
       <div className="flex h-18 items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* ================================================== */}
         {/* LEFT */}
@@ -148,9 +180,6 @@ export default function DashboardNavbar({ role, onMenuClick, setSidebarOpen }) {
               "
             />
           </button>
-
-          {/* THEME */}
-          <ThemeToggle />
 
           <div className="hidden h-8 w-px bg-slate-200 dark:bg-slate-800 sm:block" />
 

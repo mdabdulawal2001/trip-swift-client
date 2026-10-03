@@ -528,7 +528,11 @@ const Navbar = () => {
                 dark:hover:text-[#38BDF8]
               "
             >
-              <ThemeToggle isDark={isDark} mounted={mounted} />
+              <ThemeToggle
+                isDark={isDark}
+                mounted={mounted}
+                loading={isPending}
+              />
             </button>
 
             {/* SESSION */}
@@ -884,7 +888,11 @@ const Navbar = () => {
                 dark:hover:text-cyan-400
               "
             >
-              <ThemeToggle isDark={isDark} mounted={mounted} />
+              <ThemeToggle
+                isDark={isDark}
+                mounted={mounted}
+                loading={isPending}
+              />
             </button>
 
             {/* MOBILE MENU BUTTON */}

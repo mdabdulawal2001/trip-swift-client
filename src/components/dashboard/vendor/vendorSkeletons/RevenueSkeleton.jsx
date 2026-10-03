@@ -28,9 +28,9 @@ export default function RevenueSkeleton() {
             key={index}
             className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900"
           >
-            <Skeleton className="h-11 w-11 rounded-2xl" />
-            <Skeleton className="mt-5 h-4 w-24" />
-            <Skeleton className="mt-2 h-8 w-32" />
+            <Skeleton className="mx-auto h-11 w-11 rounded-2xl sm:mx-0" />
+            <Skeleton className="mx-auto mt-5 h-4 w-24 sm:mx-0" />
+            <Skeleton className="mx-auto mt-2 h-8 w-32 sm:mx-0" />
           </div>
         ))}
       </div>

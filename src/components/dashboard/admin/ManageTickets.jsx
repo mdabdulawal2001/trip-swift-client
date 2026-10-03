@@ -313,7 +313,7 @@ export default function ManageTickets() {
                 </p>
               </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-4">
+              <div className="mt-4 grid grid-cols-2 gap-4 text-center">
                 <div className="min-w-0">
                   <p className="text-xs font-medium text-slate-500">Vendor</p>
                   <p className="mt-1 break-all text-sm text-slate-600 dark:text-slate-400">
@@ -677,11 +677,11 @@ function ManageTicketsSkeleton() {
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-4">
-              <div className="space-y-2">
+              <div className="flex flex-col items-center gap-2">
                 <div className="h-3 w-14 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                 <div className="h-4 w-full animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
               </div>
-              <div className="space-y-2">
+              <div className="flex flex-col items-center gap-2">
                 <div className="h-3 w-10 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                 <div className="h-4 w-16 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
               </div>
@@ -711,8 +711,25 @@ function ManageTicketsSkeleton() {
                   "Status",
                   "Actions",
                 ].map((item) => (
-                  <th key={item} className="px-5 py-4">
-                    <div className="h-3 w-16 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                  <th
+                    key={item}
+                    className={`px-5 py-4 ${item === "Actions" ? "text-right" : ""}`}
+                  >
+                    <div
+                      className={`h-3 ${
+                        item === "Ticket"
+                          ? "w-20"
+                          : item === "Route"
+                            ? "w-14"
+                            : item === "Vendor"
+                              ? "w-16"
+                              : item === "Price"
+                                ? "w-12"
+                                : item === "Status"
+                                  ? "w-14"
+                                  : "ml-auto w-16"
+                      } animate-pulse rounded bg-slate-200 dark:bg-slate-800`}
+                    />
                   </th>
                 ))}
               </tr>
@@ -733,7 +750,7 @@ function ManageTicketsSkeleton() {
 
                   {/* Route */}
                   <td className="px-5 py-5">
-                    <div className="h-4 w-36 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                    <div className="h-4 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                   </td>
 
                   {/* Vendor */}

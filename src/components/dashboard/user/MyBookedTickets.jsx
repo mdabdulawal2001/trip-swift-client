@@ -1310,14 +1310,14 @@ function SummaryCard({ label, value }) {
 
 function Info({ icon: Icon, label, value }) {
   return (
-    <div className="min-w-0">
-      <div className="flex items-center gap-1.5 text-xs text-slate-400">
+    <div className="min-w-0 text-center">
+      <div className="flex items-center justify-center gap-1.5 text-xs text-slate-400">
         <Icon className="h-3.5 w-3.5 shrink-0" />
 
         <span>{label}</span>
       </div>
 
-      <p className="mt-1 truncate text-sm font-semibold text-slate-800 dark:text-slate-200">
+      <p className="mt-1 truncate text-center text-sm font-semibold text-slate-800 dark:text-slate-200">
         {value}
       </p>
     </div>
@@ -1404,7 +1404,7 @@ function BookingCardSkeleton() {
         {/* Journey Info */}
         <div className="mt-5 grid grid-cols-2 gap-x-8 gap-y-5 border-y border-slate-100 py-5 dark:border-slate-800">
           {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="space-y-2">
+            <div key={index} className="flex flex-col items-center gap-2">
               <div className="h-3 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
 
               <div className="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />

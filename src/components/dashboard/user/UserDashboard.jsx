@@ -23,7 +23,6 @@ import QuickActions from "@/components/dashboard/shared/QuickActions";
 import { getUserBookings, getUserPayments } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import {
-  DashboardPanelSkeleton,
   DashboardStatsSkeleton,
   QuickActionsSkeleton,
 } from "../shared/DashboardSkeleton";
@@ -399,7 +398,27 @@ export default function UserDashboard() {
 
           {/* Upcoming Journey + Quick Actions */}
           <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-            <DashboardPanelSkeleton height="h-52" />
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex items-center justify-between">
+                <div className="h-5 w-36 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                <div className="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+              </div>
+
+              <div className="mt-6 rounded-2xl bg-slate-50 p-5 dark:bg-slate-800/60">
+                <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
+                  <div className="flex flex-col items-center gap-3 sm:items-start">
+                    <div className="h-6 w-20 animate-pulse rounded-full bg-slate-200 dark:bg-slate-700" />
+                    <div className="h-6 w-64 max-w-full animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                    <div className="h-4 w-48 max-w-full animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                  </div>
+                  <div className="flex flex-col items-center gap-2 sm:items-end">
+                    <div className="h-3 w-16 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                    <div className="h-5 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                    <div className="h-4 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <QuickActionsSkeleton />
           </div>
@@ -446,10 +465,17 @@ export default function UserDashboard() {
 
               <div className="mt-6 rounded-2xl bg-slate-50 p-5 dark:bg-slate-800/60">
                 {loading ? (
-                  <div className="space-y-3">
-                    <div className="h-5 w-20 animate-pulse rounded-full bg-slate-200 dark:bg-slate-700" />
-                    <div className="h-6 w-64 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
-                    <div className="h-4 w-48 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                  <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
+                    <div className="flex flex-col items-center gap-3 sm:items-start">
+                      <div className="h-6 w-20 animate-pulse rounded-full bg-slate-200 dark:bg-slate-700" />
+                      <div className="h-6 w-64 max-w-full animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                      <div className="h-4 w-48 max-w-full animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                    </div>
+                    <div className="flex flex-col items-center gap-2 sm:items-end">
+                      <div className="h-3 w-16 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                      <div className="h-5 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                      <div className="h-4 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                    </div>
                   </div>
                 ) : !upcomingJourney ? (
                   <div className="py-5 text-center">
@@ -461,8 +487,8 @@ export default function UserDashboard() {
                     </p>
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
+                  <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
+                    <div className="flex flex-col items-center sm:items-start">
                       <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-600 dark:bg-sky-500/10 dark:text-sky-400">
                         {String(upcomingJourney.status || "Pending")
                           .charAt(0)

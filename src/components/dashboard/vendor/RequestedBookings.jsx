@@ -328,11 +328,11 @@ export default function RequestedBookings() {
                   </div>
 
                   {request.status === "pending" && (
-                    <div className="flex gap-2">
+                    <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
                       <button
                         onClick={() => triggerStatusModal(request, "accepted")}
                         disabled={actionId === request._id}
-                        className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                       >
                         <Check className="h-4 w-4" />
 
@@ -342,7 +342,7 @@ export default function RequestedBookings() {
                       <button
                         onClick={() => triggerStatusModal(request, "rejected")}
                         disabled={actionId === request._id}
-                        className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-red-200 px-4 text-sm font-semibold text-red-500 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-900/50 dark:hover:bg-red-500/10"
+                        className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-red-200 px-4 text-sm font-semibold text-red-500 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto dark:border-red-900/50 dark:hover:bg-red-500/10"
                       >
                         <X className="h-4 w-4" />
                         Reject

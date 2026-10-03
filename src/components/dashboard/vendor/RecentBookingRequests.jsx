@@ -120,8 +120,8 @@ export default function RecentBookingRequests() {
 
 function BookingSkeleton() {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60 sm:flex-row sm:items-center sm:justify-between">
-      <div className="space-y-2">
+    <div className="flex flex-col items-center gap-3 rounded-2xl bg-slate-50 p-4 text-center dark:bg-slate-800/60 sm:flex-row sm:items-center sm:justify-between sm:text-left">
+      <div className="flex flex-col items-center gap-2 sm:items-start">
         <div className="h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
         <div className="h-3 w-48 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
       </div>

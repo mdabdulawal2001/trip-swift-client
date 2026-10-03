@@ -726,9 +726,9 @@ function AdvertiseTicketsSkeleton() {
         </div>
 
         <div className="space-y-2 sm:text-right">
-          <div className="ml-auto h-8 w-16 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+          <div className="sm:ml-auto h-8 w-16 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
 
-          <div className="ml-auto h-3 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+          <div className="sm:ml-auto h-3 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
         </div>
       </div>
 

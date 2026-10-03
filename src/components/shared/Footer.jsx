@@ -49,7 +49,7 @@ const Footer = () => {
   const paymentIcons = [FaCcVisa, FaCcMastercard, FaCcAmex, FaPaypal];
 
   return (
-    <footer className="relative mt-20 overflow-hidden border-t border-sky-100 bg-white text-slate-700 dark:border-sky-900/70 dark:bg-slate-950 dark:text-slate-300">
+    <footer className="relative mt-8 overflow-hidden border-t border-sky-100 bg-white text-slate-700 sm:mt-12 lg:mt-16 dark:border-sky-900/70 dark:bg-slate-950 dark:text-slate-300">
       {/* =========================
           BACKGROUND EFFECTS
       ========================== */}

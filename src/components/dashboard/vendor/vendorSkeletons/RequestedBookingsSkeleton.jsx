@@ -52,13 +52,13 @@ export default function RequestedBookingsSkeleton() {
 
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                 <div>
-                  <Skeleton className="ml-auto h-3 w-24" />
-                  <Skeleton className="mt-2 ml-auto h-7 w-28" />
+                  <Skeleton className="sm:ml-auto h-3 w-24" />
+                  <Skeleton className="mt-2 sm:ml-auto h-7 w-28" />
                 </div>
 
-                <div className="flex gap-2">
-                  <Skeleton className="h-11 w-24 rounded-xl" />
-                  <Skeleton className="h-11 w-24 rounded-xl" />
+                <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+                  <Skeleton className="h-11 w-full rounded-xl sm:w-24" />
+                  <Skeleton className="h-11 w-full rounded-xl sm:w-24" />
                 </div>
               </div>
             </div>

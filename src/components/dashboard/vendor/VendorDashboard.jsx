@@ -408,7 +408,27 @@ export default function VendorDashboard() {
           <DashboardStatsSkeleton />
 
           <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-            <DashboardPanelSkeleton height="h-64" />
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex items-center justify-between">
+                <div className="h-5 w-36 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                <div className="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+              </div>
+
+              <div className="mt-8 flex h-52 items-end gap-3 sm:gap-5">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="flex h-full flex-1 flex-col items-center justify-end gap-3"
+                  >
+                    <div
+                      className="w-full max-w-12 animate-pulse rounded-t-xl bg-slate-200 dark:bg-slate-700"
+                      style={{ height: `${30 + index * 10}%` }}
+                    />
+                    <div className="h-3 w-8 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                  </div>
+                ))}
+              </div>
+            </div>
 
             <QuickActionsSkeleton />
           </div>

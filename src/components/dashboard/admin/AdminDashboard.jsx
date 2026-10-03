@@ -27,7 +27,6 @@ import { getAdminDashboardStats } from "@/lib/api";
 import Link from "next/link";
 import {
   ActivityListSkeleton,
-  DashboardPanelSkeleton,
   DashboardStatsSkeleton,
 } from "../shared/DashboardSkeleton";
 
@@ -366,7 +365,24 @@ export default function AdminDashboard() {
 
           {/* Approval + Activity */}
           <div className="grid gap-6 xl:grid-cols-2">
-            <DashboardPanelSkeleton height="h-64" />
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex items-center justify-between">
+                <div className="h-5 w-36 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                <div className="h-4 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+              </div>
+
+              <div className="mt-6 space-y-5">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index}>
+                    <div className="mb-2 flex items-center justify-between">
+                      <div className="h-4 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                      <div className="h-4 w-10 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                    </div>
+                    <div className="h-2 w-full animate-pulse rounded-full bg-slate-200 dark:bg-slate-700" />
+                  </div>
+                ))}
+              </div>
+            </div>
 
             <div
               className="

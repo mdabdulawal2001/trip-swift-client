@@ -33,7 +33,7 @@ export default function BookingRow({
     statusConfig.pending;
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col items-center gap-3 rounded-2xl bg-slate-50 p-4 text-center dark:bg-slate-800/60 sm:flex-row sm:items-center sm:justify-between sm:text-left">
       <div>
         <p className="font-semibold text-slate-900 dark:text-white">
           {name}

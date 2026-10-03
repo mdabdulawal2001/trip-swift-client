@@ -274,9 +274,12 @@ const Navbar = () => {
           mx-auto
           w-full
           max-w-7xl
+          px-2
           pt-3
           sm:pt-4
+          sm:px-4
           lg:pt-5
+          lg:px-6
         "
       >
         <nav
@@ -1239,7 +1242,7 @@ const Navbar = () => {
                       </div>
 
                       {/* DASHBOARD */}
-
+{/*
                       <Link
                         href="/dashboard"
                         onClick={closeMobileMenu}
@@ -1288,7 +1291,7 @@ const Navbar = () => {
                       >
                         <LayoutDashboard className="h-4 w-4" />
                         Dashboard
-                      </Link>
+                      </Link> */}
 
                       {/* MY PROFILE */}
 
@@ -1350,7 +1353,6 @@ const Navbar = () => {
                     my-3
                     h-px
                     bg-slate-200
-
                     dark:bg-slate-800
                   "
                       />

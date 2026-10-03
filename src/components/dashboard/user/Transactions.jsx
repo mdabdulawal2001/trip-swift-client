@@ -489,15 +489,15 @@ export default function Transactions() {
 
 function StatCard({ icon: Icon, label, value, loading }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 text-center dark:border-slate-800 dark:bg-slate-900 sm:text-left">
+      <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400 sm:mx-0">
         <Icon className="h-5 w-5" />
       </div>
 
       <p className="mt-4 text-xs text-slate-400">{label}</p>
 
       {loading ? (
-        <div className="mt-2 h-7 w-24 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-700" />
+        <div className="mx-auto mt-2 h-7 w-24 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-700 sm:mx-0" />
       ) : (
         <p className="mt-1 text-xl font-bold text-slate-900 dark:text-white">
           {value}
@@ -552,9 +552,9 @@ function TransactionRow({ payment, formatDate }) {
 
 function TransactionCard({ payment, formatDate }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
-      <div className="flex items-start justify-between gap-3">
-        <div>
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 text-center dark:border-slate-800 dark:bg-slate-900 sm:text-left">
+      <div className="flex flex-col items-center justify-between gap-3 sm:flex-row sm:items-start sm:text-left">
+        <div className="min-w-0">
           <p className="text-sm font-bold text-slate-900 dark:text-white">
             {payment.transactionId || "N/A"}
           </p>
@@ -577,7 +577,7 @@ function TransactionCard({ payment, formatDate }) {
       </p>
 
       <div className="mt-4 grid grid-cols-2 gap-4">
-        <div>
+        <div className="text-center sm:text-left">
           <p className="text-xs text-slate-400">Date</p>
 
           <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -585,7 +585,7 @@ function TransactionCard({ payment, formatDate }) {
           </p>
         </div>
 
-        <div>
+        <div className="text-center sm:text-left">
           <p className="text-xs text-slate-400">Payment</p>
 
           <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -594,7 +594,7 @@ function TransactionCard({ payment, formatDate }) {
         </div>
       </div>
 
-      <div className="mt-5 flex items-center justify-between rounded-xl bg-slate-50 p-4 dark:bg-slate-950">
+      <div className="mt-5 flex items-center justify-center gap-2 rounded-xl bg-slate-50 p-4 dark:bg-slate-950! sm:justify-between">
         <span className="text-xs text-slate-400">Amount</span>
 
         <span className="font-bold text-slate-900 dark:text-white">
@@ -624,11 +624,27 @@ function StatusBadge({ status }) {
 function LoadingRows() {
   return Array.from({ length: 4 }).map((_, index) => (
     <tr key={index}>
-      {Array.from({ length: 6 }).map((_, cellIndex) => (
-        <td key={cellIndex} className="px-5 py-5">
-          <div className="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
-        </td>
-      ))}
+      <td className="px-5 py-5">
+        <div className="space-y-2">
+          <div className="h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+          <div className="h-3 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+        </div>
+      </td>
+      <td className="px-5 py-5">
+        <div className="h-4 w-36 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+      </td>
+      <td className="px-5 py-5">
+        <div className="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+      </td>
+      <td className="px-5 py-5">
+        <div className="h-4 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+      </td>
+      <td className="px-5 py-5">
+        <div className="h-4 w-16 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+      </td>
+      <td className="px-5 py-5">
+        <div className="h-6 w-20 animate-pulse rounded-full bg-slate-200 dark:bg-slate-700" />
+      </td>
     </tr>
   ));
 }
@@ -637,8 +653,28 @@ function LoadingCards() {
   return Array.from({ length: 3 }).map((_, index) => (
     <div
       key={index}
-      className="h-48 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-800"
-    />
+      className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900"
+    >
+      <div className="flex flex-col items-center gap-3">
+        <div className="h-4 w-36 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+        <div className="h-3 w-44 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+        <div className="h-6 w-20 animate-pulse rounded-full bg-slate-200 dark:bg-slate-700" />
+      </div>
+      <div className="my-5 h-px bg-slate-100 dark:bg-slate-800" />
+      <div className="mx-auto h-4 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+      <div className="mt-4 grid grid-cols-2 gap-4">
+        {Array.from({ length: 2 }).map((__, cellIndex) => (
+          <div key={cellIndex} className="flex flex-col items-center gap-2">
+            <div className="h-3 w-12 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+            <div className="h-4 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+          </div>
+        ))}
+      </div>
+      <div className="mt-5 flex items-center justify-center gap-2 rounded-xl bg-slate-50 p-4 dark:bg-slate-950!">
+        <div className="h-3 w-12 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+        <div className="h-5 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+      </div>
+    </div>
   ));
 }
 

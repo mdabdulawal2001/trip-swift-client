@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import RelatedTickets from "./RelatedTickets";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -26,6 +27,7 @@ const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const [roleLoading, setRoleLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     let mounted = true;
@@ -63,12 +65,27 @@ const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
   const isManagementRole = userRole === "admin" || userRole === "vendor";
 
   const canBook = userRole === "user";
+  const isGuest = !roleLoading && !userRole;
 
   const isExpired = useMemo(() => {
     return new Date(ticket.departureDateTime).getTime() <= Date.now();
   }, [ticket.departureDateTime]);
 
-  const cannotBook = isSoldOut || isExpired || !canBook || roleLoading;
+  const cannotBook =
+    isSoldOut || isExpired || roleLoading || (Boolean(userRole) && !canBook);
+
+  const handleBookingClick = () => {
+    if (isGuest) {
+      const callbackUrl = window.location.pathname + window.location.search;
+
+      router.push(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+      return;
+    }
+
+    if (canBook) {
+      setIsBookingOpen(true);
+    }
+  };
 
   return (
     <>
@@ -278,7 +295,7 @@ const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
                   ) : (
                     <button
                       disabled={cannotBook || ticket.status !== "approved"}
-                      onClick={() => setIsBookingOpen(true)}
+                      onClick={handleBookingClick}
                       className={`cursor-pointer mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold transition ${
                         cannotBook || ticket.status !== "approved"
                           ? "cursor-not-allowed bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-600"
@@ -296,7 +313,6 @@ const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
                               : isExpired
                                 ? "Departure Passed"
                                 : "Book Now"}
-
                       {ticket.status === "approved" &&
                         !cannotBook &&
                         canBook && <FaArrowRight />}

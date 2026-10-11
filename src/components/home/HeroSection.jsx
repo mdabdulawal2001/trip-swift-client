@@ -9,6 +9,7 @@ import {
   FaLocationDot,
   FaMagnifyingGlass,
   FaShieldHalved,
+  FaTicket,
 } from "react-icons/fa6";
 
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -18,6 +19,7 @@ import "swiper/css";
 import "swiper/css/effect-fade";
 
 import { heroSlides } from "@/data/heroSlides";
+import { FaEye, FaTicketAlt } from "react-icons/fa";
 
 const HeroSection = () => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -486,7 +488,9 @@ const HeroSection = () => {
                         className="
                           mt-7
                           flex
-                          w-fit
+                          justify-center
+                          md:justify-start
+                          md:w-fit
                           max-w-full
                           flex-wrap
                           items-center
@@ -690,7 +694,7 @@ const HeroSection = () => {
 
                       {/* =================================================
                           TRUST
-                      ================================================== */}
+                      ================================================= */}
 
                       <div
                         className="
@@ -698,11 +702,12 @@ const HeroSection = () => {
                           flex
                           flex-wrap
                           items-center
+                          justify-center
+                          md:justify-start
                           gap-x-5
                           gap-y-3
                           text-xs
                           text-slate-400
-
                           dark:text-slate-500
                         "
                       >
@@ -718,11 +723,6 @@ const HeroSection = () => {
 
                           <span>10K+ happy travelers</span>
                         </div>
-
-                        <span className="hidden text-slate-300 sm:block dark:text-slate-700">
-                          •
-                        </span>
-
                         <div className="flex items-center gap-2">
                           <FaShieldHalved
                             className="
@@ -734,12 +734,17 @@ const HeroSection = () => {
 
                           <span>Secure booking</span>
                         </div>
+                        <div className="flex items-center gap-2">
+                          <FaTicket
+                            className="
+                              text-[#238FD7]
 
-                        <span className="hidden text-slate-300 sm:block dark:text-slate-700">
-                          •
-                        </span>
+                              dark:text-[#38BDF8]
+                            "
+                          />
 
-                        <span>500+ available tickets</span>
+                          <span>500+ available tickets</span>
+                        </div>
                       </div>
                     </div>
                   </div>

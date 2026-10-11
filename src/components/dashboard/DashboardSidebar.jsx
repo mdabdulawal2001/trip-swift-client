@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 
 import {
@@ -199,7 +199,7 @@ export default function DashboardSidebar({ role = "user", open, setOpen }) {
     }
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!open || isLogoutModalOpen) {
       return;
     }

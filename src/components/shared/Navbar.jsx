@@ -5,7 +5,13 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import {
   ChevronDown,
   LayoutDashboard,
@@ -231,7 +237,7 @@ const Navbar = () => {
   // ============================================================
   // MOBILE MENU OUTSIDE CLICK + ESCAPE
   // ============================================================
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isMenuOpen || isLogoutModalOpen) {
       return;
     }

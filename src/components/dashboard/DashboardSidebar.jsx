@@ -200,7 +200,7 @@ export default function DashboardSidebar({ role = "user", open, setOpen }) {
   };
 
   useEffect(() => {
-    if (!open) {
+    if (!open || isLogoutModalOpen) {
       return;
     }
 
@@ -244,7 +244,7 @@ export default function DashboardSidebar({ role = "user", open, setOpen }) {
 
       document.documentElement.style.overflow = originalHtmlOverflow;
     };
-  }, [open, setOpen]);
+  }, [open, setOpen, isLogoutModalOpen]);
 
   // ============================================================
   // CLOSE AFTER ROUTE CHANGE

@@ -122,14 +122,11 @@ export default function ConfirmModal({
           fixed
           inset-0
           z-100
-
           flex
           items-center
           justify-center
-
           bg-slate-950/50
           backdrop-blur-sm
-
           dark:bg-black/70
         "
       >
@@ -142,12 +139,9 @@ export default function ConfirmModal({
             md:w-[calc(100vw-24px)]
             md:max-w-105
             max-h-[calc(100dvh-24px)]
-
             items-center
             justify-center
-
             p-0
-
             sm:w-105
           "
         >

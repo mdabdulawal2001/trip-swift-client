@@ -1436,12 +1436,11 @@ const Navbar = () => {
 
                   <div
                     className="
-                my-4
-                h-px
-                bg-slate-200
-
-                dark:bg-slate-800
-              "
+                    my-4
+                    h-px
+                    bg-slate-200
+                    dark:bg-slate-800
+                    "
                   />
 
                   {/* MOBILE AUTH */}
@@ -1457,7 +1456,7 @@ const Navbar = () => {
                         onClick={closeMobileMenu}
                         className="
                     rounded-xl
-
+                    text-center
                     border
                     px-4
                     py-3
@@ -1539,14 +1538,13 @@ const Navbar = () => {
                     >
                       <LogOut
                         className="
-                    h-4
-                    w-4
-                    transition-transform
-                    duration-300
-                    group-hover:-translate-x-0.5
+                        h-4
+                        w-4
+                        transition-transform
+                        duration-300
+                        group-hover:-translate-x-0.5
                   "
                       />
-
                       <span>Logout</span>
                     </button>
                   )}

@@ -1257,10 +1257,6 @@ PAYMENT_CONFIRM_SECRET=your_payment_confirm_secret
 NEXT_PUBLIC_IMGBB_API_KEY=your_imagebb_api_key
 ```
 
-> ⚠️ Never commit real secrets, database credentials, OAuth credentials, Stripe keys, JWT secrets, or API keys to GitHub.
-
----
-
 # 🔄 Core Data Flows
 
 ## Ticket CRUD

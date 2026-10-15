@@ -1,5 +1,10 @@
 "use client";
 
+import {
+  DashboardListControlsSkeleton,
+  DashboardPaginationSkeleton,
+} from "../../shared/DashboardSkeleton";
+
 function Skeleton({ className = "" }) {
   return (
     <div
@@ -27,9 +32,13 @@ export default function MyTicketsSkeleton() {
         </div>
       </div>
 
-      {/* Cards */}
+      <div className="mb-6">
+        <DashboardListControlsSkeleton />
+      </div>
+
+      {/* Ticket cards */}
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, index) => (
+        {Array.from({ length: 10 }).map((_, index) => (
           <div
             key={index}
             className="overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
@@ -46,7 +55,7 @@ export default function MyTicketsSkeleton() {
               <Skeleton className="mt-4 h-6 w-44" />
 
               {/* Route */}
-              <Skeleton className="mt-5 h-24 w-full rounded-2xl" />
+              <Skeleton className="mt-5 h-20 w-full rounded-2xl" />
 
               {/* Meta */}
               <div className="mt-4 grid grid-cols-2 gap-3">
@@ -70,6 +79,8 @@ export default function MyTicketsSkeleton() {
           </div>
         ))}
       </div>
+
+      <DashboardPaginationSkeleton />
     </div>
   );
 }

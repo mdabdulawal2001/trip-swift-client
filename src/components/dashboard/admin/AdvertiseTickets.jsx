@@ -1,8 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
-import { ArrowDownToLine, Check, Megaphone, Star, Ticket } from "lucide-react";
+import {
+  ArrowDownToLine,
+  Check,
+  Megaphone,
+  Star,
+  Ticket,
+} from "lucide-react";
 import { motion } from "framer-motion";
 
 import toast from "react-hot-toast";
@@ -17,10 +24,24 @@ import {
 } from "@/lib/pdf-report";
 import ConfirmModal from "../../shared/ConfirmModal";
 import Swal from "sweetalert2";
+import DashboardListControls from "../shared/DashboardListControls";
+import TicketPagination from "@/components/tickets/TicketPagination";
+import {
+  compareByDate,
+  paginateItems,
+  scrollDashboardListToTop,
+} from "../shared/listHelpers";
+import {
+  DashboardListControlsSkeleton,
+  DashboardPaginationSkeleton,
+} from "../shared/DashboardSkeleton";
 
 export default function AdvertiseTickets() {
   const [tickets, setTickets] = useState([]);
-
+  const [search, setSearch] = useState("");
+  const [advertisementFilter, setAdvertisementFilter] = useState("all");
+  const [sortOrder, setSortOrder] = useState("newest");
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
   const [updatingId, setUpdatingId] = useState(null);
@@ -123,6 +144,42 @@ export default function AdvertiseTickets() {
   const advertisedTickets = approvedTickets.filter(
     (ticket) => ticket.advertised,
   );
+  const filteredTickets = approvedTickets
+    .filter((ticket) => {
+      const matchesAdvertisement =
+        advertisementFilter === "all" ||
+        (advertisementFilter === "advertised"
+          ? ticket.advertised
+          : !ticket.advertised);
+      const searchableText = [
+        ticket.title,
+        ticket.from,
+        ticket.to,
+        ticket.operator,
+        ticket.type,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return matchesAdvertisement && searchableText.includes(search.toLowerCase());
+    })
+    .sort((first, second) => {
+      if (sortOrder === "price-low") {
+        return Number(first.price || 0) - Number(second.price || 0);
+      }
+      if (sortOrder === "price-high") {
+        return Number(second.price || 0) - Number(first.price || 0);
+      }
+
+      return compareByDate(first.createdAt, second.createdAt, sortOrder);
+    });
+  const {
+    activePage,
+    firstItemIndex,
+    items: pageTickets,
+    totalPages,
+  } = paginateItems(filteredTickets, currentPage);
 
   const handleExport = async () => {
     if (!advertisedTickets.length) {
@@ -267,7 +324,7 @@ export default function AdvertiseTickets() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div id="dashboard-list-page" className="mx-auto max-w-7xl scroll-mt-6">
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -320,25 +377,67 @@ export default function AdvertiseTickets() {
         </div>
       </div>
 
+      <div className="mb-6">
+        <DashboardListControls
+          searchValue={search}
+          onSearchChange={(value) => {
+            setSearch(value);
+            setCurrentPage(1);
+          }}
+          searchPlaceholder="Search title, route, operator..."
+          filters={[
+            {
+              id: "advertise-status-filter",
+              label: "Filter tickets by advertisement status",
+              value: advertisementFilter,
+              onChange: (value) => {
+                setAdvertisementFilter(value);
+                setCurrentPage(1);
+              },
+              options: [
+                { value: "all", label: "All approved tickets" },
+                { value: "advertised", label: "Advertised" },
+                { value: "not-advertised", label: "Not advertised" },
+              ],
+            },
+          ]}
+          sortValue={sortOrder}
+          onSortChange={(value) => {
+            setSortOrder(value);
+            setCurrentPage(1);
+          }}
+          sortOptions={[
+            { value: "newest", label: "Newest first" },
+            { value: "oldest", label: "Oldest first" },
+            { value: "price-low", label: "Price: low to high" },
+            { value: "price-high", label: "Price: high to low" },
+          ]}
+        />
+      </div>
+
       {/* Empty */}
-      {!loading && approvedTickets.length === 0 && (
+      {!loading && filteredTickets.length === 0 && (
         <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center dark:border-slate-700 dark:bg-slate-900">
           <Ticket className="mx-auto h-10 w-10 text-slate-400" />
 
           <p className="mt-4 text-sm font-semibold text-slate-700 dark:text-slate-300">
-            No approved tickets available.
+            {approvedTickets.length
+              ? "No tickets match these filters."
+              : "No approved tickets available."}
           </p>
 
           <p className="mt-1 text-xs text-slate-500">
-            Approve tickets first from Manage Tickets.
+            {approvedTickets.length
+              ? "Try adjusting your search or filters."
+              : "Approve tickets first from Manage Tickets."}
           </p>
         </div>
       )}
 
       {/* Tickets */}
-      {!loading && approvedTickets.length > 0 && (
+      {!loading && filteredTickets.length > 0 && (
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {approvedTickets.map((ticket) => {
+          {pageTickets.map((ticket) => {
             const isUpdating = updatingId === ticket._id;
 
             return (
@@ -365,9 +464,11 @@ export default function AdvertiseTickets() {
               >
                 {/* Image */}
                 <div className="relative h-56 overflow-hidden">
-                  <img
+                  <Image
                     src={ticket.image}
                     alt={ticket.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                     className="
                 h-full w-full object-cover
                 transition duration-700
@@ -667,6 +768,23 @@ export default function AdvertiseTickets() {
           })}
         </div>
       )}
+      {!loading && filteredTickets.length > 0 && (
+        <div className="mt-6">
+          <p className="mb-3 text-center text-xs text-slate-500 dark:text-slate-400 sm:text-left">
+            Showing {firstItemIndex + 1}–
+            {Math.min(firstItemIndex + pageTickets.length, filteredTickets.length)} of{" "}
+            {filteredTickets.length} approved tickets
+          </p>
+          <TicketPagination
+            currentPage={activePage}
+            totalPages={totalPages}
+            onPageChange={(page) => {
+              setCurrentPage(page);
+              scrollDashboardListToTop();
+            }}
+          />
+        </div>
+      )}
       {/* Reusable Confirm Modal for Advertisement */}
       <ConfirmModal
         isOpen={confirmModal.isOpen}
@@ -732,9 +850,13 @@ function AdvertiseTicketsSkeleton() {
         </div>
       </div>
 
+      <div className="mb-6">
+        <DashboardListControlsSkeleton />
+      </div>
+
       {/* Cards */}
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, index) => (
+        {Array.from({ length: 10 }).map((_, index) => (
           <div
             key={index}
             className="overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
@@ -820,6 +942,8 @@ function AdvertiseTicketsSkeleton() {
           </div>
         ))}
       </div>
+
+      <DashboardPaginationSkeleton />
     </div>
   );
 }

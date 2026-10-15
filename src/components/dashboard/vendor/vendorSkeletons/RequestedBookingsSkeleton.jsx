@@ -1,5 +1,10 @@
 "use client";
 
+import {
+  DashboardListControlsSkeleton,
+  DashboardPaginationSkeleton,
+} from "../../shared/DashboardSkeleton";
+
 function Skeleton({ className = "" }) {
   return (
     <div
@@ -23,9 +28,13 @@ export default function RequestedBookingsSkeleton() {
         <Skeleton className="h-11 w-full rounded-xl sm:w-32" />
       </div>
 
+      <div className="mb-6">
+        <DashboardListControlsSkeleton />
+      </div>
+
       {/* Booking cards */}
       <div className="grid gap-5">
-        {Array.from({ length: 5 }).map((_, index) => (
+        {Array.from({ length: 10 }).map((_, index) => (
           <div
             key={index}
             className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 sm:p-6"
@@ -65,6 +74,8 @@ export default function RequestedBookingsSkeleton() {
           </div>
         ))}
       </div>
+
+      <DashboardPaginationSkeleton />
     </div>
   );
 }

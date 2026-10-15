@@ -17,9 +17,24 @@ import toast from "react-hot-toast";
 
 import { getUserPayments } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
+import DashboardListControls from "../shared/DashboardListControls";
+import TicketPagination from "@/components/tickets/TicketPagination";
+import {
+  compareByDate,
+  paginateItems,
+  scrollDashboardListToTop,
+} from "../shared/listHelpers";
+import {
+  DashboardListControlsSkeleton,
+  DashboardPaginationSkeleton,
+} from "../shared/DashboardSkeleton";
 
 export default function Transactions() {
   const [payments, setPayments] = useState([]);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortOrder, setSortOrder] = useState("newest");
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -67,6 +82,40 @@ export default function Transactions() {
   const successfulPayments = payments.filter(
     (payment) => payment.status === "paid",
   ).length;
+  const filteredPayments = payments
+    .filter((payment) => {
+      const searchableText = [
+        payment.transactionId,
+        payment.bookingId,
+        payment.ticketTitle,
+        payment.status,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return (
+        (statusFilter === "all" ||
+          String(payment.status || "").toLowerCase() === statusFilter) &&
+        searchableText.includes(search.toLowerCase())
+      );
+    })
+    .sort((first, second) => {
+      if (sortOrder === "amount-low") {
+        return Number(first.amount || 0) - Number(second.amount || 0);
+      }
+      if (sortOrder === "amount-high") {
+        return Number(second.amount || 0) - Number(first.amount || 0);
+      }
+
+      return compareByDate(first.paymentDate, second.paymentDate, sortOrder);
+    });
+  const {
+    activePage,
+    firstItemIndex,
+    items: pagePayments,
+    totalPages,
+  } = paginateItems(filteredPayments, currentPage);
 
   const handleExport = async () => {
     if (!payments.length) {
@@ -336,9 +385,10 @@ export default function Transactions() {
 
   return (
     <motion.div
+      id="dashboard-list-page"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-8"
+      className="space-y-8 scroll-mt-6"
     >
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -401,6 +451,48 @@ export default function Transactions() {
         />
       </div>
 
+      {loading ? (
+        <DashboardListControlsSkeleton />
+      ) : (
+        <DashboardListControls
+          searchValue={search}
+          onSearchChange={(value) => {
+            setSearch(value);
+            setCurrentPage(1);
+          }}
+          searchPlaceholder="Search transaction, ticket, booking..."
+          filters={[
+            {
+              id: "transactions-status-filter",
+              label: "Filter transactions by status",
+              value: statusFilter,
+              onChange: (value) => {
+                setStatusFilter(value);
+                setCurrentPage(1);
+              },
+              options: [
+                { value: "all", label: "All statuses" },
+                { value: "paid", label: "Paid" },
+                { value: "pending", label: "Pending" },
+                { value: "failed", label: "Failed" },
+                { value: "cancelled", label: "Cancelled" },
+              ],
+            },
+          ]}
+          sortValue={sortOrder}
+          onSortChange={(value) => {
+            setSortOrder(value);
+            setCurrentPage(1);
+          }}
+          sortOptions={[
+            { value: "newest", label: "Newest first" },
+            { value: "oldest", label: "Oldest first" },
+            { value: "amount-low", label: "Amount: low to high" },
+            { value: "amount-high", label: "Amount: high to low" },
+          ]}
+        />
+      )}
+
       {/* Desktop Table */}
       <section className="hidden overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800! dark:bg-slate-900 md:block">
         <div className="overflow-x-auto">
@@ -436,10 +528,16 @@ export default function Transactions() {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {loading ? (
                 <LoadingRows />
-              ) : payments.length === 0 ? (
-                <EmptyRow />
+              ) : filteredPayments.length === 0 ? (
+                <EmptyRow
+                  message={
+                    payments.length
+                      ? "No transactions match these filters."
+                      : "No payment transactions found."
+                  }
+                />
               ) : (
-                payments.map((payment) => (
+                pagePayments.map((payment) => (
                   <TransactionRow
                     key={payment._id}
                     payment={payment}
@@ -456,10 +554,16 @@ export default function Transactions() {
       <div className="space-y-4 md:hidden">
         {loading ? (
           <LoadingCards />
-        ) : payments.length === 0 ? (
-          <EmptyCard />
+        ) : filteredPayments.length === 0 ? (
+          <EmptyCard
+            message={
+              payments.length
+                ? "No transactions match these filters."
+                : "No payment transactions found."
+            }
+          />
         ) : (
-          payments.map((payment) => (
+          pagePayments.map((payment) => (
             <TransactionCard
               key={payment._id}
               payment={payment}
@@ -468,6 +572,25 @@ export default function Transactions() {
           ))
         )}
       </div>
+      {loading ? (
+        <DashboardPaginationSkeleton />
+      ) : filteredPayments.length > 0 && (
+        <div>
+          <p className="mb-3 text-center text-xs text-slate-500 dark:text-slate-400 sm:text-left">
+            Showing {firstItemIndex + 1}–
+            {Math.min(firstItemIndex + pagePayments.length, filteredPayments.length)} of{" "}
+            {filteredPayments.length} transactions
+          </p>
+          <TicketPagination
+            currentPage={activePage}
+            totalPages={totalPages}
+            onPageChange={(page) => {
+              setCurrentPage(page);
+              scrollDashboardListToTop();
+            }}
+          />
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -671,20 +794,20 @@ function LoadingCards() {
   ));
 }
 
-function EmptyRow() {
+function EmptyRow({ message = "No payment transactions found." }) {
   return (
     <tr>
       <td colSpan={6} className="px-5 py-16 text-center text-sm text-slate-400">
-        No payment transactions found.
+        {message}
       </td>
     </tr>
   );
 }
 
-function EmptyCard() {
+function EmptyCard({ message = "No payment transactions found." }) {
   return (
     <div className="rounded-2xl border border-dashed border-slate-300 p-10 text-center text-sm text-slate-400 dark:border-slate-700">
-      No payment transactions found.
+      {message}
     </div>
   );
 }

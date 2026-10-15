@@ -38,12 +38,62 @@ import {
   createPdfReport,
   formatPdfDate,
 } from "@/lib/pdf-report";
+import DashboardListControls from "../shared/DashboardListControls";
+import TicketPagination from "@/components/tickets/TicketPagination";
+import {
+  compareByDate,
+  paginateItems,
+  scrollDashboardListToTop,
+} from "../shared/listHelpers";
 
 export default function MyTickets() {
   const [tickets, setTickets] = useState([]);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortOrder, setSortOrder] = useState("newest");
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const filteredTickets = tickets
+    .filter((ticket) => {
+      const status = String(ticket.status || "pending").toLowerCase();
+      const searchableText = [
+        ticket.title,
+        ticket.from,
+        ticket.to,
+        ticket.operator,
+        ticket.type,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return (
+        (statusFilter === "all" || status === statusFilter) &&
+        searchableText.includes(search.toLowerCase())
+      );
+    })
+    .sort((first, second) => {
+      if (sortOrder === "price-low") {
+        return Number(first.price || 0) - Number(second.price || 0);
+      }
+      if (sortOrder === "price-high") {
+        return Number(second.price || 0) - Number(first.price || 0);
+      }
+
+      return compareByDate(
+        first.date || first.createdAt,
+        second.date || second.createdAt,
+        sortOrder,
+      );
+    });
+  const {
+    activePage,
+    firstItemIndex,
+    items: pageTickets,
+    totalPages,
+  } = paginateItems(filteredTickets, currentPage);
 
   useEffect(() => {
     window.scrollTo({
@@ -197,7 +247,7 @@ export default function MyTickets() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div id="dashboard-list-page" className="mx-auto max-w-7xl scroll-mt-6">
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -233,35 +283,75 @@ export default function MyTickets() {
         </div>
       </div>
 
+      <div className="mb-6">
+        <DashboardListControls
+          searchValue={search}
+          onSearchChange={(value) => {
+            setSearch(value);
+            setCurrentPage(1);
+          }}
+          searchPlaceholder="Search title, route, operator..."
+          filters={[
+            {
+              id: "my-tickets-status",
+              label: "Filter tickets by status",
+              value: statusFilter,
+              onChange: (value) => {
+                setStatusFilter(value);
+                setCurrentPage(1);
+              },
+              options: [
+                { value: "all", label: "All statuses" },
+                { value: "pending", label: "Pending" },
+                { value: "approved", label: "Approved" },
+                { value: "rejected", label: "Rejected" },
+              ],
+            },
+          ]}
+          sortValue={sortOrder}
+          onSortChange={(value) => {
+            setSortOrder(value);
+            setCurrentPage(1);
+          }}
+          sortOptions={[
+            { value: "newest", label: "Newest first" },
+            { value: "oldest", label: "Oldest first" },
+            { value: "price-low", label: "Price: low to high" },
+            { value: "price-high", label: "Price: high to low" },
+          ]}
+        />
+      </div>
+
       {/* Empty State */}
-      {!loading && tickets.length === 0 && (
+      {!loading && filteredTickets.length === 0 && (
         <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-50 text-2xl dark:bg-sky-500/10">
             🎫
           </div>
 
           <h2 className="mt-5 text-xl font-bold text-slate-900 dark:text-white">
-            No tickets yet
+            {tickets.length === 0 ? "No tickets yet" : "No matching tickets"}
           </h2>
 
           <p className="mx-auto mt-2 max-w-md text-sm text-slate-500 dark:text-slate-400">
-            You have not added any tickets yet. Create your first ticket and
-            submit it for admin approval.
+            {tickets.length === 0
+              ? "You have not added any tickets yet. Create your first ticket and submit it for admin approval."
+              : "Try changing the search, status filter, or sort order."}
           </p>
 
-          <Link href="/dashboard/add-ticket">
+          {tickets.length === 0 && <Link href="/dashboard/add-ticket">
             <Button className="mt-6 rounded-xl bg-sky-500 px-5 font-semibold text-white hover:bg-sky-600">
               <Plus className="h-5 w-5" />
               Add Your First Ticket
             </Button>
-          </Link>
+          </Link>}
         </div>
       )}
 
       {/* Tickets */}
-      {!loading && tickets.length > 0 && (
+      {!loading && filteredTickets.length > 0 && (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {tickets.map((ticket) => {
+          {pageTickets.map((ticket) => {
             const normalizedStatus = String(
               ticket.status || "pending",
             ).toLowerCase();
@@ -490,6 +580,23 @@ export default function MyTickets() {
               </motion.article>
             );
           })}
+        </div>
+      )}
+      {!loading && filteredTickets.length > 0 && (
+        <div className="mt-6">
+          <p className="mb-3 text-center text-xs text-slate-500 dark:text-slate-400 sm:text-left">
+            Showing {firstItemIndex + 1}–
+            {Math.min(firstItemIndex + pageTickets.length, filteredTickets.length)} of{" "}
+            {filteredTickets.length} tickets
+          </p>
+          <TicketPagination
+            currentPage={activePage}
+            totalPages={totalPages}
+            onPageChange={(page) => {
+              setCurrentPage(page);
+              scrollDashboardListToTop();
+            }}
+          />
         </div>
       )}
 

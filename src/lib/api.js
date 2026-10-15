@@ -417,3 +417,34 @@ export async function getAdminPayments() {
   });
 }
 
+// contact message submission
+export async function submitContactMessage(message) {
+  if (!API_URL) {
+    throw new Error(
+      "Contact form is unavailable: configure NEXT_PUBLIC_SERVER_API_URL and add the POST /contact backend route.",
+    );
+  }
+
+  const response = await fetch(`${API_URL}/contact`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(message),
+  });
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message ||
+        `Contact request failed (${response.status}). Check the backend POST /contact route.`,
+    );
+  }
+
+  if (data?.success !== true) {
+    throw new Error("The contact service did not confirm that your message was saved.");
+  }
+
+  return data;
+}
+

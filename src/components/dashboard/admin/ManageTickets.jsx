@@ -1,12 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowDownToLine, Check, Eye, Loader2, X } from "lucide-react";
+import {
+  ArrowDownToLine,
+  Check,
+  Eye,
+  Loader2,
+  Search,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { getAdminTickets, updateTicketStatus } from "@/lib/api";
+import TicketPagination from "@/components/tickets/TicketPagination";
 import {
   addPdfReportFooter,
   createPdfReport,
@@ -14,9 +22,14 @@ import {
 } from "@/lib/pdf-report";
 import ConfirmModal from "../../shared/ConfirmModal";
 import Swal from "sweetalert2";
+import { DashboardPaginationSkeleton } from "../shared/DashboardSkeleton";
 
 export default function ManageTickets() {
   const [tickets, setTickets] = useState([]);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortOrder, setSortOrder] = useState("newest");
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
   const [confirmModal, setConfirmModal] = useState({
@@ -25,6 +38,50 @@ export default function ManageTickets() {
     actionType: null, // "approved" or "rejected"
     loading: false,
   });
+  const itemsPerPage = 10;
+
+  const filteredTickets = tickets
+    .filter((ticket) => {
+      const matchesStatus =
+        statusFilter === "all" ||
+        String(ticket.status || "pending").toLowerCase() === statusFilter;
+      const searchableText = [
+        ticket.title,
+        ticket.from,
+        ticket.to,
+        ticket.vendorEmail,
+        ticket.type,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return matchesStatus && searchableText.includes(search.toLowerCase());
+    })
+    .sort((first, second) => {
+      if (sortOrder === "price-low") {
+        return Number(first.price || 0) - Number(second.price || 0);
+      }
+      if (sortOrder === "price-high") {
+        return Number(second.price || 0) - Number(first.price || 0);
+      }
+
+      const firstDate = new Date(first.createdAt || 0).getTime();
+      const secondDate = new Date(second.createdAt || 0).getTime();
+      return sortOrder === "oldest"
+        ? firstDate - secondDate
+        : secondDate - firstDate;
+    });
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredTickets.length / itemsPerPage),
+  );
+  const activePage = Math.min(currentPage, totalPages);
+  const firstVisibleIndex = (activePage - 1) * itemsPerPage;
+  const pageTickets = filteredTickets.slice(
+    firstVisibleIndex,
+    firstVisibleIndex + itemsPerPage,
+  );
 
   const loadTickets = async () => {
     try {
@@ -275,23 +332,73 @@ export default function ManageTickets() {
         </button>
       </div>
 
+      <div className="mb-6 grid gap-3 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:grid-cols-[minmax(0,1fr)_180px_180px]">
+        <label className="relative block">
+          <span className="sr-only">Search tickets</span>
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              setCurrentPage(1);
+            }}
+            placeholder="Search title, route, vendor..."
+            className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 dark:border-slate-700 dark:bg-slate-950! dark:text-white"
+          />
+        </label>
+        <label className="sr-only" htmlFor="ticket-status-filter">
+          Filter tickets by status
+        </label>
+        <select
+          id="ticket-status-filter"
+          value={statusFilter}
+          onChange={(event) => {
+            setStatusFilter(event.target.value);
+            setCurrentPage(1);
+          }}
+          className="h-11 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 dark:border-slate-700 dark:bg-slate-950! dark:text-slate-200"
+        >
+          <option value="all">All statuses</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+        <label className="sr-only" htmlFor="ticket-sort-order">
+          Sort tickets
+        </label>
+        <select
+          id="ticket-sort-order"
+          value={sortOrder}
+          onChange={(event) => setSortOrder(event.target.value)}
+          className="h-11 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 dark:border-slate-700 dark:bg-slate-950!   dark:text-slate-200"
+        >
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="price-low">Price: low to high</option>
+          <option value="price-high">Price: high to low</option>
+        </select>
+      </div>
+
       {/* Empty */}
-      {!loading && tickets.length === 0 && (
+      {!loading && filteredTickets.length === 0 && (
         <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-            No tickets found
+            {tickets.length === 0 ? "No tickets found" : "No matching tickets"}
           </h2>
 
           <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-            There are no tickets to manage right now.
+            {tickets.length === 0
+              ? "There are no tickets to manage right now."
+              : "Try changing the search, status filter, or sort order."}
           </p>
         </div>
       )}
 
       {/* Tickets */}
-      {!loading && tickets.length > 0 && (
+      {!loading && filteredTickets.length > 0 && (
         <div className="space-y-4 md:hidden">
-          {tickets.map((ticket) => (
+          {pageTickets.map((ticket) => (
             <article
               key={ticket._id}
               className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
@@ -373,7 +480,7 @@ export default function ManageTickets() {
         </div>
       )}
 
-      {!loading && tickets.length > 0 && (
+      {!loading && filteredTickets.length > 0 && (
         <div className="hidden overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 md:block">
           <div className="overflow-x-auto">
             <table className="w-full min-w-237.5 text-left">
@@ -406,7 +513,7 @@ export default function ManageTickets() {
               </thead>
 
               <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                {tickets.map((ticket) => (
+                {pageTickets.map((ticket) => (
                   <tr
                     key={ticket._id}
                     className="transition hover:bg-slate-50 dark:hover:bg-slate-950"
@@ -579,6 +686,21 @@ export default function ManageTickets() {
         </div>
       )}
 
+      {!loading && filteredTickets.length > 0 && (
+        <div className="mt-5">
+          <p className="mb-3 text-center text-xs text-slate-500 dark:text-slate-400 sm:text-left">
+            Showing {firstVisibleIndex + 1}–
+            {Math.min(firstVisibleIndex + pageTickets.length, filteredTickets.length)} of{" "}
+            {filteredTickets.length} tickets
+          </p>
+          <TicketPagination
+            currentPage={activePage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </div>
+      )}
+
       {/* Dynamic Reusable Confirm Modal */}
       <ConfirmModal
         isOpen={confirmModal.isOpen}
@@ -656,9 +778,18 @@ function ManageTicketsSkeleton() {
         <div className="h-11 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800 sm:w-32" />
       </div>
 
+      <div className="mb-6 grid gap-3 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:grid-cols-[minmax(0,1fr)_180px_180px]">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <div
+            key={index}
+            className="h-11 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800"
+          />
+        ))}
+      </div>
+
       {/* Mobile Card Skeleton */}
       <div className="space-y-4 md:hidden">
-        {Array.from({ length: 4 }).map((_, index) => (
+        {Array.from({ length: itemsPerPage }).map((_, index) => (
           <div
             key={index}
             className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800! dark:bg-slate-900!"
@@ -737,7 +868,7 @@ function ManageTicketsSkeleton() {
 
             {/* Rows */}
             <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-              {Array.from({ length: 7 }).map((_, index) => (
+              {Array.from({ length: itemsPerPage }).map((_, index) => (
                 <tr key={index}>
                   {/* Ticket */}
                   <td className="px-5 py-5">
@@ -784,6 +915,8 @@ function ManageTicketsSkeleton() {
           </table>
         </div>
       </div>
+
+      <DashboardPaginationSkeleton />
     </div>
   );
 }

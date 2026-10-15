@@ -10,9 +10,9 @@ import { motion } from "framer-motion";
 import {
   FaFacebookF,
   FaLinkedinIn,
-  FaMapMarkerAlt,
-  FaPhoneAlt,
   FaEnvelope,
+  FaPhoneAlt,
+  FaPaperPlane,
   FaCcVisa,
   FaCcMastercard,
   FaCcAmex,
@@ -28,6 +28,7 @@ const Footer = () => {
     ["Home", "/"],
     ["All Tickets", "/tickets"],
     ["About Us", "/about"],
+    ["Contact", "/contact"],
     ["Login", "/login"],
   ];
 
@@ -35,16 +36,19 @@ const Footer = () => {
     {
       icon: FaFacebookF,
       label: "Facebook",
+      href: process.env.NEXT_PUBLIC_FACEBOOK_URL,
     },
     {
       icon: FaXTwitter,
       label: "X",
+      href: process.env.NEXT_PUBLIC_X_URL,
     },
     {
       icon: FaLinkedinIn,
       label: "LinkedIn",
+      href: process.env.NEXT_PUBLIC_LINKEDIN_URL,
     },
-  ];
+  ].filter((social) => social.href?.startsWith("https://"));
 
   const paymentIcons = [FaCcVisa, FaCcMastercard, FaCcAmex, FaPaypal];
 
@@ -139,7 +143,7 @@ const Footer = () => {
       ========================== */}
 
       <div className="relative z-10 mx-auto max-w-7xl px-5 pb-8 pt-16 sm:px-8 lg:px-8">
-        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 items-start gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-12">
           {/* =========================
               BRAND
           ========================== */}
@@ -149,10 +153,11 @@ const Footer = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
+            className="lg:col-span-4"
           >
             <Link
               href="/"
-              className="group flex shrink-0 items-center justify-center gap-1 md:justify-start"
+              className="group flex shrink-0 items-center justify-start gap-1"
             >
               <div className="relative h-12 w-12 sm:h-14 sm:w-14">
                 <Image
@@ -203,13 +208,12 @@ const Footer = () => {
             <p
               className="
                 mt-5
-                text-center
+                text-left
                 text-sm
                 leading-7
                 text-slate-600
                 dark:text-slate-400
                 md:max-w-xs
-                md:text-left
               "
             >
               TripSwift makes ticket booking simple, reliable and convenient so
@@ -217,16 +221,19 @@ const Footer = () => {
             </p>
 
             {/* Social */}
-            <div className="mt-6 flex items-center justify-center gap-3 md:justify-start">
-              {socialLinks.map((social) => {
-                const Icon = social.icon;
+            {socialLinks.length > 0 && (
+              <div className="mt-6 flex items-center justify-start gap-3">
+                {socialLinks.map((social) => {
+                  const Icon = social.icon;
 
-                return (
-                  <a
-                    key={social.label}
-                    href="#"
-                    aria-label={social.label}
-                    className="
+                  return (
+                    <a
+                      key={social.label}
+                      href={social.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={social.label}
+                      className="
                       flex
                       h-9
                       w-9
@@ -245,24 +252,25 @@ const Footer = () => {
                       dark:border-slate-800
                       dark:text-slate-400
                     "
-                  >
-                    <Icon />
-                  </a>
-                );
-              })}
-            </div>
+                    >
+                      <Icon />
+                    </a>
+                  );
+                })}
+              </div>
+            )}
           </motion.div>
 
           {/* =========================
               QUICK LINKS
           ========================== */}
 
-          <div className="text-center md:text-left">
+          <div className="text-left lg:col-span-2">
             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">
               Quick Links
             </h3>
 
-            <ul className="mt-5 flex flex-col items-center space-y-3 md:items-start">
+            <ul className="mt-5 flex flex-col items-start space-y-3">
               {quickLinks.map(([label, href]) => (
                 <li key={label}>
                   <Link
@@ -289,35 +297,41 @@ const Footer = () => {
               CONTACT
           ========================== */}
 
-          <div className="text-center md:text-left">
+          <div className="text-left lg:col-span-3">
             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">
               Contact
             </h3>
 
-            <div className="mt-5 flex flex-col items-center space-y-4 md:items-start">
-              <div className="flex gap-3">
-                <FaMapMarkerAlt className="mt-1 shrink-0 text-[#238FD7]" />
-
-                <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">
-                  Dhaka, Bangladesh
-                </p>
-              </div>
-
-              <div className="flex gap-3">
+            <div className="mt-5 flex flex-col items-start space-y-4">
+              <a
+                href="tel:+8801304-341383"
+                className="group flex items-start gap-3 text-left"
+              >
                 <FaPhoneAlt className="mt-1 shrink-0 text-[#238FD7]" />
+                <span className="text-sm text-slate-600 transition-colors group-hover:text-[#238FD7] dark:text-slate-400">
+                  +880 1304-341383
+                </span>
+              </a>
 
-                <p className="text-sm text-slate-600 dark:text-slate-400">
-                  +880 1XXX-XXXXXX
-                </p>
-              </div>
-
-              <div className="flex gap-3">
+              <a
+                href="mailto:tohamd245@gmail.com"
+                className="group flex min-w-0 items-start gap-3 text-left"
+              >
                 <FaEnvelope className="mt-1 shrink-0 text-[#238FD7]" />
+                <span className="break-all text-sm text-slate-600 transition-colors group-hover:text-[#238FD7] dark:text-slate-400">
+                  tohamd245@gmail.com
+                </span>
+              </a>
 
-                <p className="break-all text-sm text-slate-600 dark:text-slate-400">
-                  support@tripswift.com
-                </p>
-              </div>
+              <Link
+                href="/contact"
+                className="group flex items-start gap-3 text-left"
+              >
+                <FaPaperPlane className="mt-1 shrink-0 text-[#238FD7]" />
+                <span className="text-sm font-semibold text-slate-700 transition-colors group-hover:text-[#238FD7] dark:text-slate-200">
+                  Send us a message
+                </span>
+              </Link>
             </div>
           </div>
 
@@ -325,7 +339,7 @@ const Footer = () => {
               PAYMENT
           ========================== */}
 
-          <div className="flex flex-col items-center justify-center text-center md:items-start md:text-left">
+          <div className="lg:col-span-3 flex flex-col items-start text-left">
             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">
               Secure Payments
             </h3>
@@ -335,7 +349,7 @@ const Footer = () => {
               gateway.
             </p>
 
-            <div className="mt-5 flex flex-wrap justify-center gap-2 md:justify-start">
+            <div className="mx-auto md:mx-0 mt-5 flex justify-center md:justify-start gap-2">
               {paymentIcons.map((Icon, index) => (
                 <div
                   key={index}
@@ -375,7 +389,7 @@ const Footer = () => {
               ))}
             </div>
 
-            <p className="mt-4 text-xs text-slate-500">Powered by Stripe</p>
+            <p className="mx-auto md:mx-0 mt-4 text-xs text-slate-500">Powered by Stripe</p>
           </div>
         </div>
 
@@ -406,17 +420,17 @@ const Footer = () => {
 
           <div className="flex gap-5 text-xs text-slate-500">
             <Link
-              href="#"
+              href="/tickets"
               className="transition hover:text-[#047BFB] hover:underline"
             >
-              Privacy Policy
+              Browse Tickets
             </Link>
 
             <Link
-              href="#"
+              href="/contact"
               className="transition hover:text-[#047BFB] hover:underline"
             >
-              Terms & Conditions
+              Contact
             </Link>
           </div>
         </div>

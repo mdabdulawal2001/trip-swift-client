@@ -1,11 +1,12 @@
 import AdvertisementSection from "@/components/home/AdvertisementSection";
+import BookingFAQ from "@/components/home/BookingFAQ";
 import CTASection from "@/components/home/CTASection";
 import HeroSection from "@/components/home/HeroSection";
+import HowItWorks from "@/components/home/HowItWorks";
 
 import LatestTickets from "@/components/home/LatestTickets";
 import PopularRoutes from "@/components/home/PopularRoutes";
 import WhyTripSwift from "@/components/home/WhyTripSwift";
-import TicketBrowserSkeleton from "@/components/tickets/ticketSkeletons/TicketBrowserSkeleton";
 
 export const metadata = {
   title: "Travel & Ticket Booking",
@@ -22,6 +23,8 @@ export default function Home() {
       <LatestTickets />
       <PopularRoutes />
       <WhyTripSwift />
+      <HowItWorks />
+      <BookingFAQ />
       <CTASection />
     </div>
   );

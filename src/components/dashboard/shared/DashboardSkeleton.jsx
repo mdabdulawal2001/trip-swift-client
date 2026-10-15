@@ -61,6 +61,41 @@ export function DashboardStatsSkeleton() {
   );
 }
 
+export function DashboardListControlsSkeleton({ filterCount = 1 }) {
+  const desktopGridColumns =
+    filterCount > 1
+      ? "xl:grid-cols-[minmax(0,1fr)_repeat(3,minmax(140px,190px))]"
+      : "xl:grid-cols-[minmax(0,1fr)_repeat(2,minmax(150px,190px))]";
+
+  return (
+    <div
+      className={`grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:grid-cols-2 ${desktopGridColumns}`}
+    >
+      {Array.from({ length: filterCount + 2 }).map((_, index) => (
+        <Skeleton key={index} className="h-11 w-full rounded-xl" />
+      ))}
+    </div>
+  );
+}
+
+export function DashboardPaginationSkeleton() {
+  return (
+    <div className="mt-6">
+      <Skeleton className="mb-3 mx-auto h-3 w-48 sm:mx-0" />
+      <div className="flex flex-col items-center justify-between gap-4 border-t border-slate-200 pt-6 dark:border-slate-800 sm:flex-row">
+        <Skeleton className="h-3 w-24" />
+        <div className="flex items-center gap-1.5">
+          <Skeleton className="h-10 w-10 rounded-xl" />
+          {Array.from({ length: 5 }).map((_, index) => (
+            <Skeleton key={index} className="h-10 w-10 rounded-xl" />
+          ))}
+          <Skeleton className="h-10 w-10 rounded-xl" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function QuickActionsSkeleton({
   count = 4,
 }) {
@@ -130,6 +165,32 @@ export function DashboardPanelSkeleton({
 
       <div className={`mt-6 ${height}`}>
         <Skeleton className="h-full w-full rounded-2xl" />
+      </div>
+    </div>
+  );
+}
+
+export function BookingRequestsPanelSkeleton() {
+  return (
+    <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex items-center justify-between gap-4">
+        <Skeleton className="h-5 w-48 max-w-full" />
+        <Skeleton className="h-4 w-16 shrink-0" />
+      </div>
+
+      <div className="mt-5 space-y-3">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <div
+            key={index}
+            className="flex flex-col items-center gap-3 rounded-2xl bg-slate-50 p-4 text-center dark:bg-slate-800/60 sm:flex-row sm:justify-between sm:text-left"
+          >
+            <div className="flex flex-col items-center gap-2 sm:items-start">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-48 max-w-full" />
+            </div>
+            <Skeleton className="h-6 w-16 rounded-full" />
+          </div>
+        ))}
       </div>
     </div>
   );

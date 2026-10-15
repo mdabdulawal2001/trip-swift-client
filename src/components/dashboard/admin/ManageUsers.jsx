@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import {
   ArrowDownToLine,
   Ban,
-  Search,
   ShieldAlert,
   ShieldCheck,
   UserCheck,
@@ -25,10 +24,22 @@ import {
 } from "@/lib/pdf-report";
 import ConfirmModal from "../../shared/ConfirmModal";
 import Swal from "sweetalert2";
+import TicketPagination from "@/components/tickets/TicketPagination";
+import DashboardListControls from "../shared/DashboardListControls";
+import { compareByDate, paginateItems } from "../shared/listHelpers";
+import {
+  DashboardListControlsSkeleton,
+  DashboardPaginationSkeleton,
+} from "../shared/DashboardSkeleton";
+import { scrollDashboardListToTop } from "../shared/listHelpers";
 
 export default function ManageUsers() {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortOrder, setSortOrder] = useState("newest");
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [updatingUserId, setUpdatingUserId] = useState(null);
@@ -277,11 +288,38 @@ export default function ManageUsers() {
     }
   };
 
-  const filteredUsers = users.filter((user) =>
-    `${user.name || ""} ${user.email || ""} ${user.role || ""}`
-      .toLowerCase()
-      .includes(search.toLowerCase()),
-  );
+  const filteredUsers = users
+    .filter((user) => {
+      const matchesSearch = `${user.name || ""} ${user.email || ""} ${user.role || ""}`
+        .toLowerCase()
+        .includes(search.toLowerCase());
+      const matchesRole = roleFilter === "all" || user.role === roleFilter;
+      const matchesStatus =
+        statusFilter === "all" ||
+        (statusFilter === "fraud"
+          ? user.role === "vendor" && Boolean(user.isFraud)
+          : statusFilter === "blocked"
+            ? Boolean(user.banned)
+            : !user.banned);
+
+      return matchesSearch && matchesRole && matchesStatus;
+    })
+    .sort((first, second) => {
+      if (sortOrder === "name-asc") {
+        return String(first.name || "").localeCompare(String(second.name || ""));
+      }
+      if (sortOrder === "name-desc") {
+        return String(second.name || "").localeCompare(String(first.name || ""));
+      }
+
+      return compareByDate(first.createdAt, second.createdAt, sortOrder);
+    });
+  const {
+    activePage,
+    firstItemIndex: firstVisibleIndex,
+    items: pageUsers,
+    totalPages,
+  } = paginateItems(filteredUsers, currentPage);
 
   const totalUsers = users.length;
   const totalVendors = users.filter((user) => user.role === "vendor").length;
@@ -494,7 +532,7 @@ export default function ManageUsers() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div id="dashboard-list-page" className="mx-auto max-w-7xl scroll-mt-6">
       {/* Loading */}
       {loading && (
         <div className="space-y-6">
@@ -541,33 +579,9 @@ export default function ManageUsers() {
             ))}
           </div>
 
-          {/* ================= SEARCH SKELETON ================= */}
-          <div
-            className="
-        mb-6
-        rounded-3xl
-        border border-slate-200
-        bg-white p-4
-        shadow-sm
-        dark:border-slate-800
-        dark:bg-slate-900
-      "
-          >
-            <div className="relative max-w-md">
-              {/* Search icon placeholder */}
-              <div className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
-
-              {/* Search input */}
-              <div
-                className="
-            h-11 w-full
-            animate-pulse
-            rounded-xl
-            bg-slate-100
-            dark:bg-slate-800
-          "
-              />
-            </div>
+          {/* ================= SEARCH AND FILTER SKELETON ================= */}
+          <div className="mb-6">
+            <DashboardListControlsSkeleton filterCount={2} />
           </div>
 
           {/* ================= USERS TABLE SKELETON ================= */}
@@ -606,7 +620,7 @@ export default function ManageUsers() {
 
             {/* Rows */}
             <div className="divide-y divide-slate-100 dark:divide-slate-800!">
-              {Array.from({ length: 6 }).map((_, index) => (
+              {Array.from({ length: 10 }).map((_, index) => (
                 <div key={index} className="px-4 py-5 sm:px-5">
                   {/* ================= DESKTOP ROW ================= */}
                   <div
@@ -695,6 +709,7 @@ export default function ManageUsers() {
               ))}
             </div>
           </div>
+          <DashboardPaginationSkeleton />
         </div>
       )}
       {!loading && (
@@ -747,30 +762,58 @@ export default function ManageUsers() {
             />
           </div>
 
-          {/* Search */}
-          <div className="mb-6 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div className="relative max-w-md">
-              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search name, email or role..."
-                className="
-              h-11 w-full rounded-xl
-              border border-slate-200
-              bg-white pl-11 pr-4
-              text-sm text-slate-900
-              outline-none
-              transition
-              focus:border-sky-500
-              focus:ring-2 focus:ring-sky-500/20
-              dark:border-slate-700
-              dark:bg-slate-950!
-              dark:text-white
-            "
-              />
-            </div>
+          <div className="mb-6">
+            <DashboardListControls
+              searchValue={search}
+              onSearchChange={(value) => {
+                setSearch(value);
+                setCurrentPage(1);
+              }}
+              searchPlaceholder="Search name, email or role..."
+              filters={[
+                {
+                  id: "manage-users-role",
+                  label: "Filter users by role",
+                  value: roleFilter,
+                  onChange: (value) => {
+                    setRoleFilter(value);
+                    setCurrentPage(1);
+                  },
+                  options: [
+                    { value: "all", label: "All roles" },
+                    { value: "user", label: "Users" },
+                    { value: "vendor", label: "Vendors" },
+                    { value: "admin", label: "Admins" },
+                  ],
+                },
+                {
+                  id: "manage-users-status",
+                  label: "Filter users by status",
+                  value: statusFilter,
+                  onChange: (value) => {
+                    setStatusFilter(value);
+                    setCurrentPage(1);
+                  },
+                  options: [
+                    { value: "all", label: "All account statuses" },
+                    { value: "active", label: "Active" },
+                    { value: "blocked", label: "Blocked" },
+                    { value: "fraud", label: "Fraud vendors" },
+                  ],
+                },
+              ]}
+              sortValue={sortOrder}
+              onSortChange={(value) => {
+                setSortOrder(value);
+                setCurrentPage(1);
+              }}
+              sortOptions={[
+                { value: "newest", label: "Newest first" },
+                { value: "oldest", label: "Oldest first" },
+                { value: "name-asc", label: "Name: A to Z" },
+                { value: "name-desc", label: "Name: Z to A" },
+              ]}
+            />
           </div>
 
           {/* Empty */}
@@ -790,8 +833,9 @@ export default function ManageUsers() {
 
           {/* Users Table */}
           {!loading && filteredUsers.length > 0 && (
-            <div
-              className="
+            <>
+              <div
+                className="
       overflow-x-auto
     rounded-3xl
     border border-slate-200
@@ -799,7 +843,7 @@ export default function ManageUsers() {
     dark:border-slate-800
     dark:bg-slate-900
     "
-            >
+              >
               {/* Desktop Header */}
               <div
                 className="
@@ -824,7 +868,7 @@ export default function ManageUsers() {
 
               {/* Rows */}
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filteredUsers.map((user, index) => {
+                {pageUsers.map((user, index) => {
                   const isUpdating = updatingUserId === user.id;
                   const isCurrentUser = user.id === currentUserId;
 
@@ -864,7 +908,7 @@ export default function ManageUsers() {
         dark:text-slate-400
       "
                           >
-                            {index + 1}
+                            {firstVisibleIndex + index + 1}
                           </div>
 
                           {/* Avatar */}
@@ -1055,7 +1099,7 @@ export default function ManageUsers() {
                     dark:text-slate-400
                   "
                           >
-                            #{index + 1}
+                            #{firstVisibleIndex + index + 1}
                           </div>
 
                           {/* Avatar */}
@@ -1328,6 +1372,22 @@ export default function ManageUsers() {
                 })}
               </div>
             </div>
+              <div className="mt-5">
+                <p className="mb-3 text-center text-xs text-slate-500 dark:text-slate-400 sm:text-left">
+                  Showing {firstVisibleIndex + 1}–
+                  {Math.min(firstVisibleIndex + pageUsers.length, filteredUsers.length)} of{" "}
+                  {filteredUsers.length} matching users
+                </p>
+                <TicketPagination
+                  currentPage={activePage}
+                  totalPages={totalPages}
+                  onPageChange={(page) => {
+                    setCurrentPage(page);
+                    scrollDashboardListToTop();
+                  }}
+                />
+              </div>
+            </>
           )}
         </>
       )}

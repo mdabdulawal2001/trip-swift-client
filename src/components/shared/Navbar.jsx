@@ -46,6 +46,10 @@ const navLinks = [
     href: "/about",
   },
   {
+    name: "Contact",
+    href: "/contact",
+  },
+  {
     name: "Dashboard",
     href: "/dashboard",
   },

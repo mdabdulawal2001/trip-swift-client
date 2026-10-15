@@ -23,11 +23,9 @@ import SectionTitle from "@/components/dashboard/shared/SectionTitle";
 import QuickActions from "@/components/dashboard/shared/QuickActions";
 import RecentBookingRequests from "@/components/dashboard/vendor/RecentBookingRequests";
 import {
-  DashboardHeaderSkeleton,
+  BookingRequestsPanelSkeleton,
   DashboardStatsSkeleton,
-  DashboardPanelSkeleton,
   QuickActionsSkeleton,
-  ActivityListSkeleton,
 } from "@/components/dashboard/shared/DashboardSkeleton";
 import {
   getVendorTickets,
@@ -433,7 +431,7 @@ export default function VendorDashboard() {
             <QuickActionsSkeleton />
           </div>
 
-          <DashboardPanelSkeleton height="h-72" />
+          <BookingRequestsPanelSkeleton />
         </div>
       ) : (
         <>

@@ -12,10 +12,36 @@ export default function TicketPagination({
 }) {
   if (totalPages <= 1) return null;
 
-  const pages = [];
+  let pages;
 
-  for (let page = 1; page <= totalPages; page++) {
-    pages.push(page);
+  if (totalPages <= 7) {
+    pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+  } else {
+    const visiblePages = new Set([1, totalPages]);
+
+    if (currentPage <= 4) {
+      [2, 3, 4, 5].forEach((page) => visiblePages.add(page));
+    } else if (currentPage >= totalPages - 3) {
+      [totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1].forEach(
+        (page) => visiblePages.add(page),
+      );
+    } else {
+      [currentPage - 1, currentPage, currentPage + 1].forEach((page) =>
+        visiblePages.add(page),
+      );
+    }
+
+    const sortedPages = [...visiblePages].sort((first, second) => first - second);
+    pages = sortedPages.flatMap((page, index) => {
+      const previousPage = sortedPages[index - 1];
+
+      return [
+        ...(previousPage && page - previousPage > 1
+          ? [`ellipsis-${previousPage}`]
+          : []),
+        page,
+      ];
+    });
   }
 
   return (
@@ -31,7 +57,7 @@ export default function TicketPagination({
         </span>
       </p>
 
-      <div className="flex items-center gap-1.5">
+      <div className="flex flex-wrap items-center justify-center gap-1.5">
         {/* Previous */}
         <button
           type="button"
@@ -46,20 +72,31 @@ export default function TicketPagination({
         </button>
 
         {/* Pages */}
-        {pages.map((page) => (
-          <button
-            key={page}
-            type="button"
-            onClick={() => onPageChange(page)}
-            className={`flex h-10 min-w-10 items-center justify-center rounded-xl px-3 text-sm font-semibold transition ${
-              currentPage === page
-                ? "bg-sky-500 text-white"
-                : "border border-slate-200 text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
-            }`}
-          >
-            {page}
-          </button>
-        ))}
+        {pages.map((page) =>
+          typeof page === "string" ? (
+            <span
+              key={page}
+              aria-label="More pages"
+              className="flex h-10 min-w-6 items-center justify-center text-sm text-slate-400"
+            >
+              ...
+            </span>
+          ) : (
+            <button
+              key={page}
+              type="button"
+              onClick={() => onPageChange(page)}
+              aria-current={currentPage === page ? "page" : undefined}
+              className={`flex h-10 min-w-10 items-center justify-center rounded-xl px-3 text-sm font-semibold transition ${
+                currentPage === page
+                  ? "bg-sky-500 text-white"
+                  : "border border-slate-200 text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+              }`}
+            >
+              {page}
+            </button>
+          ),
+        )}
 
         {/* Next */}
         <button

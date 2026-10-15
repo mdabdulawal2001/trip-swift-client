@@ -19,6 +19,7 @@ import DashboardContainer from "@/components/dashboard/shared/DashboardContainer
 import StatCard from "@/components/dashboard/shared/StatCard";
 import SectionTitle from "@/components/dashboard/shared/SectionTitle";
 import QuickActions from "@/components/dashboard/shared/QuickActions";
+import UserTravelCharts, { UserTravelChartsSkeleton } from "./UserTravelCharts";
 
 import { getUserBookings, getUserPayments } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
@@ -422,6 +423,8 @@ export default function UserDashboard() {
 
             <QuickActionsSkeleton />
           </div>
+
+          <UserTravelChartsSkeleton />
         </div>
       ) : (
         <>
@@ -551,6 +554,8 @@ export default function UserDashboard() {
               ]}
             />
           </div>
+
+          <UserTravelCharts bookings={bookings} payments={payments} />
         </>
       )}
     </DashboardContainer>

@@ -18,9 +18,20 @@ import {
   createPdfReport,
   formatPdfDate,
 } from "@/lib/pdf-report";
+import DashboardListControls from "../shared/DashboardListControls";
+import TicketPagination from "@/components/tickets/TicketPagination";
+import {
+  compareByDate,
+  paginateItems,
+  scrollDashboardListToTop,
+} from "../shared/listHelpers";
 
 export default function RequestedBookings() {
   const [requests, setRequests] = useState([]);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortOrder, setSortOrder] = useState("newest");
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [actionId, setActionId] = useState(null);
   const [confirmModal, setConfirmModal] = useState({
@@ -28,6 +39,42 @@ export default function RequestedBookings() {
     request: null,
     status: null, // "accepted" | "rejected"
   });
+  const filteredRequests = requests
+    .filter((request) => {
+      const searchableText = [
+        request.userName,
+        request.userEmail,
+        request.ticketTitle,
+        request.from,
+        request.to,
+        request._id,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return (
+        (statusFilter === "all" ||
+          String(request.status || "pending").toLowerCase() === statusFilter) &&
+        searchableText.includes(search.toLowerCase())
+      );
+    })
+    .sort((first, second) => {
+      if (sortOrder === "amount-low") {
+        return Number(first.totalPrice || 0) - Number(second.totalPrice || 0);
+      }
+      if (sortOrder === "amount-high") {
+        return Number(second.totalPrice || 0) - Number(first.totalPrice || 0);
+      }
+
+      return compareByDate(first.date, second.date, sortOrder);
+    });
+  const {
+    activePage,
+    firstItemIndex,
+    items: pageRequests,
+    totalPages,
+  } = paginateItems(filteredRequests, currentPage);
 
   const loadRequests = async () => {
     try {
@@ -244,7 +291,7 @@ export default function RequestedBookings() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div id="dashboard-list-page" className="mx-auto max-w-7xl scroll-mt-6">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="mb-2 text-sm font-semibold text-sky-500">
@@ -270,6 +317,45 @@ export default function RequestedBookings() {
         </button>
       </div>
 
+      <div className="mb-6">
+        <DashboardListControls
+          searchValue={search}
+          onSearchChange={(value) => {
+            setSearch(value);
+            setCurrentPage(1);
+          }}
+          searchPlaceholder="Search passenger, ticket, route..."
+          filters={[
+            {
+              id: "booking-requests-status",
+              label: "Filter booking requests by status",
+              value: statusFilter,
+              onChange: (value) => {
+                setStatusFilter(value);
+                setCurrentPage(1);
+              },
+              options: [
+                { value: "all", label: "All statuses" },
+                { value: "pending", label: "Pending" },
+                { value: "accepted", label: "Accepted" },
+                { value: "rejected", label: "Rejected" },
+              ],
+            },
+          ]}
+          sortValue={sortOrder}
+          onSortChange={(value) => {
+            setSortOrder(value);
+            setCurrentPage(1);
+          }}
+          sortOptions={[
+            { value: "newest", label: "Date: newest first" },
+            { value: "oldest", label: "Date: oldest first" },
+            { value: "amount-low", label: "Total: low to high" },
+            { value: "amount-high", label: "Total: high to low" },
+          ]}
+        />
+      </div>
+
       {!requests.length ? (
         <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center dark:border-slate-800 dark:bg-slate-900">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -280,9 +366,18 @@ export default function RequestedBookings() {
             New passenger booking requests will appear here.
           </p>
         </div>
+      ) : filteredRequests.length === 0 ? (
+        <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center dark:border-slate-700 dark:bg-slate-900">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+            No matching booking requests
+          </h2>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            Try changing the search or status filter.
+          </p>
+        </div>
       ) : (
         <div className="grid gap-5">
-          {requests.map((request) => (
+          {pageRequests.map((request) => (
             <div
               key={request._id}
               className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 sm:p-6"
@@ -353,6 +448,23 @@ export default function RequestedBookings() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+      {!loading && filteredRequests.length > 0 && (
+        <div className="mt-6">
+          <p className="mb-3 text-center text-xs text-slate-500 dark:text-slate-400 sm:text-left">
+            Showing {firstItemIndex + 1}–
+            {Math.min(firstItemIndex + pageRequests.length, filteredRequests.length)} of{" "}
+            {filteredRequests.length} booking requests
+          </p>
+          <TicketPagination
+            currentPage={activePage}
+            totalPages={totalPages}
+            onPageChange={(page) => {
+              setCurrentPage(page);
+              scrollDashboardListToTop();
+            }}
+          />
         </div>
       )}
       <ConfirmModal

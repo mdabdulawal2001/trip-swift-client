@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import toast from "react-hot-toast";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -30,6 +31,17 @@ import {
 
 import { authClient } from "@/lib/auth-client";
 import { addPdfReportFooter, createPdfReport } from "@/lib/pdf-report";
+import DashboardListControls from "../shared/DashboardListControls";
+import TicketPagination from "@/components/tickets/TicketPagination";
+import {
+  compareByDate,
+  paginateItems,
+  scrollDashboardListToTop,
+} from "../shared/listHelpers";
+import {
+  DashboardListControlsSkeleton,
+  DashboardPaginationSkeleton,
+} from "../shared/DashboardSkeleton";
 
 const statusConfig = {
   pending: {
@@ -67,6 +79,10 @@ export default function MyBookedTickets() {
   const sessionId = searchParams.get("session_id");
 
   const [bookings, setBookings] = useState([]);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortOrder, setSortOrder] = useState("newest");
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [paymentId, setPaymentId] = useState(null);
 
@@ -801,6 +817,49 @@ export default function MyBookedTickets() {
   const paidBookings = bookings.filter(
     (booking) => booking.paymentStatus === "paid",
   ).length;
+  const filteredBookings = bookings
+    .filter((booking) => {
+      const status =
+        booking.paymentStatus === "paid"
+          ? "paid"
+          : String(booking.status || "pending").toLowerCase();
+      const searchableText = [
+        booking.title,
+        booking.ticketTitle,
+        booking.ticket?.title,
+        booking.operator,
+        booking.from,
+        booking.to,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return (
+        (statusFilter === "all" || status === statusFilter) &&
+        searchableText.includes(search.toLowerCase())
+      );
+    })
+    .sort((first, second) => {
+      if (sortOrder === "amount-low") {
+        return Number(first.totalPrice || 0) - Number(second.totalPrice || 0);
+      }
+      if (sortOrder === "amount-high") {
+        return Number(second.totalPrice || 0) - Number(first.totalPrice || 0);
+      }
+
+      return compareByDate(
+        getDepartureTime(first),
+        getDepartureTime(second),
+        sortOrder,
+      );
+    });
+  const {
+    activePage,
+    firstItemIndex,
+    items: pageBookings,
+    totalPages,
+  } = paginateItems(filteredBookings, currentPage, 9);
 
   // =========================
   // Loading
@@ -814,9 +873,10 @@ export default function MyBookedTickets() {
   // =========================
   return (
     <motion.div
+      id="dashboard-list-page"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-8"
+      className="space-y-8 scroll-mt-6"
     >
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -866,6 +926,44 @@ export default function MyBookedTickets() {
         />
       </div>
 
+      <DashboardListControls
+        searchValue={search}
+        onSearchChange={(value) => {
+          setSearch(value);
+          setCurrentPage(1);
+        }}
+        searchPlaceholder="Search ticket or route..."
+        filters={[
+          {
+            id: "bookings-status-filter",
+            label: "Filter bookings by status",
+            value: statusFilter,
+            onChange: (value) => {
+              setStatusFilter(value);
+              setCurrentPage(1);
+            },
+            options: [
+              { value: "all", label: "All statuses" },
+              { value: "pending", label: "Pending" },
+              { value: "accepted", label: "Accepted" },
+              { value: "paid", label: "Paid" },
+              { value: "rejected", label: "Rejected" },
+            ],
+          },
+        ]}
+        sortValue={sortOrder}
+        onSortChange={(value) => {
+          setSortOrder(value);
+          setCurrentPage(1);
+        }}
+        sortOptions={[
+          { value: "newest", label: "Departure: latest" },
+          { value: "oldest", label: "Departure: earliest" },
+          { value: "amount-low", label: "Total: low to high" },
+          { value: "amount-high", label: "Total: high to low" },
+        ]}
+      />
+
       {/* Booking List */}
       {!bookings.length ? (
         <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center dark:border-slate-800 dark:bg-slate-900">
@@ -877,9 +975,18 @@ export default function MyBookedTickets() {
             Your booked tickets will appear here.
           </p>
         </div>
+      ) : filteredBookings.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center dark:border-slate-700 dark:bg-slate-900">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+            No matching bookings
+          </h2>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            Try changing the search or booking status filter.
+          </p>
+        </div>
       ) : (
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {bookings.map((booking) => {
+          {pageBookings.map((booking) => {
             const isPaid = booking.paymentStatus === "paid";
 
             const currentStatus = isPaid ? "paid" : booking.status;
@@ -934,9 +1041,11 @@ export default function MyBookedTickets() {
                 {/* Ticket Image */}
                 <div className="relative h-48 overflow-hidden bg-slate-100 dark:bg-slate-800">
                   {ticketImage ? (
-                    <img
+                    <Image
                       src={ticketImage}
                       alt={ticketTitle}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                       className="h-full w-full object-cover transition duration-500 hover:scale-105"
                     />
                   ) : (
@@ -1119,6 +1228,23 @@ export default function MyBookedTickets() {
               </motion.div>
             );
           })}
+        </div>
+      )}
+      {!loading && filteredBookings.length > 0 && (
+        <div className="mt-6">
+          <p className="mb-3 text-center text-xs text-slate-500 dark:text-slate-400 sm:text-left">
+            Showing {firstItemIndex + 1}–
+            {Math.min(firstItemIndex + pageBookings.length, filteredBookings.length)} of{" "}
+            {filteredBookings.length} bookings
+          </p>
+          <TicketPagination
+            currentPage={activePage}
+            totalPages={totalPages}
+            onPageChange={(page) => {
+              setCurrentPage(page);
+              scrollDashboardListToTop();
+            }}
+          />
         </div>
       )}
     </motion.div>
@@ -1358,12 +1484,16 @@ function BookingsSkeleton() {
         ))}
       </div>
 
+      <DashboardListControlsSkeleton />
+
       {/* Booking Cards Skeleton */}
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, index) => (
+        {Array.from({ length: 9 }).map((_, index) => (
           <BookingCardSkeleton key={index} />
         ))}
       </div>
+
+      <DashboardPaginationSkeleton />
     </div>
   );
 }

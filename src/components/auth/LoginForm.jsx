@@ -9,7 +9,7 @@ import {
   FieldError,
   Button,
 } from "@heroui/react";
-import { LockKeyhole, LogIn, Mail } from "lucide-react";
+import { LockKeyhole, LogIn, Mail, Store, UserRound } from "lucide-react";
 import GoogleLoginButton from "./GoogleLoginButton";
 import { authClient } from "@/lib/auth-client";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -19,8 +19,20 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Link from "next/link";
 import { getSafeCallbackUrl } from "@/lib/getSafeCallbackUrl";
 
+const DEMO_ACCOUNTS = {
+  user: {
+    email: process.env.NEXT_PUBLIC_DEMO_USER_EMAIL,
+    password: process.env.NEXT_PUBLIC_DEMO_USER_PASSWORD,
+  },
+  vendor: {
+    email: process.env.NEXT_PUBLIC_DEMO_VENDOR_EMAIL,
+    password: process.env.NEXT_PUBLIC_DEMO_VENDOR_PASSWORD,
+  },
+};
+
 const LoginForm = () => {
   const [isShowPassword, setIsShowPassword] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -32,14 +44,8 @@ const LoginForm = () => {
   const callbackUrl =
   getSafeCallbackUrl(requestedCallbackUrl);
 
-  // Login
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    const user = Object.fromEntries(new FormData(event.currentTarget));
-    const { email, password } = user;
-
-    // Loading toast
+  const loginWithCredentials = async (email, password) => {
+    setIsLoggingIn(true);
     const loadingToast = toast.loading("Logging in...");
 
     try {
@@ -50,35 +56,44 @@ const LoginForm = () => {
         // callbackURL: callbackUrl,
       });
 
-      console.log({ data, error });
-
-      // Remove loading toast
-      toast.dismiss(loadingToast);
-
-      // Error handling
       if (error) {
         toast.error(error.message || "Login failed ❌");
         return;
       }
 
-      // Success
       if (data) {
         toast.success("Login successful!");
-        // Desired Route
         window.location.replace(callbackUrl);
-        // router.replace(callbackUrl);
-        // router.refresh();
-
-        return;
+      } else {
+        toast.error("Login failed ❌");
       }
     } catch (err) {
-      // Remove loading toast
-      toast.dismiss(loadingToast);
-
       console.error(err);
-
       toast.error("Something went wrong ❌");
+    } finally {
+      toast.dismiss(loadingToast);
+      setIsLoggingIn(false);
     }
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const { email, password } = Object.fromEntries(
+      new FormData(event.currentTarget),
+    );
+    await loginWithCredentials(email, password);
+  };
+
+  const handleDemoLogin = async (account, role) => {
+    if (!account.email || !account.password) {
+      toast.error(
+        `Set the demo ${role} email and password in your .env.local file.`,
+      );
+      return;
+    }
+
+    await loginWithCredentials(account.email, account.password);
   };
 
 
@@ -215,6 +230,7 @@ const LoginForm = () => {
             {/* Submit */}
             <Button
               type="submit"
+              isDisabled={isLoggingIn}
               className="h-12 w-full cursor-pointer rounded-xl bg-[#238FD7] text-sm font-bold text-white shadow-sm transition-all duration-300 hover:bg-[#1978B8] hover:shadow-lg hover:shadow-blue-500/20 active:scale-[0.98] dark:bg-blue-500 dark:hover:bg-blue-600"
             >
               <LogIn className="h-4 w-4" />
@@ -222,6 +238,35 @@ const LoginForm = () => {
             </Button>
           </Form>
           <GoogleLoginButton callbackUrl={callbackUrl} />
+          <div className="mt-6">
+            <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wider text-slate-400">
+              Try a demo account
+            </p>
+            <div className="grid grid-cols-2 gap-3 max-[374px]:grid-cols-1">
+              <motion.button
+                type="button"
+                onClick={() => handleDemoLogin(DEMO_ACCOUNTS.user, "user")}
+                disabled={isLoggingIn}
+                whileHover={isLoggingIn ? undefined : { y: -2 }}
+                whileTap={isLoggingIn ? undefined : { scale: 0.98 }}
+                className="group flex h-12 cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 shadow-sm transition-[border-color,background-color,box-shadow,color] duration-200 ease-out hover:border-blue-300 hover:bg-blue-50 hover:text-[#1978B8] hover:shadow-md hover:shadow-blue-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900! dark:text-slate-200 dark:hover:border-blue-700 dark:hover:bg-slate-800 dark:hover:text-cyan-300 dark:focus-visible:ring-offset-slate-900"
+              >
+                <UserRound className="h-4 w-4 text-[#238FD7] transition-colors group-hover:text-[#1978B8] dark:text-cyan-400 dark:group-hover:text-cyan-300" />
+                Demo User
+              </motion.button>
+              <motion.button
+                type="button"
+                onClick={() => handleDemoLogin(DEMO_ACCOUNTS.vendor, "vendor")}
+                disabled={isLoggingIn}
+                whileHover={isLoggingIn ? undefined : { y: -2 }}
+                whileTap={isLoggingIn ? undefined : { scale: 0.98 }}
+                className="group flex h-12 cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 shadow-sm transition-[border-color,background-color,box-shadow,color] duration-200 ease-out hover:border-blue-300 hover:bg-blue-50 hover:text-[#1978B8] hover:shadow-md hover:shadow-blue-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900! dark:text-slate-200 dark:hover:border-blue-700 dark:hover:bg-slate-800 dark:hover:text-cyan-300 dark:focus-visible:ring-offset-slate-900"
+              >
+                <Store className="h-4 w-4 text-[#238FD7] transition-colors group-hover:text-[#1978B8] dark:text-cyan-400 dark:group-hover:text-cyan-300" />
+                Demo Vendor
+              </motion.button>
+            </div>
+          </div>
           {/* FOOTER */}
           <p className="text-center text-sm text-gray-500 mt-6">
             Don’t have an account?{" "}

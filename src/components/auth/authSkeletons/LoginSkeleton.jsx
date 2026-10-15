@@ -41,6 +41,15 @@ const LoginSkeleton = () => {
           {/* Google Button */}
           <div className="mt-5 h-12 w-full rounded-xl bg-slate-200 dark:bg-slate-800" />
 
+          {/* Demo Login Buttons */}
+          <div className="mt-6">
+            <div className="mx-auto mb-3 h-3 w-36 rounded bg-slate-200 dark:bg-slate-800" />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="h-12 rounded-xl bg-slate-200 dark:bg-slate-800" />
+              <div className="h-12 rounded-xl bg-slate-200 dark:bg-slate-800" />
+            </div>
+          </div>
+
           {/* Register Link */}
           <div className="mx-auto mt-6 h-4 w-56 rounded bg-slate-200 dark:bg-slate-800" />
         </div>

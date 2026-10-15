@@ -1219,6 +1219,11 @@ BETTER_AUTH_SECRET=your_secret_key
 
 NEXT_PUBLIC_BETTER_AUTH_URL=your_better_auth_url
 
+NEXT_PUBLIC_DEMO_USER_EMAIL=your_demo_user_email
+NEXT_PUBLIC_DEMO_USER_PASSWORD=your_demo_user_password
+NEXT_PUBLIC_DEMO_VENDOR_EMAIL=your_demo_vendor_email
+NEXT_PUBLIC_DEMO_VENDOR_PASSWORD=your_demo_vendor_password
+
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
 
 STRIPE_SECRET_KEY=your_stripe_secret_key
@@ -1229,6 +1234,8 @@ GOOGLE_CLIENT_ID=your_google_client_id
 
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 ```
+
+Demo login credentials are exposed to the browser; configure only dedicated demo accounts with no sensitive data.
 
 ## Backend
 

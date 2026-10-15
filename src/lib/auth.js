@@ -4,6 +4,10 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { admin as adminPlugin, jwt } from "better-auth/plugins";
 
 import { ac, admin, user, vendor } from "./permissions";
+import {
+  hashPassword,
+  verifyPassword,
+} from "./password.js";
 
 const client = new MongoClient(process.env.MONGODB_URI);
 
@@ -40,6 +44,10 @@ export const auth = betterAuth({
 
   emailAndPassword: {
     enabled: true,
+     password: {
+      hash: hashPassword,
+      verify: verifyPassword,
+    },
   },
 
   socialProviders: {

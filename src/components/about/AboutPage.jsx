@@ -95,10 +95,10 @@ export default function AboutPage() {
           HERO
       ====================================================== */}
 
-      <section className="relative px-4 pb-16 pt-14 sm:px-6 sm:pb-20 sm:pt-20 lg:px-8 lg:pb-24 lg:pt-24">
+      <section className="relative px-4 pb-16 pt-14 sm:px-6 sm:pb-20 sm:pt-20 lg:px-6 lg:pb-24 lg:pt-24">
         <div className="absolute left-1/2 top-0 -z-10 h-105 w-175 -translate-x-1/2 rounded-full bg-sky-400/10 blur-3xl dark:bg-sky-500/10" />
 
-        <div className="mx-auto max-w-5xl text-center">
+        <div className="mx-auto w-full max-w-[1352px] text-center">
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
@@ -147,8 +147,8 @@ export default function AboutPage() {
           WHAT IS TRIPSWIFT
       ====================================================== */}
 
-      <section className="px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+      <section className="px-4 py-16 sm:px-6 lg:px-6">
+        <div className="mx-auto grid max-w-[1352px] gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <motion.div
             initial={{ opacity: 0, x: -25 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -230,8 +230,8 @@ export default function AboutPage() {
           TRAVEL TYPES
       ====================================================== */}
 
-      <section className="bg-slate-50 px-4 py-16 sm:px-6 lg:px-8 dark:bg-slate-950/50">
-        <div className="mx-auto max-w-7xl">
+      <section className="bg-slate-50 px-4 py-16 sm:px-6 lg:px-6 dark:bg-slate-950/50">
+        <div className="mx-auto max-w-[1352px]">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-sm font-bold uppercase tracking-[0.18em] text-sky-600 dark:text-sky-400">
               Travel options
@@ -285,8 +285,8 @@ export default function AboutPage() {
           FEATURES
       ====================================================== */}
 
-      <section className="px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
+      <section className="px-4 py-16 sm:px-6 lg:px-6">
+        <div className="mx-auto max-w-[1352px]">
           <div className="max-w-2xl">
             <p className="text-sm font-bold uppercase tracking-[0.18em] text-sky-600 dark:text-sky-400">
               Why TripSwift
@@ -335,8 +335,8 @@ export default function AboutPage() {
           CTA
       ====================================================== */}
 
-      <section className="px-4 pb-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl overflow-hidden rounded-3xl bg-linear-to-r from-[#1978B8] to-[#238FD7] px-6 py-12 text-center shadow-2xl shadow-sky-900/15 sm:px-10">
+      <section className="px-4 pb-16 sm:px-6 lg:px-6">
+        <div className="mx-auto max-w-[1352px] overflow-hidden rounded-3xl bg-linear-to-r from-[#1978B8] to-[#238FD7] px-6 py-12 text-center shadow-2xl shadow-sky-900/15 sm:px-10">
           <h2 className="text-3xl font-black text-white sm:text-4xl">
             Ready for your next journey?
           </h2>

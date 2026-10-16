@@ -1,7 +1,7 @@
 const WhyTripSwiftSkeleton = () => {
   return (
     <section className="relative overflow-hidden bg-[#F7FBFF] py-20 sm:py-24 dark:bg-slate-950">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-8">
+      <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-8">
 
         {/* Heading Skeleton */}
         <div className="mx-auto mb-12 max-w-2xl text-center animate-pulse">

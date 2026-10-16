@@ -77,7 +77,7 @@ const WhyTripSwift = () => {
       <div className="pointer-events-none absolute -left-36 -top-24 h-80 w-80 rounded-full bg-blue-200/45 blur-3xl dark:bg-[#047BFB]/10" />
       <div className="pointer-events-none absolute -right-40 bottom-0 h-96 w-96 rounded-full bg-sky-200/45 blur-3xl dark:bg-[#38BDF8]/10" />
 
-      <div className="relative mx-auto max-w-7xl px-5 sm:px-8 lg:px-8">
+      <div className="relative mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-8">
         {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 25 }}

@@ -291,7 +291,7 @@ export default function RequestedBookings() {
   };
 
   return (
-    <div id="dashboard-list-page" className="mx-auto max-w-7xl scroll-mt-6">
+    <div id="dashboard-list-page" className="mx-auto max-w-[1400px] scroll-mt-6">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="mb-2 text-sm font-semibold text-sky-500">

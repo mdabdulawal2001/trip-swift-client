@@ -532,7 +532,7 @@ export default function ManageUsers() {
   }, []);
 
   return (
-    <div id="dashboard-list-page" className="mx-auto max-w-7xl scroll-mt-6">
+    <div id="dashboard-list-page" className="mx-auto max-w-[1400px] scroll-mt-6">
       {/* Loading */}
       {loading && (
         <div className="space-y-6">

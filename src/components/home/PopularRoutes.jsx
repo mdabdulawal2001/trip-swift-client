@@ -97,7 +97,7 @@ const PopularRoutes = () => {
 
   return (
     <section className="py-20 sm:py-24">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-8">
+      <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-8">
         {/* Heading */}
 
         <motion.div

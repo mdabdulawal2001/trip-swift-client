@@ -8,7 +8,7 @@ import TicketGridSkeleton from "./ticketSkeletons/TicketGridSkeleton";
 export default function TicketGrid({ tickets, loading = false }) {
   // Loading state
   if (loading) {
-    return <TicketGridSkeleton count={6} />;
+    return <TicketGridSkeleton count={8} />;
   }
 
   // Empty state
@@ -54,7 +54,7 @@ export default function TicketGrid({ tickets, loading = false }) {
       className="
         grid grid-cols-1 gap-6
         md:grid-cols-2
-        xl:grid-cols-3
+        xl:grid-cols-4
       "
     >
       {tickets.map((ticket) => (

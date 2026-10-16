@@ -37,7 +37,7 @@ export default function DashboardLayoutClient({ children }) {
 
   return (
     <DashboardRoleProvider role={role}>
-      <div className="mx-2 mt-6 mb-0 min-h-screen max-w-7xl rounded-lg bg-slate-50 sm:mx-4 sm:mt-8 lg:mx-auto lg:w-[calc(100%-3rem)] lg:max-w-[77rem] dark:bg-slate-950">
+      <div className="mx-2 mt-6 mb-0 min-h-screen max-w-[1400px] rounded-lg bg-slate-50 sm:mx-4 sm:mt-8 lg:mx-auto lg:w-[calc(100%-3rem)] lg:max-w-[1352px] dark:bg-slate-950">
         <div className="flex">
           <DashboardSidebar
             role={role}
@@ -53,7 +53,7 @@ export default function DashboardLayoutClient({ children }) {
             />
 
             <main className="p-4 sm:p-6 lg:p-8">
-              <div className="mx-auto max-w-7xl">{children}</div>
+              <div className="mx-auto max-w-[1400px]">{children}</div>
             </main>
           </div>
         </div>

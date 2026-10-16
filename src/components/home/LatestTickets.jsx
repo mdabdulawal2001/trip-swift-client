@@ -38,7 +38,7 @@ const LatestTickets = () => {
 
         const data = await getTickets({
           page: 1,
-          limit: 9,
+          limit: 8,
         });
 
         setTickets(data?.tickets || []);
@@ -60,7 +60,7 @@ const LatestTickets = () => {
 
       {loading && (
         <section className="bg-slate-50/70 py-20 dark:bg-slate-950/50! sm:py-24">
-          <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-8">
+          <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-8">
             {/* Heading */}
 
             <div className="mb-10">
@@ -73,8 +73,8 @@ const LatestTickets = () => {
 
             {/* Cards */}
 
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 6 }).map((_, index) => (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, index) => (
                 <TicketCardSkeleton key={index} />
               ))}
             </div>
@@ -82,7 +82,7 @@ const LatestTickets = () => {
         </section>
       )}
 
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-8">
+      <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-8">
         {/* Heading */}
 
         <motion.div
@@ -139,7 +139,7 @@ const LatestTickets = () => {
         {/* Ticket list */}
 
         {!loading && tickets.length > 0 && (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {tickets.map((ticket, index) => {
               const TransportIcon = transportIcons[ticket.type] || FaBus;
 
@@ -169,7 +169,7 @@ const LatestTickets = () => {
                     whileHover={{
                       y: -5,
                     }}
-                    className="h-full overflow-hidden rounded-3xl shadow-sm bg-white transition-all duration-300 hover:border-[#38BDF8]/60 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
+                    className="flex h-full flex-col overflow-hidden rounded-3xl shadow-sm bg-white transition-all duration-300 hover:border-[#38BDF8]/60 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
                   >
                     <div className="relative h-52 overflow-hidden">
                       <Image
@@ -186,7 +186,7 @@ const LatestTickets = () => {
                       </div>
                     </div>
 
-                    <div className="p-5">
+                    <div className="flex flex-1 flex-col p-5">
                       <p className="text-xs font-medium text-slate-500">
                         {ticket.operator}
                       </p>
@@ -224,7 +224,7 @@ const LatestTickets = () => {
                         ))}
                       </div>
 
-                      <div className="mt-5 flex items-end justify-between border-t border-slate-100 pt-4 dark:border-slate-800!">
+                      <div className="mt-auto flex items-end justify-between border-t border-slate-100 pt-4 dark:border-slate-800!">
                         <div>
                           <p className="text-xs text-slate-400">
                             Starting from

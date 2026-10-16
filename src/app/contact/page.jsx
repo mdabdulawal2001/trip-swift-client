@@ -13,7 +13,7 @@ export default function ContactPage() {
         aria-hidden="true"
         className="pointer-events-none absolute -right-28 -top-28 -z-10 h-80 w-80 rounded-full bg-sky-400/10 blur-3xl"
       />
-      <div className="mx-auto grid w-full max-w-6xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start lg:gap-16">
+      <div className="mx-auto grid w-full max-w-[1352px] gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start lg:gap-16">
         <div className="pt-2">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#238FD7] dark:text-[#38BDF8]">
             We are here to help

@@ -2,6 +2,9 @@ const TicketCardSkeleton = () => {
   return (
     <div
       className="
+        flex
+        h-full
+        flex-col
         overflow-hidden
         rounded-3xl
         border
@@ -39,7 +42,7 @@ const TicketCardSkeleton = () => {
 
       {/* Content */}
 
-      <div className="p-5">
+      <div className="flex flex-1 flex-col p-5">
         {/* Operator */}
 
         <div className="h-3 w-20 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800!" />
@@ -80,7 +83,7 @@ const TicketCardSkeleton = () => {
 
         {/* Bottom */}
 
-        <div className="mt-5 flex items-end justify-between border-t border-slate-100 pt-4 dark:!border-slate-800">
+        <div className="mt-auto flex items-end justify-between border-t border-slate-100 pt-4 dark:!border-slate-800">
           <div className="space-y-2">
             <div className="h-2 w-20 rounded-full bg-slate-200 dark:bg-slate-800!" />
 

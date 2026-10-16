@@ -1,6 +1,6 @@
 const HeroSkeleton = () => {
   return (
-    <section className="relative max-w-7xl mx-auto">
+    <section className="relative max-w-[1400px] mx-auto">
       {/* =========================================================
           HERO
       ========================================================== */}

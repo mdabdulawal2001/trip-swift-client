@@ -7,7 +7,7 @@ export const metadata = {
     "Browse available bus, train, flight, and travel tickets on TripSwift.",
 };
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 8;
 
 export default async function TicketsPage({ searchParams }) {
   const params = await searchParams;

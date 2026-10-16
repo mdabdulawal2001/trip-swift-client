@@ -92,7 +92,7 @@ const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
       <main className="min-h-screen bg-slate-50/70 dark:bg-slate-950!">
         {/* Breadcrumb / Back */}
         <section className="border-b border-slate-200 dark:border-slate-800 dark:!bg-slate-950 bg-white">
-          <div className="flex justify-center mx-auto max-w-7xl px-5 py-5 sm:px-8 lg:px-8">
+          <div className="flex justify-center mx-auto max-w-[1400px] px-5 py-5 sm:px-8 lg:px-8">
             <Link
               href="/tickets"
               className="w-full group inline-flex items-center justify-center gap-2 text-sm font-semibold bg-[#238FD7] px-4 py-3 rounded-xl text-white transition hover:bg-[#1978B8]"
@@ -105,7 +105,7 @@ const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
 
         {/* Main Details */}
         <section className="py-10 sm:py-14">
-          <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-8">
+          <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-8">
             <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr]">
               {/* Left */}
               <div>

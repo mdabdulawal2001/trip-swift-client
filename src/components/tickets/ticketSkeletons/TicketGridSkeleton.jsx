@@ -6,7 +6,7 @@ export default function TicketGridSkeleton({ count = 6 }) {
       className="
         grid grid-cols-1 gap-6
         md:grid-cols-2
-        xl:grid-cols-3
+        xl:grid-cols-4
       "
     >
       {Array.from({ length: count }).map((_, index) => (

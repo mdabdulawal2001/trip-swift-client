@@ -31,7 +31,7 @@ const steps = [
 export default function HowItWorks() {
   return (
     <section className="overflow-hidden bg-white py-20 text-slate-900 transition-colors duration-300 dark:bg-slate-900 dark:text-white sm:py-24">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-8">
+      <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}

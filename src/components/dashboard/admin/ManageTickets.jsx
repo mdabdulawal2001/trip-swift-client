@@ -24,6 +24,8 @@ import ConfirmModal from "../../shared/ConfirmModal";
 import Swal from "sweetalert2";
 import { DashboardPaginationSkeleton } from "../shared/DashboardSkeleton";
 
+const ITEMS_PER_PAGE = 10;
+
 export default function ManageTickets() {
   const [tickets, setTickets] = useState([]);
   const [search, setSearch] = useState("");
@@ -38,8 +40,6 @@ export default function ManageTickets() {
     actionType: null, // "approved" or "rejected"
     loading: false,
   });
-  const itemsPerPage = 10;
-
   const filteredTickets = tickets
     .filter((ticket) => {
       const matchesStatus =
@@ -74,13 +74,13 @@ export default function ManageTickets() {
     });
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredTickets.length / itemsPerPage),
+    Math.ceil(filteredTickets.length / ITEMS_PER_PAGE),
   );
   const activePage = Math.min(currentPage, totalPages);
-  const firstVisibleIndex = (activePage - 1) * itemsPerPage;
+  const firstVisibleIndex = (activePage - 1) * ITEMS_PER_PAGE;
   const pageTickets = filteredTickets.slice(
     firstVisibleIndex,
-    firstVisibleIndex + itemsPerPage,
+    firstVisibleIndex + ITEMS_PER_PAGE,
   );
 
   const loadTickets = async () => {
@@ -304,7 +304,7 @@ export default function ManageTickets() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="mx-auto max-w-[1400px]">
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -764,7 +764,7 @@ function StatusBadge({ status }) {
 
 function ManageTicketsSkeleton() {
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="mx-auto max-w-[1400px]">
       {/* Header Skeleton */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0 flex-1 space-y-3">
@@ -789,7 +789,7 @@ function ManageTicketsSkeleton() {
 
       {/* Mobile Card Skeleton */}
       <div className="space-y-4 md:hidden">
-        {Array.from({ length: itemsPerPage }).map((_, index) => (
+        {Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => (
           <div
             key={index}
             className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800! dark:bg-slate-900!"
@@ -868,7 +868,7 @@ function ManageTicketsSkeleton() {
 
             {/* Rows */}
             <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-              {Array.from({ length: itemsPerPage }).map((_, index) => (
+              {Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => (
                 <tr key={index}>
                   {/* Ticket */}
                   <td className="px-5 py-5">

@@ -298,7 +298,7 @@ const Navbar = () => {
           z-50
           mx-auto
           w-full
-          max-w-7xl
+          max-w-[1400px]
           px-2
           pt-3
           sm:pt-4
@@ -313,7 +313,7 @@ const Navbar = () => {
             mx-auto
             flex
             min-h-16.5
-            max-w-7xl
+            max-w-[1400px]
             items-center
             justify-between
             gap-3

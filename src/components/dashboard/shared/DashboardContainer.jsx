@@ -10,7 +10,7 @@ export default function DashboardContainer({
   return (
     <div
       id={id}
-      className={`relative mx-auto max-w-7xl ${id ? "scroll-mt-6" : ""}`}
+      className={`relative mx-auto max-w-[1400px] ${id ? "scroll-mt-6" : ""}`}
     >
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         {loading ? (

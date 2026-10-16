@@ -247,7 +247,7 @@ export default function MyTickets() {
   }
 
   return (
-    <div id="dashboard-list-page" className="mx-auto max-w-7xl scroll-mt-6">
+    <div id="dashboard-list-page" className="mx-auto max-w-[1400px] scroll-mt-6">
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>

@@ -118,7 +118,7 @@ const RegisterForm = () => {
 
         {/* REGISTER FORM */}
         <Form
-          className="flex max-w-7xl mx-auto w-full flex-col gap-5"
+          className="flex max-w-[1400px] mx-auto w-full flex-col gap-5"
           onSubmit={handleSubmit}
         >
           {/* FULL NAME */}

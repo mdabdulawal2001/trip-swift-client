@@ -1,6 +1,6 @@
 export default function TicketDetailsSkeleton() {
   return (
-    <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <section className="mx-auto w-full max-w-[1400px] px-4 py-10 sm:px-6 lg:px-8">
       {/* Main Details */}
       <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
         {/* Image */}

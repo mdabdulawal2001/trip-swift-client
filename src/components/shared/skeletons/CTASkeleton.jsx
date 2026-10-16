@@ -5,7 +5,7 @@ const CTASkeleton = () => {
         className="
           relative
           mx-auto
-          max-w-7xl
+          max-w-[1350px]
           overflow-hidden
           rounded-3xl
           bg-slate-200

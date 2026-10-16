@@ -61,7 +61,7 @@ const HeroSection = () => {
         relative
         overflow-x-clip
         lg:overflow-visible
-        max-w-7xl
+        max-w-[1400px]
         mx-auto
         dark:bg-[#071522]
         transition-colors
@@ -221,7 +221,7 @@ const HeroSection = () => {
                       mx-auto
                       flex
                       min-h-162.5
-                      max-w-7xl
+                      max-w-[1400px]
                       flex-col
 
                       sm:min-h-172.5

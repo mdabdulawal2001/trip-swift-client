@@ -164,14 +164,22 @@ const LoginForm = () => {
                 return null;
               }}
             >
-              <Label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+              <Label
+                htmlFor="login-email"
+                className="text-sm font-semibold text-slate-700 dark:text-slate-200"
+              >
                 Email Address
               </Label>
 
               <div className="relative mt-1.5">
                 <Mail className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-slate-400" />
 
-                <Input name="email" className="w-full pl-10" placeholder="Enter Your Email" />
+                <Input
+                  id="login-email"
+                  name="email"
+                  className="w-full pl-10"
+                  placeholder="Enter Your Email"
+                />
               </div>
 
               <FieldError />
@@ -189,7 +197,10 @@ const LoginForm = () => {
               return null;
             }}
           >
-            <Label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+            <Label
+              htmlFor="login-password"
+              className="text-sm font-semibold text-slate-700 dark:text-slate-200"
+            >
               Password
             </Label>
 
@@ -198,6 +209,7 @@ const LoginForm = () => {
               <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-slate-400" />
 
               <Input
+                id="login-password"
                 name="password"
                 type={isShowPassword ? "text" : "password"}
                 className="w-full pl-10 pr-10"

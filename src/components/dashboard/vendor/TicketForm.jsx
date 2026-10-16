@@ -206,11 +206,15 @@ export default function TicketForm() {
             />
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+              <label
+                htmlFor="ticket-type"
+                className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200"
+              >
                 Transport Type
               </label>
 
               <select
+                id="ticket-type"
                 name="type"
                 value={formData.type}
                 onChange={handleChange}
@@ -362,11 +366,15 @@ export default function TicketForm() {
         {/* Description */}
 
         <div className="mb-8">
-          <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+          <label
+            htmlFor="ticket-description"
+            className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200"
+          >
             Description
           </label>
 
           <textarea
+            id="ticket-description"
             name="description"
             value={formData.description}
             onChange={handleChange}
@@ -462,13 +470,19 @@ function InputField({
   required = false,
   min,
 }) {
+  const inputId = `ticket-${name}`;
+
   return (
     <div>
-      <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+      <label
+        htmlFor={inputId}
+        className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200"
+      >
         {label}
       </label>
 
       <input
+        id={inputId}
         name={name}
         type={type}
         value={value}

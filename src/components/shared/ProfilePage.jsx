@@ -549,6 +549,7 @@ function ProfileField({
   placeholder,
 }) {
   const isEditable = !disabled && editing;
+  const inputId = `profile-${name || "email"}`;
 
   return (
     <div
@@ -557,6 +558,7 @@ function ProfileField({
       }`}
     >
       <label
+        htmlFor={inputId}
         className={`mb-2 block text-sm font-semibold transition-colors duration-300 ${
           isEditable
             ? "text-sky-600 dark:text-sky-400"
@@ -583,6 +585,7 @@ function ProfileField({
         </div>
 
         <input
+          id={inputId}
           type="text"
           name={name}
           value={value}

@@ -448,3 +448,16 @@ export async function submitContactMessage(message) {
   return data;
 }
 
+// admin get contact messages
+export async function getAdminContactMessages() {
+  return authFetch("/contact/admin", {
+    cache: "no-store",
+  });
+}
+
+// admin delete contact message
+export async function deleteContactMessage(id) {
+  return authFetch(`/contact/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
+}

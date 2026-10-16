@@ -137,7 +137,10 @@ const RegisterForm = () => {
               return null;
             }}
           >
-            <Label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+            <Label
+              htmlFor="register-name"
+              className="text-sm font-semibold text-slate-700 dark:text-slate-200"
+            >
               Full Name
             </Label>
 
@@ -145,6 +148,7 @@ const RegisterForm = () => {
               <UserRound className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-slate-400" />
 
               <Input
+                id="register-name"
                 name="name"
                 className="w-full pl-10"
                 placeholder="Enter your full name"
@@ -171,7 +175,10 @@ const RegisterForm = () => {
               return null;
             }}
           >
-            <Label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+            <Label
+              htmlFor="register-email"
+              className="text-sm font-semibold text-slate-700 dark:text-slate-200"
+            >
               Email Address
             </Label>
 
@@ -179,6 +186,7 @@ const RegisterForm = () => {
               <Mail className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-slate-400" />
 
               <Input
+                id="register-email"
                 name="email"
                 type="email"
                 className="w-full pl-10"
@@ -217,7 +225,10 @@ const RegisterForm = () => {
               return null;
             }}
           >
-            <Label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+            <Label
+              htmlFor="register-password"
+              className="text-sm font-semibold text-slate-700 dark:text-slate-200"
+            >
               Password
             </Label>
 
@@ -226,6 +237,7 @@ const RegisterForm = () => {
               <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-slate-400" />
 
               <Input
+                id="register-password"
                 name="password"
                 type={isShowPassword ? "text" : "password"}
                 className="w-full pl-10 pr-10"
@@ -268,7 +280,10 @@ const RegisterForm = () => {
               return null;
             }}
           >
-            <Label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+            <Label
+              htmlFor="register-confirm-password"
+              className="text-sm font-semibold text-slate-700 dark:text-slate-200"
+            >
               Confirm Password
             </Label>
 
@@ -277,6 +292,7 @@ const RegisterForm = () => {
               <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-slate-400" />
 
               <Input
+                id="register-confirm-password"
                 name="confirmPassword"
                 type={isShowConfirmPassword ? "text" : "password"}
                 className="w-full pl-10 pr-10"

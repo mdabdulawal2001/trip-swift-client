@@ -618,9 +618,8 @@ export default function AdvertiseTickets() {
                       <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
                         Departure
                       </p>
-
                       <p className="mt-1 font-semibold text-slate-700 dark:text-slate-300">
-                        {ticket.departure}
+                        {ticket.departureDateTime.split("T")[1]?.slice(0, 5) || ticket.departureDateTime.split("T")[1]}
                       </p>
                     </div>
                   </div>

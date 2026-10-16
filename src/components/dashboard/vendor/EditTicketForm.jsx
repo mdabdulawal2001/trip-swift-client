@@ -10,6 +10,8 @@ import { authClient } from "@/lib/auth-client";
 import TicketFormSkeleton from "./vendorSkeletons/TicketFormSkeleton";
 import ConfirmModal from "../../shared/ConfirmModal";
 
+const MAX_TICKET_IMAGES = 4;
+
 export default function EditTicketForm() {
   const router = useRouter();
   const params = useParams();
@@ -40,6 +42,7 @@ export default function EditTicketForm() {
     date: "",
     departureDateTime: "",
     image: "",
+    images: [""],
     perks: [],
     description: "",
   });
@@ -65,6 +68,12 @@ export default function EditTicketForm() {
           throw new Error("Ticket not found");
         }
 
+        const ticketImages = Array.isArray(ticket.images)
+          ? ticket.images.filter(
+              (image) => typeof image === "string" && image.trim(),
+            ).slice(0, MAX_TICKET_IMAGES)
+          : [];
+
         setFormData({
           title: ticket.title || "",
           operator: ticket.operator || "",
@@ -77,6 +86,7 @@ export default function EditTicketForm() {
           date: ticket.date || "",
           departureDateTime: ticket.departureDateTime || "",
           image: ticket.image || "",
+          images: ticketImages.length ? ticketImages : [ticket.image || ""],
           perks: Array.isArray(ticket.perks) ? ticket.perks : [],
           description: ticket.description || "",
         });
@@ -103,6 +113,44 @@ export default function EditTicketForm() {
     }));
   };
 
+  const handleImageChange = (index, value) => {
+    setFormData((previous) => {
+      const images = [...previous.images];
+      images[index] = value;
+
+      return {
+        ...previous,
+        images,
+        image: images.find((url) => url.trim())?.trim() || "",
+      };
+    });
+  };
+
+  const addImageField = () => {
+    setFormData((previous) => {
+      if (previous.images.length >= MAX_TICKET_IMAGES) return previous;
+
+      return {
+        ...previous,
+        images: [...previous.images, ""],
+      };
+    });
+  };
+
+  const removeImageField = (index) => {
+    setFormData((previous) => {
+      const images = previous.images.filter(
+        (_, imageIndex) => imageIndex !== index,
+      );
+
+      return {
+        ...previous,
+        images: images.length ? images : [""],
+        image: images.find((url) => url.trim())?.trim() || "",
+      };
+    });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsConfirmModalOpen(true);
@@ -111,6 +159,24 @@ export default function EditTicketForm() {
   const executeTicketUpdate = async (e) => {
     try {
       setSubmitting(true);
+
+      const imageUrls = [
+        ...new Set(
+          formData.images
+            .map((url) => url.trim())
+            .filter(Boolean),
+        ),
+      ];
+
+      if (imageUrls.length === 0) {
+        toast.error("Please add at least one valid image URL.");
+        return;
+      }
+
+      if (imageUrls.length > MAX_TICKET_IMAGES) {
+        toast.error("You can add a maximum of 4 images.");
+        return;
+      }
 
       const departureDate = formData.departureDateTime
         ? formData.departureDateTime.split("T")[0]
@@ -127,7 +193,8 @@ export default function EditTicketForm() {
         departure: formData.departure,
         date: departureDate,
         departureDateTime: formData.departureDateTime,
-        image: formData.image,
+        image: imageUrls[0],
+        images: imageUrls,
         perks: formData.perks,
         description: formData.description,
       };
@@ -149,7 +216,7 @@ export default function EditTicketForm() {
   };
 
   if (loading) {
-    return <TicketFormSkeleton />;
+    return <TicketFormSkeleton variant="edit" />;
   }
 
   return (
@@ -300,22 +367,84 @@ export default function EditTicketForm() {
           />
         </div>
 
-        {/* Image */}
-
+        {/* Ticket Images */}
         <div className="mb-8">
-          <h2 className="mb-4 text-lg font-bold text-slate-900 dark:text-white">
-            Ticket Image
-          </h2>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                Ticket Images
+              </h2>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                Add 1–4 image URLs. The first valid URL will be the main image.
+              </p>
+            </div>
 
-          <InputField
-            label="Image URL"
-            name="image"
-            type="url"
-            value={formData.image}
-            onChange={handleChange}
-            placeholder="https://example.com/ticket-image.jpg"
-            required
-          />
+            <button
+              type="button"
+              onClick={addImageField}
+              disabled={formData.images.length >= MAX_TICKET_IMAGES}
+              className="rounded-xl bg-[#238FD7] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#1978B8] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              + Add Image
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {formData.images.map((imageUrl, index) => (
+              <div
+                key={index}
+                className="rounded-xl border border-slate-200 p-4 dark:border-slate-700"
+              >
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <label
+                    htmlFor={`edit-ticket-image-${index}`}
+                    className="text-sm font-semibold text-slate-700 dark:text-slate-200"
+                  >
+                    Image URL {index + 1}
+                    {index === 0 ? " (Main image)" : ""}
+                  </label>
+
+                  {formData.images.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeImageField(index)}
+                      className="text-sm font-semibold text-red-500 hover:text-red-600"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+
+                <input
+                  id={`edit-ticket-image-${index}`}
+                  type="url"
+                  value={imageUrl}
+                  onChange={(event) =>
+                    handleImageChange(index, event.target.value)
+                  }
+                  placeholder="https://example.com/travel-image.jpg"
+                  required={index === 0}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#047BFB] dark:border-slate-700! dark:bg-slate-950! dark:text-white"
+                />
+
+                {imageUrl.trim() && (
+                  <div className="mt-3">
+                    <img
+                      src={imageUrl}
+                      alt={`Ticket preview ${index + 1}`}
+                      className="h-32 w-full rounded-lg object-cover sm:w-56"
+                      onError={(event) => {
+                        event.currentTarget.style.visibility = "hidden";
+                      }}
+                      onLoad={(event) => {
+                        event.currentTarget.style.visibility = "visible";
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Perks */}

@@ -489,7 +489,7 @@ export default function MyTickets() {
                     <div className="flex items-center justify-end gap-2 text-sm text-slate-500 dark:text-slate-400">
                       <Clock3 size={15} className="text-[#047BFB]" />
 
-                      <span className="truncate">{ticket.departure}</span>
+                      <span className="truncate">{ticket.departureDateTime.split("T")[1]?.slice(0, 5) || ticket.departureDateTime.split("T")[1]}</span>
                     </div>
                   </div>
 

@@ -1,4 +1,5 @@
 export default function DashboardContainer({
+  id,
   eyebrow,
   title,
   description,
@@ -7,7 +8,10 @@ export default function DashboardContainer({
   loading = false,
 }) {
   return (
-    <div className="relative mx-auto max-w-7xl">
+    <div
+      id={id}
+      className={`relative mx-auto max-w-7xl ${id ? "scroll-mt-6" : ""}`}
+    >
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         {loading ? (
           <div className="min-w-0 flex-1 space-y-3">

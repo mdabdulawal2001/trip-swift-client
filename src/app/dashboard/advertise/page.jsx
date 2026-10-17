@@ -1,4 +1,4 @@
-import AdvertiseTickets from "@/components/dashboard/admin/AdvertiseTickets";
+import AdvertiseTicketsClient from "./AdvertiseTicketsClient";
 
 export const metadata = {
   title: "Advertise",
@@ -7,5 +7,5 @@ export const metadata = {
 };
 
 export default function AdvertisePage() {
-  return <AdvertiseTickets />;
+  return <AdvertiseTicketsClient />;
 }

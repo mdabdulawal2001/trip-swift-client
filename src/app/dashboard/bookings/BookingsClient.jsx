@@ -1,12 +1,11 @@
 "use client";
 
 import dynamic from "next/dynamic";
-
-import DashboardRouteSkeleton from "@/components/dashboard/shared/DashboardRouteSkeleton";
+import BookingsSkeleton from "@/components/dashboard/user/BookingsSkeleton";
 
 const MyBookedTickets = dynamic(
   () => import("@/components/dashboard/user/MyBookedTickets"),
-  { loading: () => <DashboardRouteSkeleton /> },
+  { loading: () => <BookingsSkeleton /> },
 );
 
 export default function BookingsClient() {

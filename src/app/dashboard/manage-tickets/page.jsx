@@ -1,4 +1,4 @@
-import ManageTickets from "@/components/dashboard/admin/ManageTickets";
+import ManageTicketsClient from "./ManageTicketsClient";
 
 export const metadata = {
   title: "Manage Tickets",
@@ -7,5 +7,5 @@ export const metadata = {
 };
 
 export default function ManageTicketsPage() {
-  return <ManageTickets />;
+  return <ManageTicketsClient />;
 }

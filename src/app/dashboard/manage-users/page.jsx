@@ -1,4 +1,4 @@
-import ManageUsers from "@/components/dashboard/admin/ManageUsers";
+import ManageUsersClient from "./ManageUsersClient";
 
 export const metadata = {
   title: "Manage Users",
@@ -7,5 +7,5 @@ export const metadata = {
 };
 
 export default function ManageUsersPage() {
-  return <ManageUsers />;
+  return <ManageUsersClient />;
 }

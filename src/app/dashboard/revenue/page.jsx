@@ -1,4 +1,4 @@
-import RevenueOverview from "@/components/dashboard/vendor/RevenueOverview";
+import RevenueClient from "./RevenueClient";
 
 export const metadata = {
   title: "Revenue",
@@ -7,9 +7,5 @@ export const metadata = {
 };
 
 export default function RevenuePage() {
-  return(
-    <> 
-    <RevenueOverview />;
-    </>
-  ) 
+  return <RevenueClient />;
 }

@@ -17,7 +17,7 @@ import {
 import Image from "next/image";
 
 import { getTickets } from "@/lib/api";
-import TicketCardSkeleton from "../shared/skeletons/TicketCardSkeleton";
+import { LatestTicketsSkeleton } from "./HomeTicketSectionsSkeletons";
 
 const transportIcons = {
   "Bus": FaBus,
@@ -54,34 +54,12 @@ const LatestTickets = () => {
     loadLatestTickets();
   }, []);
 
+  if (loading) {
+    return <LatestTicketsSkeleton />;
+  }
+
   return (
     <section className="border-y border-slate-200 dark:border-slate-950 bg-slate-50/70 py-20  dark:bg-slate-950/50 sm:py-24">
-      {/* Loading */}
-
-      {loading && (
-        <section className="bg-slate-50/70 py-20 dark:bg-slate-950/50! sm:py-24">
-          <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-8">
-            {/* Heading */}
-
-            <div className="mb-10">
-              <div className="mb-3 h-3 w-28 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800!" />
-
-              <div className="h-10 w-60 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800!" />
-
-              <div className="mt-4 h-4 w-full max-w-2xl animate-pulse rounded-full bg-slate-200 dark:bg-slate-800!" />
-            </div>
-
-            {/* Cards */}
-
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {Array.from({ length: 8 }).map((_, index) => (
-                <TicketCardSkeleton key={index} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-8">
         {/* Heading */}
 

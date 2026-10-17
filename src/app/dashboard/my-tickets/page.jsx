@@ -1,5 +1,4 @@
-import MyTickets from "@/components/dashboard/vendor/MyTickets";
-import MyTicketsSkeleton from "@/components/dashboard/vendor/vendorSkeletons/MyTicketsSkeleton";
+import MyTicketsClient from "./MyTicketsClient";
 
 export const metadata = {
   title: "My Tickets",
@@ -8,9 +7,5 @@ export const metadata = {
 };
 
 export default function MyTicketsPage() {
-  return (
-  <>
-  <MyTickets />;
-  </>
-  )
+  return <MyTicketsClient />;
 }

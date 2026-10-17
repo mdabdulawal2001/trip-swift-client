@@ -1,4 +1,4 @@
-import RequestedBookings from "@/components/dashboard/vendor/RequestedBookings";
+import RequestedBookingsClient from "./RequestedBookingsClient";
 
 export const metadata = {
   title: "Requested Bookings",
@@ -7,5 +7,5 @@ export const metadata = {
 };
 
 export default function RequestedBookingsPage() {
-  return <RequestedBookings />;
+  return <RequestedBookingsClient />;
 }

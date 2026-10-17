@@ -17,7 +17,7 @@ export default function TicketBrowser({
   itemsPerPage,
   filters,
 }) {
-  const [isGridLoading, setIsGridLoading] = useState(true);
+  const [isGridLoading, setIsGridLoading] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 

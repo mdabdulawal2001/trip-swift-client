@@ -1,5 +1,5 @@
-import EditTicketForm from "@/components/dashboard/vendor/EditTicketForm";
+import EditTicketClient from "./EditTicketClient";
 
 export default function EditTicketPage() {
-  return <EditTicketForm />;
+  return <EditTicketClient />;
 }

@@ -1,4 +1,4 @@
-import TicketBrowser from "@/components/tickets/TicketBrowser";
+import TicketBrowserClient from "@/components/tickets/TicketBrowserClient";
 import { getTickets } from "@/lib/api";
 
 export const metadata = {
@@ -28,7 +28,7 @@ export default async function TicketsPage({ searchParams }) {
   });
 
   return (
-    <TicketBrowser
+    <TicketBrowserClient
       tickets={data.tickets}
       totalItems={data.pagination.totalItems}
       totalPages={data.pagination.totalPages}

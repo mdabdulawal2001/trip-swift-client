@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import TicketDetails from "@/components/tickets/TicketDetails";
+import TicketDetailsClient from "@/components/tickets/TicketDetailsClient";
 import { getAdminTicketById } from "@/lib/api";
 
 export default async function AdminTicketDetailsPage({ params }) {
@@ -20,7 +20,7 @@ export default async function AdminTicketDetailsPage({ params }) {
   }
 
   return (
-    <TicketDetails
+    <TicketDetailsClient
       ticket={data.ticket}
       relatedTickets={[]}
       isManagementView

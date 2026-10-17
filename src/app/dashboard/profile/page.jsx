@@ -1,4 +1,4 @@
-import ProfilePage from "@/components/shared/ProfilePage";
+import ProfileClient from "./ProfileClient";
 
 export const metadata = {
   title: "Profile",
@@ -7,5 +7,5 @@ export const metadata = {
 };
 
 export default function ProfileRoute() {
-  return <ProfilePage />;
+  return <ProfileClient />;
 }

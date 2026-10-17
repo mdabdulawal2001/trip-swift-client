@@ -1,4 +1,4 @@
-import ContactMessages from "@/components/dashboard/admin/ContactMessages";
+import ContactMessagesClient from "./ContactMessagesClient";
 
 export const metadata = {
   title: "Contact Messages",
@@ -6,5 +6,5 @@ export const metadata = {
 };
 
 export default function ContactMessagesPage() {
-  return <ContactMessages />;
+  return <ContactMessagesClient />;
 }

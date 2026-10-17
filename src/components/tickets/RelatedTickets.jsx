@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { FaArrowRight } from "react-icons/fa";
 
@@ -53,9 +54,11 @@ function RelatedTicket({ ticket, index }) {
       }}
       className="overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:border-[#38BDF8]/50 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900"
     >
-      <img
+      <Image
         src={ticket.image}
         alt={ticket.title}
+        width={640}
+        height={320}
         className="h-40 w-full object-cover"
       />
 

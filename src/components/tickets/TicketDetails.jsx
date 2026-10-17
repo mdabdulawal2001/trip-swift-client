@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import RelatedTickets from "./RelatedTickets";
 import Link from "next/link";
@@ -24,6 +25,7 @@ import {
 import Countdown from "./Countdown";
 import BookingModal from "./BookingModal";
 import { authClient } from "@/lib/auth-client";
+import TicketDetailsSkeleton from "./ticketSkeletons/TicketDetailsSkeleton";
 
 const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
@@ -145,11 +147,13 @@ const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
                 >
                   <div className="group relative overflow-hidden bg-slate-100 dark:bg-slate-800">
                     {activeImage ? (
-                      <img
+                      <Image
                         key={activeImage}
                         src={activeImage}
                         alt={`${ticket.title} image ${selectedImageIndex + 1}`}
-                        className="h-[300px] w-full object-contain sm:h-[430px] sm:object-cover"
+                        width={1600}
+                        height={900}
+                        className="h-[300px] w-full object-cover sm:h-[430px]"
                       />
                     ) : (
                       <div className="flex h-[300px] items-center justify-center text-sm text-slate-500 sm:h-[430px]">
@@ -157,7 +161,7 @@ const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
                       </div>
                     )}
 
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-transparent" />
+                    <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-slate-950/75 via-transparent to-transparent" />
 
                     <div className="absolute left-5 top-5 flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-xs font-bold text-slate-800 backdrop-blur dark:bg-slate-900/90 dark:text-white">
                       <TransportIcon className="text-[#047BFB]" />
@@ -214,9 +218,11 @@ const TicketDetails = ({ ticket, relatedTickets = [], isManagementView }) => {
                               : "border-transparent opacity-70 hover:opacity-100"
                           }`}
                         >
-                          <img
+                          <Image
                             src={image}
                             alt={`${ticket.title} thumbnail ${index + 1}`}
+                            width={224}
+                            height={160}
                             className="h-full w-full object-cover"
                           />
                         </button>

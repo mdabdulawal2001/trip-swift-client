@@ -13,15 +13,9 @@ import {
 } from "lucide-react";
 
 import toast from "react-hot-toast";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 
 import { authClient } from "@/lib/auth-client";
-import {
-  addPdfReportFooter,
-  createPdfReport,
-  formatPdfDate,
-} from "@/lib/pdf-report";
+import { loadPdfExportTools } from "@/lib/pdf-export-tools";
 import ConfirmModal from "../../shared/ConfirmModal";
 import Swal from "sweetalert2";
 import TicketPagination from "@/components/tickets/TicketPagination";
@@ -329,6 +323,12 @@ export default function ManageUsers() {
     setExporting(true);
 
     try {
+      const {
+        autoTable,
+        addPdfReportFooter,
+        createPdfReport,
+        formatPdfDate,
+      } = await loadPdfExportTools();
       const allUsers = [];
       const limit = 100;
       let offset = 0;

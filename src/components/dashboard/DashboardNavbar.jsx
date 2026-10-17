@@ -48,7 +48,7 @@ export default function DashboardNavbar({ role, onMenuClick, setSidebarOpen }) {
 
   return (
     <header
-      className={`sticky top-20 z-40 mx-2 rounded-lg border-b border-slate-200/80 bg-white/90 backdrop-blur-xl transition-transform duration-300 ease-in-out sm:top-[5.5rem] sm:mx-3 sm:translate-y-0 lg:top-0 lg:mx-4 dark:border-slate-800! dark:bg-slate-950/90! ${
+      className={`sticky top-20 z-40 mx-2 rounded-lg border-b border-slate-200/80 bg-white/90 backdrop-blur-xl transition-transform duration-300 ease-in-out sm:top-[5.5rem] sm:mx-3 sm:translate-y-0 lg:top-0 lg:mr-0 dark:border-slate-800! dark:bg-slate-950/90! ${
         isHidden ? "-translate-y-full" : "translate-y-0"
       }`}
     >

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { addTicket, getVendorTickets } from "@/lib/api";
@@ -422,9 +423,11 @@ export default function TicketForm() {
 
                 {imageUrl.trim() && (
                   <div className="mt-3">
-                    <img
+                    <Image
                       src={imageUrl}
                       alt={`Ticket preview ${index + 1}`}
+                      width={448}
+                      height={256}
                       className="h-32 w-full rounded-lg object-cover sm:w-56"
                       onError={(event) => {
                         event.currentTarget.style.visibility = "hidden";

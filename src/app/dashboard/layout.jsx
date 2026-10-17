@@ -16,9 +16,5 @@ export const metadata = {
 };
 
 export default function DashboardLayout({ children }) {
-  return (
-    <div>
-    <DashboardLayoutClient>{children}</DashboardLayoutClient>;
-    </div>
-    )
+  return <DashboardLayoutClient>{children}</DashboardLayoutClient>;
 }

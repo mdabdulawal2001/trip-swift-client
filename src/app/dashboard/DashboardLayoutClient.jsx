@@ -52,7 +52,7 @@ export default function DashboardLayoutClient({ children }) {
               setSidebarOpen={setSidebarOpen}
             />
 
-            <main className="p-4 sm:p-6 lg:p-8">
+            <main className="p-4 sm:p-6 lg:py-8 lg:pl-8 lg:pr-0">
               <div className="mx-auto max-w-[1400px]">{children}</div>
             </main>
           </div>

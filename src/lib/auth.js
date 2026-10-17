@@ -4,10 +4,7 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { admin as adminPlugin, jwt } from "better-auth/plugins";
 
 import { ac, admin, user, vendor } from "./permissions";
-import {
-  hashPassword,
-  verifyPassword,
-} from "./password.js";
+import { hashPassword, verifyPassword } from "./password.js";
 
 const client = new MongoClient(process.env.MONGODB_URI);
 
@@ -44,7 +41,7 @@ export const auth = betterAuth({
 
   emailAndPassword: {
     enabled: true,
-     password: {
+    password: {
       hash: hashPassword,
       verify: verifyPassword,
     },
@@ -58,6 +55,9 @@ export const auth = betterAuth({
   },
 
   session: {
+    expiresIn: 60 * 60 * 24 * 7,
+    updateAge: 60 * 60 * 24,
+
     cookieCache: {
       enabled: true,
       strategy: "jwt",
@@ -78,6 +78,8 @@ export const auth = betterAuth({
 
     jwt({
       jwt: {
+        expirationTime: "15m",
+
         definePayload: ({ user }) => ({
           id: user.id,
           email: user.email,

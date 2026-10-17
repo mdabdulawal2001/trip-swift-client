@@ -1,4 +1,4 @@
-import Transactions from "@/components/dashboard/user/Transactions";
+import TransactionsClient from "./TransactionsClient";
 
 export const metadata = {
   title: "Transactions",
@@ -7,5 +7,5 @@ export const metadata = {
 };
 
 export default function TransactionsPage() {
-  return <Transactions />;
+  return <TransactionsClient />;
 }

@@ -1,10 +1,22 @@
 "use client";
 
-import { useDashboardRole } from "@/context/DashboardRoleContext";
+import dynamic from "next/dynamic";
 
-import UserDashboard from "@/components/dashboard/user/UserDashboard";
-import VendorDashboard from "@/components/dashboard/vendor/VendorDashboard";
-import AdminDashboard from "@/components/dashboard/admin/AdminDashboard";
+import { useDashboardRole } from "@/context/DashboardRoleContext";
+import DashboardPageSkeleton from "@/components/dashboard/shared/DashboardPageSkeleton";
+
+const UserDashboard = dynamic(
+  () => import("@/components/dashboard/user/UserDashboard"),
+  { loading: () => <DashboardPageSkeleton /> },
+);
+const VendorDashboard = dynamic(
+  () => import("@/components/dashboard/vendor/VendorDashboard"),
+  { loading: () => <DashboardPageSkeleton /> },
+);
+const AdminDashboard = dynamic(
+  () => import("@/components/dashboard/admin/AdminDashboard"),
+  { loading: () => <DashboardPageSkeleton /> },
+);
 
 export default function DashboardPage() {
   const role = useDashboardRole();

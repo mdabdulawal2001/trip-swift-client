@@ -11,15 +11,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import { getAdminTickets, updateTicketStatus } from "@/lib/api";
 import TicketPagination from "@/components/tickets/TicketPagination";
-import {
-  addPdfReportFooter,
-  createPdfReport,
-  formatPdfDate,
-} from "@/lib/pdf-report";
+import { loadPdfExportTools } from "@/lib/pdf-export-tools";
 import ConfirmModal from "../../shared/ConfirmModal";
 import Swal from "sweetalert2";
 import { DashboardPaginationSkeleton } from "../shared/DashboardSkeleton";
@@ -113,6 +107,12 @@ export default function ManageTickets() {
     }
 
     try {
+      const {
+        autoTable,
+        addPdfReportFooter,
+        createPdfReport,
+        formatPdfDate,
+      } = await loadPdfExportTools();
       const doc = await createPdfReport("Managed Tickets", "landscape", 224);
       const statusCounts = tickets.reduce((counts, ticket) => {
         const status = String(ticket.status || "pending").toLowerCase();

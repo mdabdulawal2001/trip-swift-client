@@ -10,6 +10,27 @@ if (!API_URL) {
 // JWT TOKEN
 // ============================================================
 
+const redirectToLoginForExpiredSession = () => {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const pathname = window.location.pathname;
+
+  if (pathname === "/login" || pathname === "/register") {
+    return;
+  }
+
+  const loginUrl = new URL("/login", window.location.origin);
+
+  loginUrl.searchParams.set(
+    "callbackUrl",
+    `${pathname}${window.location.search}`,
+  );
+
+  window.location.replace(loginUrl.toString());
+};
+
 const getToken = async () => {
   // Client side
   if (typeof window !== "undefined") {
@@ -18,9 +39,11 @@ const getToken = async () => {
     const { data, error } = await authClient.token();
 
     if (error) {
-      throw new Error(
-        error.message || "Failed to get client JWT token",
-      );
+      if (error.status === 401) {
+        redirectToLoginForExpiredSession();
+      }
+
+      throw new Error(error.message || "Failed to get client JWT token");
     }
 
     return data?.token || null;
@@ -36,14 +59,12 @@ const getToken = async () => {
     });
 
     if (error) {
-      throw new Error(
-        error.message || "Failed to get server JWT token",
-      );
+      throw new Error(error.message || "Failed to get server JWT token");
     }
 
     return token || null;
   } catch (error) {
-    error.message("JWT Error:", error);
+    console.error("JWT Error:", error);
 
     throw error;
   }
@@ -70,23 +91,39 @@ const getAuthHeaders = async () => {
 // ============================================================
 
 const authFetch = async (endpoint, options = {}) => {
-  const headers = await getAuthHeaders();
+  let response;
+  let data;
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const headers = await getAuthHeaders();
 
-    headers: {
-      ...headers,
-      ...(options.headers || {}),
-    },
-  });
+    response = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
 
-  const data = await response.json();
+      headers: {
+        ...headers,
+        ...(options.headers || {}),
+      },
+    });
+
+    data = await response.json();
+
+    // The backend verifies JWTs before running route handlers. Retry only its
+    // explicit expired/invalid-JWT response, using a newly issued JWT once.
+    if (
+      attempt === 0 &&
+      response.status === 401 &&
+      data?.message === "Invalid or expired token" &&
+      headers.Authorization
+    ) {
+      continue;
+    }
+
+    break;
+  }
 
   if (!response.ok) {
-    throw new Error(
-      data?.message || "Something went wrong",
-    );
+    throw new Error(data?.message || "Something went wrong");
   }
 
   return data;
@@ -142,19 +179,14 @@ export async function getTickets({
 
 // get advertised tickets for homepage
 export async function getAdvertisedTickets() {
-  const response = await fetch(
-    `${API_URL}/tickets/advertised`,
-    {
-      cache: "no-store",
-    },
-  );
+  const response = await fetch(`${API_URL}/tickets/advertised`, {
+    cache: "no-store",
+  });
 
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(
-      data?.message || "Failed to fetch advertised tickets",
-    );
+    throw new Error(data?.message || "Failed to fetch advertised tickets");
   }
 
   return data;
@@ -162,12 +194,9 @@ export async function getAdvertisedTickets() {
 
 // get ticket by id
 export async function getTicketById(id) {
-  const response = await fetch(
-    `${API_URL}/tickets/${id}`,
-    {
-      cache: "no-store",
-    },
-  );
+  const response = await fetch(`${API_URL}/tickets/${id}`, {
+    cache: "no-store",
+  });
 
   if (!response.ok) {
     throw new Error("Failed to fetch ticket");
@@ -186,12 +215,9 @@ export async function getVendorTickets(email) {
 
   searchParams.set("email", email);
 
-  return authFetch(
-    `/tickets/vendor?${searchParams.toString()}`,
-    {
-      cache: "no-store",
-    },
-  );
+  return authFetch(`/tickets/vendor?${searchParams.toString()}`, {
+    cache: "no-store",
+  });
 }
 
 // vendor post tickets
@@ -225,19 +251,13 @@ export async function getVendorTicketById(id, email) {
 
   searchParams.set("email", email);
 
-  return authFetch(
-    `/tickets/vendor/${id}?${searchParams.toString()}`,
-    {
-      cache: "no-store",
-    },
-  );
+  return authFetch(`/tickets/vendor/${id}?${searchParams.toString()}`, {
+    cache: "no-store",
+  });
 }
 
 // admin toggle ticket advertisement
-export async function updateTicketAdvertisement(
-  id,
-  advertised,
-) {
+export async function updateTicketAdvertisement(id, advertised) {
   return authFetch(`/tickets/${id}/advertise`, {
     method: "PATCH",
 
@@ -295,12 +315,9 @@ export async function getUserBookings(email) {
 
   searchParams.set("email", email);
 
-  return authFetch(
-    `/bookings/user?${searchParams.toString()}`,
-    {
-      cache: "no-store",
-    },
-  );
+  return authFetch(`/bookings/user?${searchParams.toString()}`, {
+    cache: "no-store",
+  });
 }
 
 // get vendor bookings
@@ -309,12 +326,9 @@ export async function getVendorBookings(email) {
 
   searchParams.set("email", email);
 
-  return authFetch(
-    `/bookings/vendor?${searchParams.toString()}`,
-    {
-      cache: "no-store",
-    },
-  );
+  return authFetch(`/bookings/vendor?${searchParams.toString()}`, {
+    cache: "no-store",
+  });
 }
 
 // update booking status by vendor
@@ -359,9 +373,7 @@ export async function createCheckoutSession(bookingId, userEmail) {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(
-      data?.message || "Failed to create checkout session",
-    );
+    throw new Error(data?.message || "Failed to create checkout session");
   }
 
   return data;
@@ -372,10 +384,7 @@ export async function createCheckoutSession(bookingId, userEmail) {
 // ============================================================
 
 // create payment
-export async function createPayment(
-  bookingId,
-  userEmail,
-) {
+export async function createPayment(bookingId, userEmail) {
   return authFetch("/payments", {
     method: "POST",
 
@@ -392,22 +401,16 @@ export async function getUserPayments(email) {
 
   searchParams.set("email", email);
 
-  return authFetch(
-    `/payments/user?${searchParams.toString()}`,
-    {
-      cache: "no-store",
-    },
-  );
+  return authFetch(`/payments/user?${searchParams.toString()}`, {
+    cache: "no-store",
+  });
 }
 
 // get vendor payments
 export async function getVendorPayments(email) {
-  return authFetch(
-    `/payments/vendor?email=${encodeURIComponent(email)}`,
-    {
-      cache: "no-store",
-    },
-  );
+  return authFetch(`/payments/vendor?email=${encodeURIComponent(email)}`, {
+    cache: "no-store",
+  });
 }
 
 // get admin payments
@@ -442,7 +445,9 @@ export async function submitContactMessage(message) {
   }
 
   if (data?.success !== true) {
-    throw new Error("The contact service did not confirm that your message was saved.");
+    throw new Error(
+      "The contact service did not confirm that your message was saved.",
+    );
   }
 
   return data;

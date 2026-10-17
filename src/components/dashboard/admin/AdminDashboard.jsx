@@ -13,9 +13,6 @@ import {
 } from "lucide-react";
 
 import toast from "react-hot-toast";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-
 import DashboardContainer from "@/components/dashboard/shared/DashboardContainer";
 import StatCard from "@/components/dashboard/shared/StatCard";
 import SectionTitle from "@/components/dashboard/shared/SectionTitle";
@@ -23,6 +20,7 @@ import ProgressRow from "@/components/dashboard/shared/ProgressRow";
 import Activity from "@/components/dashboard/shared/Activity";
 
 import { getAdminDashboardStats } from "@/lib/api";
+import { loadPdfExportTools } from "@/lib/pdf-export-tools";
 
 import Link from "next/link";
 import {
@@ -122,6 +120,7 @@ export default function AdminDashboard() {
     }
 
     try {
+      const { jsPDF, autoTable } = await loadPdfExportTools();
       const doc = new jsPDF({
         orientation: "landscape",
         unit: "mm",

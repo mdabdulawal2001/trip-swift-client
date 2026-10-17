@@ -13,15 +13,8 @@ import {
 import { motion } from "framer-motion";
 
 import toast from "react-hot-toast";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-
 import { getAdminTickets, updateTicketAdvertisement } from "@/lib/api";
-import {
-  addPdfReportFooter,
-  createPdfReport,
-  formatPdfDate,
-} from "@/lib/pdf-report";
+import { loadPdfExportTools } from "@/lib/pdf-export-tools";
 import ConfirmModal from "../../shared/ConfirmModal";
 import Swal from "sweetalert2";
 import DashboardListControls from "../shared/DashboardListControls";
@@ -188,6 +181,12 @@ export default function AdvertiseTickets() {
     }
 
     try {
+      const {
+        autoTable,
+        addPdfReportFooter,
+        createPdfReport,
+        formatPdfDate,
+      } = await loadPdfExportTools();
       const doc = await createPdfReport("Advertised Tickets", "landscape", 216);
       doc.setFont("NotoSans", "normal");
       doc.setFontSize(10);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
@@ -426,12 +427,13 @@ export default function EditTicketForm() {
                   required={index === 0}
                   className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#047BFB] dark:border-slate-700! dark:bg-slate-950! dark:text-white"
                 />
-
                 {imageUrl.trim() && (
                   <div className="mt-3">
-                    <img
+                    <Image
                       src={imageUrl}
                       alt={`Ticket preview ${index + 1}`}
+                      width={448}
+                      height={256}
                       className="h-32 w-full rounded-lg object-cover sm:w-56"
                       onError={(event) => {
                         event.currentTarget.style.visibility = "hidden";

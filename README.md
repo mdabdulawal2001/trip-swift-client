@@ -41,20 +41,21 @@ Administrators can manage tickets and users, control vendor access, manage fraud
 ### Core Features
 
 - 🎫 Ticket discovery, search, filtering, sorting & pagination
+- ⚡ Lazy loading for dashboard pages and homepage sections
 - 🚌 Bus, 🚆 Train, 🚢 Launch, ✈️ Plane and other transport types
 - 👤 User, Vendor & Admin role-based dashboards
 - 🔐 Better Auth authentication with Google login
 - 🛡️ JWT-protected backend APIs
 - 📋 Complete booking workflow
 - 💳 Stripe payment integration
-- 📊 Vendor revenue analytics
+- 📊 Vendor revenue analytics with line, pie & bar charts
 - 📄 PDF ticket generation & download
 - 🧾 Transaction history
 - 🖼️ ImgBB image upload
 - 🌙 Dark / Light mode
 - 📱 Fully responsive UI
 - ✨ Framer Motion animations
-- 🔔 Toast notifications & confirmation dialogs
+- 🔔 React Hot Toast notifications, SweetAlert2 alerts & confirmations, and reusable modal dialogs
 - 🚀 Production deployment
 
 ---
@@ -181,6 +182,8 @@ The **All Tickets** page supports:
 | Filter | Transport type |
 | Sort | Price: Low → High / High → Low |
 | Pagination | Server-side paginated results |
+
+The same list controls are available on the relevant dashboard pages, including **My Booked Tickets**, **Transaction History**, **My Added Tickets**, **Requested Bookings**, **Manage Tickets**, **Manage Users**, and **Advertise Tickets**. Users can search, filter, sort, and move through paginated results where applicable to each list.
 
 ```text
 User
@@ -523,6 +526,8 @@ The **Requested Bookings** page supports PDF generation/download for relevant bo
 
 The Vendor Dashboard provides revenue statistics and visual analytics.
 
+Revenue analytics use **line, pie, and bar charts** to present sales and payment data.
+
 Key metrics include:
 
 - 🎫 Total tickets added
@@ -753,11 +758,14 @@ Trip Swift provides a responsive and modern interface with:
 - 🔔 Toast notifications
 - ⚠️ Error feedback
 - ⏳ Loading states
+- ⚡ Lazy-loaded dashboard pages and homepage data sections
 - 🧭 Responsive navigation
 - 🎯 Reusable components
 - 📊 Data visualization
+- 📈 Revenue visualizations with line, pie & bar charts
 - 🃏 Consistent ticket cards
-- 🪟 Modal interactions
+- 🪟 Reusable modal dialogs for booking and confirmation flows
+- ✅ SweetAlert2 alerts and confirmations
 - 🚫 Invalid route handling
 - 📐 Consistent spacing and layout
 

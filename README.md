@@ -20,7 +20,7 @@
     <img src="https://img.shields.io/badge/Backend-GitHub-blue?style=for-the-badge&logo=github" alt="Backend GitHub" />
   </a>
 
-  <a href="https://trip-swift-server.vercel.app/" target="_blank">
+  <a href="https://trip-swift-server.onrender.com/" target="_blank">
     <img src="https://img.shields.io/badge/API-Live-success?style=for-the-badge&logo=vercel" alt="Backend API" />
   </a>
 
@@ -68,7 +68,7 @@ Administrators can manage tickets and users, control vendor access, manage fraud
   <img src="https://img.shields.io/badge/🚀%20Live%20Frontend-Visit%20Website-brightgreen?style=for-the-badge&logo=vercel" alt="Live Frontend" />
 </a>
 
-<a href="https://trip-swift-server.vercel.app/" target="_blank">
+<a href="https://trip-swift-server.onrender.com/" target="_blank">
   <img src="https://img.shields.io/badge/⚙️%20Live%20Backend-API-success?style=for-the-badge&logo=vercel" alt="Live Backend API" />
 </a>
 
@@ -1176,7 +1176,7 @@ Trip Swift is deployed as separate Vercel applications.
 
 <p align="center">
 
-<a href="https://trip-swift-server.vercel.app/" target="_blank">
+<a href="https://trip-swift-server.onrender.com/" target="_blank">
   <img src="https://img.shields.io/badge/Backend%20API-Live-success?style=for-the-badge&logo=vercel" alt="Backend API Live" />
 </a>
 

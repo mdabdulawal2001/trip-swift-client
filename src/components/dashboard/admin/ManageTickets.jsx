@@ -1,14 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  ArrowDownToLine,
-  Check,
-  Eye,
-  Loader2,
-  Search,
-  X,
-} from "lucide-react";
+import { ArrowDownToLine, Check, Eye, Loader2, Search, X } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { getAdminTickets, updateTicketStatus } from "@/lib/api";
@@ -108,12 +101,8 @@ export default function ManageTickets() {
     }
 
     try {
-      const {
-        autoTable,
-        addPdfReportFooter,
-        createPdfReport,
-        formatPdfDate,
-      } = await loadPdfExportTools();
+      const { autoTable, addPdfReportFooter, createPdfReport, formatPdfDate } =
+        await loadPdfExportTools();
       const doc = await createPdfReport("Managed Tickets", "landscape", 224);
       const statusCounts = tickets.reduce((counts, ticket) => {
         const status = String(ticket.status || "pending").toLowerCase();
@@ -297,7 +286,10 @@ export default function ManageTickets() {
   }
 
   return (
-    <div id="dashboard-list-page" className="mx-auto max-w-[1400px] scroll-mt-6">
+    <div
+      id="dashboard-list-page"
+      className="mx-auto max-w-[1400px] scroll-mt-6"
+    >
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -475,104 +467,95 @@ export default function ManageTickets() {
 
       {!loading && filteredTickets.length > 0 && (
         <div className="hidden overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 md:block">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-237.5 text-left">
-              <thead className="border-b border-slate-200 bg-slate-50 dark:border-slate-800! dark:bg-slate-950!">
-                <tr>
-                  <th className="px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
-                    Ticket
-                  </th>
+          <table className="w-full table-fixed text-left">
+            <colgroup>
+              <col style={{ width: "18%" }} />
+              <col style={{ width: "15%" }} />
+              <col style={{ width: "19%" }} />
+              <col style={{ width: "10%" }} />
+              <col style={{ width: "12%" }} />
+              <col style={{ width: "26%" }} />
+            </colgroup>
+            <thead className="border-b border-slate-200 bg-slate-50 dark:border-slate-800! dark:bg-slate-950!">
+              <tr>
+                <th className="px-2 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
+                  Ticket
+                </th>
 
-                  <th className="px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
-                    Route
-                  </th>
+                <th className="px-2 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
+                  Route
+                </th>
 
-                  <th className="px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
-                    Vendor
-                  </th>
+                <th className="px-2 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
+                  Vendor
+                </th>
 
-                  <th className="px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
-                    Price
-                  </th>
+                <th className="px-2 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
+                  Price
+                </th>
 
-                  <th className="px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
-                    Status
-                  </th>
+                <th className="px-2 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
+                  Status
+                </th>
 
-                  <th className="px-5 py-4 text-right text-xs font-bold uppercase tracking-wide text-slate-500">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
+                <th className="px-2 py-4 text-right text-xs font-bold uppercase tracking-wide text-slate-500">
+                  Actions
+                </th>
+              </tr>
+            </thead>
 
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                {pageTickets.map((ticket) => (
-                  <tr
-                    key={ticket._id}
-                    className="transition hover:bg-slate-50 dark:hover:bg-slate-950"
-                  >
-                    <td className="px-5 py-5">
-                      <div>
-                        <p className="font-semibold text-slate-900 dark:text-white">
-                          {ticket.title}
-                        </p>
-
-                        <p className="mt-1 text-xs text-slate-500">
-                          {ticket.type}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="px-5 py-5">
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                        {ticket.from} → {ticket.to}
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+              {pageTickets.map((ticket) => (
+                <tr
+                  key={ticket._id}
+                  className="transition hover:bg-slate-50 dark:hover:bg-slate-950"
+                >
+                  <td className="px-2 py-4">
+                    <div>
+                      <p className="truncate font-semibold text-slate-900 dark:text-white">
+                        {ticket.title}
                       </p>
-                    </td>
-                    <td className="px-5 py-5">
-                      <p className="max-w-55 truncate text-sm text-slate-600 dark:text-slate-400">
-                        {ticket.vendorEmail || "Unknown vendor"}
-                      </p>
-                    </td>
-                    <td className="px-5 py-5">
-                      <p className="font-bold text-slate-900 dark:text-white">
-                        ৳{ticket.price}
-                      </p>
-                    </td>
-                    <td className="px-5 py-5">
-                      <StatusBadge status={ticket.status} />
-                    </td>
-                    <td className="px-5 py-5">
-                      <div className="flex justify-end gap-2">
-                        {/* View */}
-                        <Link href={`/dashboard/manage-tickets/${ticket._id}`}>
-                          <button
-                            type="button"
-                            className="
-          flex h-9 items-center gap-1.5 rounded-lg
-          border border-slate-200
-          bg-white px-3
-          text-xs font-semibold text-slate-600
-          shadow-sm
-          transition-all duration-200
-          hover:border-sky-200
-          hover:bg-sky-50
-          hover:text-sky-600
-          active:scale-95
-          dark:border-slate-700
-          dark:bg-slate-900!
-          dark:text-slate-300
-          dark:hover:border-sky-500/30
-          dark:hover:bg-sky-500/10
-          dark:hover:text-sky-400
-        "
-                            title="View ticket"
-                          >
-                            <Eye className="h-4 w-4" />
-                            <span>View</span>
-                          </button>
-                        </Link>
 
-                        {/* Approve / Reject old */}
-                        {/* {ticket.status === "pending" && (
+                      <p className="mt-1 truncate text-xs text-slate-500">
+                        {ticket.type}
+                      </p>
+                    </div>
+                  </td>
+                  <td className="px-2 py-4">
+                    <p className="truncate text-sm font-medium text-slate-700 dark:text-slate-300">
+                      {ticket.from} → {ticket.to}
+                    </p>
+                  </td>
+                  <td className="px-2 py-4">
+                    <p className="truncate text-sm text-slate-600 dark:text-slate-400">
+                      {ticket.vendorEmail || "Unknown vendor"}
+                    </p>
+                  </td>
+                  <td className="px-2 py-4">
+                    <p className="whitespace-nowrap font-bold text-slate-900 dark:text-white">
+                      ৳{ticket.price}
+                    </p>
+                  </td>
+                  <td className="px-2 py-4">
+                    <StatusBadge status={ticket.status} />
+                  </td>
+                  <td className="px-2 py-4">
+                    <div className="flex justify-end gap-1">
+                      {/* View */}
+                      <Link href={`/dashboard/manage-tickets/${ticket._id}`}>
+                        <button
+                          type="button"
+                          aria-label="View ticket"
+                          className="flex h-9 w-9 shrink-0 items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white px-1.5 text-xs font-semibold text-slate-600 shadow-sm transition-all duration-200 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-600 active:scale-95 xl:w-auto xl:px-1.5 dark:border-slate-700 dark:bg-slate-900! dark:text-slate-300 dark:hover:border-sky-500/30 dark:hover:bg-sky-500/10 dark:hover:text-sky-400"
+                          title="View ticket"
+                        >
+                          <Eye className="h-4 w-4" />
+                          <span className="hidden xl:inline">View</span>
+                        </button>
+                      </Link>
+
+                      {/* Approve / Reject old */}
+                      {/* {ticket.status === "pending" && (
                           <>
                             <button
                               type="button"
@@ -633,49 +616,50 @@ export default function ManageTickets() {
                           </>
                         )} */}
 
-                        {/* Approve / Reject Buttons */}
-                        {ticket.status === "pending" && (
-                          <>
-                            <button
-                              type="button"
-                              disabled={
-                                confirmModal.loading &&
-                                confirmModal.ticketId === ticket._id
-                              }
-                              onClick={() =>
-                                openConfirmModal(ticket._id, "approved")
-                              }
-                              className="flex h-9 items-center gap-1.5 rounded-lg bg-emerald-50 px-3 text-xs font-semibold text-emerald-600 transition-all duration-200 hover:bg-emerald-100 hover:shadow-sm active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20"
-                              title="Approve ticket"
-                            >
-                              <Check className="h-4 w-4" />
-                              <span>Approve</span>
-                            </button>
+                      {/* Approve / Reject Buttons */}
+                      {ticket.status === "pending" && (
+                        <>
+                          <button
+                            type="button"
+                            disabled={
+                              confirmModal.loading &&
+                              confirmModal.ticketId === ticket._id
+                            }
+                            onClick={() =>
+                              openConfirmModal(ticket._id, "approved")
+                            }
+                            aria-label="Approve ticket"
+                            className="flex h-9 w-9 shrink-0 items-center justify-center gap-1 rounded-lg bg-emerald-50 px-1.5 text-xs font-semibold text-emerald-600 transition-all duration-200 hover:bg-emerald-100 hover:shadow-sm active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 xl:w-auto dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20"
+                            title="Approve ticket"
+                          >
+                            <Check className="h-4 w-4" />
+                            <span className="hidden xl:inline">Approve</span>
+                          </button>
 
-                            <button
-                              type="button"
-                              disabled={
-                                confirmModal.loading &&
-                                confirmModal.ticketId === ticket._id
-                              }
-                              onClick={() =>
-                                openConfirmModal(ticket._id, "rejected")
-                              }
-                              className="flex h-9 items-center gap-1.5 rounded-lg bg-red-50 px-3 text-xs font-semibold text-red-500 transition-all duration-200 hover:bg-red-100 hover:shadow-sm active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
-                              title="Reject ticket"
-                            >
-                              <X className="h-4 w-4" />
-                              <span>Reject</span>
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                          <button
+                            type="button"
+                            disabled={
+                              confirmModal.loading &&
+                              confirmModal.ticketId === ticket._id
+                            }
+                            onClick={() =>
+                              openConfirmModal(ticket._id, "rejected")
+                            }
+                            aria-label="Reject ticket"
+                            className="flex h-9 w-9 shrink-0 items-center justify-center gap-1 rounded-lg bg-red-50 px-1.5 text-xs font-semibold text-red-500 transition-all duration-200 hover:bg-red-100 hover:shadow-sm active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 xl:w-auto dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
+                            title="Reject ticket"
+                          >
+                            <X className="h-4 w-4" />
+                            <span className="hidden xl:inline">Reject</span>
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
@@ -683,8 +667,11 @@ export default function ManageTickets() {
         <div className="mt-5">
           <p className="mb-3 text-center text-xs text-slate-500 dark:text-slate-400 sm:text-left">
             Showing {firstVisibleIndex + 1}–
-            {Math.min(firstVisibleIndex + pageTickets.length, filteredTickets.length)} of{" "}
-            {filteredTickets.length} tickets
+            {Math.min(
+              firstVisibleIndex + pageTickets.length,
+              filteredTickets.length,
+            )}{" "}
+            of {filteredTickets.length} tickets
           </p>
           <TicketPagination
             currentPage={activePage}

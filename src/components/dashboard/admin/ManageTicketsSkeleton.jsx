@@ -70,58 +70,64 @@ export default function ManageTicketsSkeleton() {
 
       {/* Desktop and tablet table, matching the live table's scroll container. */}
       <div className="hidden min-w-0 overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 md:block">
-        <div className="max-w-full overflow-x-auto">
-          <table className="w-full min-w-[950px] text-left">
-            <thead className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950">
-              <tr>
-                {[
-                  ["Ticket", "w-20"],
-                  ["Route", "w-14"],
-                  ["Vendor", "w-16"],
-                  ["Price", "w-12"],
-                  ["Status", "w-14"],
-                  ["Actions", "ml-auto w-16"],
-                ].map(([label, width]) => (
-                  <th
-                    key={label}
-                    className={`px-5 py-4 ${label === "Actions" ? "text-right" : ""}`}
-                  >
-                    <Skeleton className={`h-3 ${width}`} />
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-              {Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => (
-                <tr key={index}>
-                  <td className="px-5 py-5">
-                    <Skeleton className="h-4 w-40" />
-                    <Skeleton className="mt-2 h-3 w-20" />
-                  </td>
-                  <td className="px-5 py-5">
-                    <Skeleton className="h-4 w-40" />
-                  </td>
-                  <td className="px-5 py-5">
-                    <Skeleton className="h-4 w-44" />
-                  </td>
-                  <td className="px-5 py-5">
-                    <Skeleton className="h-4 w-16" />
-                  </td>
-                  <td className="px-5 py-5">
-                    <Skeleton className="h-6 w-20 rounded-full" />
-                  </td>
-                  <td className="px-5 py-5">
-                    <div className="flex min-w-max justify-end gap-2">
-                      <Skeleton className="h-9 w-[72px] rounded-lg" />
-                      <Skeleton className="h-9 w-[90px] rounded-lg" />
-                      <Skeleton className="h-9 w-[80px] rounded-lg" />
-                    </div>
-                  </td>
-                </tr>
+        <table className="w-full table-fixed text-left">
+          <colgroup>
+            <col style={{ width: "18%" }} />
+            <col style={{ width: "15%" }} />
+            <col style={{ width: "19%" }} />
+            <col style={{ width: "10%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "26%" }} />
+          </colgroup>
+          <thead className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950">
+            <tr>
+              {[
+                ["Ticket", "w-12"],
+                ["Route", "w-10"],
+                ["Vendor", "w-12"],
+                ["Price", "w-8"],
+                ["Status", "w-10"],
+                ["Actions", "ml-auto w-12"],
+              ].map(([label, width]) => (
+                <th
+                  key={label}
+                  className={`px-2 py-4 ${label === "Actions" ? "text-right" : ""}`}
+                >
+                  <Skeleton className={`h-3 ${width}`} />
+                </th>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+            {Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => (
+              <tr key={index}>
+                <td className="px-2 py-4">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="mt-2 h-3 w-20" />
+                </td>
+                <td className="px-2 py-4">
+                  <Skeleton className="h-4 w-3/4" />
+                </td>
+                <td className="px-2 py-4">
+                  <Skeleton className="h-4 w-5/6" />
+                </td>
+                <td className="px-2 py-4">
+                  <Skeleton className="h-4 w-12" />
+                </td>
+                <td className="px-2 py-4">
+                  <Skeleton className="h-6 w-16 rounded-full" />
+                </td>
+                <td className="px-2 py-4">
+                  <div className="flex justify-end gap-1">
+                    <Skeleton className="h-9 w-9 shrink-0 rounded-lg xl:w-14" />
+                    <Skeleton className="h-9 w-9 shrink-0 rounded-lg xl:w-20" />
+                    <Skeleton className="h-9 w-9 shrink-0 rounded-lg xl:w-16" />
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       {/* Results count and pagination */}

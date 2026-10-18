@@ -113,8 +113,8 @@ export default function ManageTicketsSkeleton() {
                   <td className="px-5 py-5">
                     <div className="flex min-w-max justify-end gap-2">
                       <Skeleton className="h-9 w-[72px] rounded-lg" />
-                      <Skeleton className="h-9 w-[100px] rounded-lg" />
-                      <Skeleton className="h-9 w-[92px] rounded-lg" />
+                      <Skeleton className="h-9 w-[90px] rounded-lg" />
+                      <Skeleton className="h-9 w-[80px] rounded-lg" />
                     </div>
                   </td>
                 </tr>

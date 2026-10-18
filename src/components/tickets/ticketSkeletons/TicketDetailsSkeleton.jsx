@@ -6,9 +6,13 @@ function Skeleton({ className = "" }) {
   );
 }
 
-export default function TicketDetailsSkeleton() {
+export default function TicketDetailsSkeleton({ managementView = false }) {
+  const backgroundClass = managementView
+    ? "bg-slate-50! dark:bg-slate-950!"
+    : "bg-slate-50/70 dark:bg-slate-950";
+
   return (
-    <div className="min-h-screen bg-slate-50/70 dark:bg-slate-950">
+    <div className={`min-h-screen ${backgroundClass}`}>
       <section className="border-b border-slate-200 bg-white dark:border-slate-800! dark:!bg-slate-950">
         <div className="mx-auto flex w-full max-w-[1400px] justify-center px-5 py-5 sm:px-8 lg:px-8">
           <Skeleton className="h-11 w-full rounded-xl" />

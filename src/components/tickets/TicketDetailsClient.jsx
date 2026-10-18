@@ -7,6 +7,14 @@ const TicketDetails = dynamic(() => import("./TicketDetails"), {
   loading: () => <TicketDetailsSkeleton />,
 });
 
+const ManagementTicketDetails = dynamic(() => import("./TicketDetails"), {
+  loading: () => <TicketDetailsSkeleton managementView />,
+});
+
 export default function TicketDetailsClient(props) {
-  return <TicketDetails {...props} />;
+  const DetailsComponent = props.isManagementView
+    ? ManagementTicketDetails
+    : TicketDetails;
+
+  return <DetailsComponent {...props} />;
 }

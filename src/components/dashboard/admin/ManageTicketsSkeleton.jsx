@@ -69,7 +69,7 @@ export default function ManageTicketsSkeleton() {
       </div>
 
       {/* Desktop and tablet table, matching the live table's scroll container. */}
-      <div className="hidden min-w-0 overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 md:block">
+      <div className="hidden min-w-0 overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-800! dark:bg-slate-900! md:block">
         <table className="w-full table-fixed text-left">
           <colgroup>
             <col style={{ width: "18%" }} />
@@ -79,7 +79,7 @@ export default function ManageTicketsSkeleton() {
             <col style={{ width: "12%" }} />
             <col style={{ width: "26%" }} />
           </colgroup>
-          <thead className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950">
+          <thead className="border-b border-slate-200 bg-slate-50 dark:!border-slate-800 dark:bg-slate-950!">
             <tr>
               {[
                 ["Ticket", "w-12"],

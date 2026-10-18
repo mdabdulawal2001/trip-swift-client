@@ -17,6 +17,7 @@ import { loadPdfExportTools } from "@/lib/pdf-export-tools";
 import ConfirmModal from "../../shared/ConfirmModal";
 import Swal from "sweetalert2";
 import ManageTicketsSkeleton from "./ManageTicketsSkeleton";
+import { scrollDashboardListToTop } from "../shared/listHelpers";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -291,20 +292,12 @@ export default function ManageTickets() {
     }
   };
 
-  useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: "auto",
-    });
-  }, []);
-
   if (loading) {
     return <ManageTicketsSkeleton />;
   }
 
   return (
-    <div className="mx-auto max-w-[1400px]">
+    <div id="dashboard-list-page" className="mx-auto max-w-[1400px] scroll-mt-6">
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -696,7 +689,10 @@ export default function ManageTickets() {
           <TicketPagination
             currentPage={activePage}
             totalPages={totalPages}
-            onPageChange={setCurrentPage}
+            onPageChange={(page) => {
+              setCurrentPage(page);
+              scrollDashboardListToTop();
+            }}
           />
         </div>
       )}

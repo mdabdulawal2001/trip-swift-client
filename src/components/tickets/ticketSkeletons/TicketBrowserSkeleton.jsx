@@ -2,7 +2,7 @@ import TicketGridSkeleton from "./TicketGridSkeleton";
 
 export default function TicketBrowserSkeleton() {
   return (
-    <section className="mx-auto w-full max-w-[1400px] px-4 py-10 sm:px-6 lg:px-8">
+    <section className="mx-auto min-h-[calc(100vh-5rem)] w-full max-w-[1400px] px-4 py-10 sm:px-6 lg:px-8">
       {/* Search / Filter / Sort Skeleton */}
       <div
         className="

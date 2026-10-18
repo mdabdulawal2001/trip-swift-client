@@ -1,4 +1,3 @@
-import { DashboardPaginationSkeleton } from "../shared/DashboardSkeleton";
 const ITEMS_PER_PAGE = 10;
 
 export default function ManageTicketsSkeleton() {
@@ -155,7 +154,19 @@ export default function ManageTicketsSkeleton() {
         </div>
       </div>
 
-      <DashboardPaginationSkeleton />
+      <div className="mt-5">
+        <div className="mb-3 h-3 w-44 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-slate-200 pt-6 dark:border-slate-800 sm:flex-row">
+          <div className="h-3 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+          <div className="flex items-center gap-1.5">
+            <div className="h-10 w-10 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div key={index} className="h-10 w-10 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+            ))}
+            <div className="h-10 w-10 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

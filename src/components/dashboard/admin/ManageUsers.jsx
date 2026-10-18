@@ -1194,7 +1194,7 @@ export default function ManageUsers() {
             </div>
               <div className="mt-5">
                 <p className="mb-3 text-center text-xs text-slate-500 dark:text-slate-400 sm:text-left">
-                  Showing {firstVisibleIndex + 1}â€“
+                  Showing {firstVisibleIndex + 1}–
                   {Math.min(firstVisibleIndex + pageUsers.length, filteredUsers.length)} of{" "}
                   {filteredUsers.length} matching users
                 </p>
